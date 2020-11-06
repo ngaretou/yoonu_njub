@@ -1,0 +1,195 @@
+{
+  "@@last_modified": "2020-08-07T19:54:38.584472",
+  "settingsTitle": "Kërale yi",
+  "@settingsTitle": {
+    "description": "Settings screen title",
+    "type": "text",
+    "placeholders": {}
+  },
+  "settingsTheme": "Melow wërale bi",
+  "@settingsTheme": {
+    "description": "settings: Theme section",
+    "type": "text",
+    "placeholders": {}
+  },
+  "settingsCardBackground": "Melow kàrt yi",
+  "@settingsCardBackground": {
+    "description": "settings: CardBackground section",
+    "type": "text",
+    "placeholders": {}
+  },
+  "settingsLanguage": "Làkku tegtal yi",
+  "@settingsLanguage": {
+    "description": "settingsLanguage",
+    "type": "text",
+    "placeholders": {}
+  },
+  "settingsAbout": "Ci mbirum appli bi",
+  "@settingsAbout": {
+    "description": "settingsAbout",
+    "type": "text",
+    "placeholders": {}
+  },
+  "settingsCardDirection": "Kàrt yi man nañu jëm: ",
+  "@settingsCardDirection": {
+    "description": "settingsCardDirection",
+    "type": "text",
+    "placeholders": {}
+  },
+  "settingsLTR": "Ndeyjoor",
+  "@settingsLTR": {
+    "description": "settingsLTR",
+    "type": "text",
+    "placeholders": {}
+  },
+  "settingsRTL": "Càmmoñ",
+  "@settingsRTL": {
+    "description": "settingsRTL",
+    "type": "text",
+    "placeholders": {}
+  },
+  "settingsVerseDisplay": "Aaya yi nga bëgga gis: ",
+  "@settingsVerseDisplay": {
+    "description": "settingsVerseDisplay",
+    "type": "text",
+    "placeholders": {}
+  },
+  "settingsVerseinWolofal": "Aaya yi ci Wolofal",
+  "@settingsVerseinWolofal": {
+    "description": "settingsVerseinWolofal",
+    "type": "text",
+    "placeholders": {}
+  },
+  "settingsVerseinWolof": "Aaya yi ci Wolof",
+  "@settingsVerseinWolof": {
+    "description": "settingsVerseinWolof",
+    "type": "text",
+    "placeholders": {}
+  },
+  "settingsShowFavs": "Woneel tur: ",
+  "@settingsShowFavs": {
+    "description": "settingsShowFavs",
+    "type": "text",
+    "placeholders": {}
+  },
+  "settingsFavorites": "Yi ma tànn",
+  "@settingsFavorites": {
+    "description": "settingsFavorites",
+    "type": "text",
+    "placeholders": {}
+  },
+  "settingsTextAll": "Yépp",
+  "@settingsTextAll": {
+    "description": "settingsTextAll",
+    "type": "text",
+    "placeholders": {}
+  },
+  "settingsViewIntro": "Xoolat ubbite gi",
+  "@settingsViewIntro": {
+    "description": "settingsViewIntro",
+    "type": "text",
+    "placeholders": {}
+  },
+  "sharingTitle": "Séddoo ab aaya",
+  "@sharingTitle": {
+    "description": "sharingTitle",
+    "type": "text",
+    "placeholders": {}
+  },
+  "sharingMsg": "Ci ban mbindin nga bëgga séddoo?",
+  "@sharingMsg": {
+    "description": "sharingMsg",
+    "type": "text",
+    "placeholders": {}
+  },
+  "cancel": "Fomm",
+  "@cancel": {
+    "description": "cancel",
+    "type": "text",
+    "placeholders": {}
+  },
+  "clickHereToReadMore": "Bësal fii ngir yokk sa njàng: ",
+  "@clickHereToReadMore": {
+    "description": "clickHereToReadMore",
+    "type": "text",
+    "placeholders": {}
+  },
+  "introPage1": "introPage1 WO",
+  "@introPage1": {
+    "description": "introPage1",
+    "type": "text",
+    "placeholders": {}
+  },
+  "introPage2": "introPage2 WO",
+  "@introPage2": {
+    "description": "introPage2",
+    "type": "text",
+    "placeholders": {}
+  },
+  "introPage3": "introPage3 WO",
+  "@introPage3": {
+    "description": "introPage3",
+    "type": "text",
+    "placeholders": {}
+  },
+  "favsNoneYet": "Tànnaguloo benn tur",
+  "@favsNoneYet": {
+    "description": "favsNoneYet",
+    "type": "text",
+    "placeholders": {}
+  },
+  "favsNoneYetInstructions": "Bëssal ci xol ba ci tuur yi nga gën bëgg.",
+  "@favsNoneYetInstructions": {
+    "description": "favsNoneYetInstructions",
+    "type": "text",
+    "placeholders": {}
+  },
+  "settingsOK": "OK",
+  "@settingsOK": {
+    "description": "OK",
+    "type": "text",
+    "placeholders": {}
+  },
+  "addHolidays": "Arminaat bi ci sa\nAgenda Google",
+  "@addHolidays": {
+    "description": "Add Holidays to Google Calendar",
+    "type": "text",
+    "placeholders": {}
+  },
+  "settingsContactUs": "Jokkook nun ci: ",
+  "@settingsContactUs": {
+    "description": "settingsContactUs",
+    "type": "text",
+    "placeholders": {}
+  },
+  "settingsContactUsEmail": "Email",
+  "@settingsContactUsEmail": {
+    "description": "settingsContactUsEmail",
+    "type": "text",
+    "placeholders": {}
+  },
+  "contactWhatsApp": "WhatsApp",
+  "@contactWhatsApp": {
+    "description": "Contact us on WhatsApp",
+    "type": "text",
+    "placeholders": {}
+  },
+  "contactFBMessenger": "Facebook Messenger",
+  "@contactFBMessenger": {
+    "description": "Contact us on Facebook Messenger",
+    "type": "text",
+    "placeholders": {}
+  },
+  "shareAppLink": "Séddoo appli bi",
+  "@shareAppLink": {
+    "description": "Share link to app on app store",
+    "type": "text",
+    "placeholders": {}
+  },
+  "moreApps": "Yeneen appli",
+  "@moreApps": {
+    "description": "More apps",
+    "type": "text",
+    "placeholders": {}
+  }
+}
