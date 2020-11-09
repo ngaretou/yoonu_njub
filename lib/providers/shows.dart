@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:connectivity/connectivity.dart';
 // import 'dart:math';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 class Show {
   final String id;
@@ -66,15 +69,19 @@ class Shows with ChangeNotifier {
 
     _shows = loadedShowData;
 
-    getLastShowViewed();
+    var temp = await getLastShowViewed();
+    temp == null ? temp = 0 : _lastShowViewed = temp;
 
     notifyListeners();
   }
 
   Future<void> saveLastShowViewed(lastShowViewed) async {
+    _lastShowViewed = lastShowViewed;
     final prefs = await SharedPreferences.getInstance();
     final jsonData = json.encode(lastShowViewed.toString());
     prefs.setString('lastShowViewed', jsonData);
+    print('lastShowViewed');
+    print(lastShowViewed);
   }
 
   Future<int> getLastShowViewed() async {
@@ -86,5 +93,66 @@ class Shows with ChangeNotifier {
       int _lastShowViewed = int.parse(storedValue);
       return _lastShowViewed;
     }
+  }
+
+  //Code accessible from multiple points
+  Future<bool> get connectivityCheck async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  snackbarMessageNoInternet(BuildContext context) {
+    Scaffold.of(context).hideCurrentSnackBar();
+    Scaffold.of(context).showSnackBar(SnackBar(
+      content: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.signal_wifi_off, size: 36),
+        ],
+      ),
+      // action: SnackBarAction(
+      //     label: "OK",
+      //     onPressed: () {
+      //       Scaffold.of(context).hideCurrentSnackBar();
+      //     }),
+    ));
+  }
+
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.path;
+  }
+
+  Future<bool> localAudioFileCheck(String filename) async {
+    try {
+      final path = await _localPath;
+
+      final file = File('$path/$filename');
+      if (await file.exists()) {
+        print('Found the file');
+
+        return true;
+      } else {
+        print('The file seems to not be there');
+
+        return false;
+      }
+    } catch (e) {
+      print('had an error checking if the file was there or not');
+      return false;
+    }
+  }
+
+  // ignore: unused_element
+  Future<bool> waitForTesting() async {
+    print('waiting');
+    await Future<String>.delayed(const Duration(seconds: 5));
+    print('done waiting');
+    return true;
   }
 }

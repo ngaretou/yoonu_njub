@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../locale/app_localization.dart';
 
 class AboutScreen extends StatelessWidget {
   static const routeName = 'about-screen';
@@ -23,12 +24,13 @@ class AboutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     TextStyle linkTheme = Theme.of(context)
         .textTheme
-        .bodyText2
+        .subtitle1
         .copyWith(decoration: TextDecoration.underline);
-    TextStyle defaultStyle = Theme.of(context).textTheme.bodyText2;
+    TextStyle defaultStyle = Theme.of(context).textTheme.subtitle1;
     return Scaffold(
         appBar: AppBar(
-          title: Text('About', style: Theme.of(context).textTheme.headline6),
+          title: Text(AppLocalization.of(context).settingsAbout,
+              style: Theme.of(context).textTheme.headline6),
         ),
         body: Padding(
           padding: EdgeInsets.only(top: 20, left: 20, right: 20),
@@ -36,7 +38,7 @@ class AboutScreen extends StatelessWidget {
             RichText(
                 text: TextSpan(style: defaultStyle, children: [
               TextSpan(
-                  text: '99 © 2020 SIM.',
+                  text: 'Yoonu Njub',
                   style: Theme.of(context).textTheme.headline6),
             ])),
             Divider(
@@ -45,18 +47,72 @@ class AboutScreen extends StatelessWidget {
             RichText(
                 text: TextSpan(style: defaultStyle, children: [
               TextSpan(
-                  text: 'Kàddug Yàlla gi',
+                  text: 'Yoonu Njub',
                   style: TextStyle(fontStyle: FontStyle.italic)),
               TextSpan(
                   text:
-                      ' © 2010, 2020 Les Assemblées Evangéliques du Senegal et La Mission Baptiste du Sénégal.\n\n'),
-              urlGo(
-                  'CC-BY-NC-ND license\n\n',
-                  'https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode',
-                  linkTheme),
-              urlGo('Kàddug Yàlla gi license\n\n', 'http://sng.al/copyright',
+                      ' © 1998 Paul Bramsen.\n\nWolof Scriptures quoted by permission.\n\nThey consist of:\n\nThe Old Testament selections published under the name "Mucc gi Yàlla waajal" Copyright © 1999 ;\n\n\The full text of Genesis published under the name "Njalbéen ga: xaaj bi jëkk ci Tawreetu Musaa" Copyright © 2003;\n\nThe complete New Testament, published under the name "Kàddug Dëgg Gi" Copyright © 1987;\n\nThe complete New Testament, revised edition, published under the name "Téereb Injiil di Kàddug Yàlla" Copyright © 2004.\n\nThe copyright of the Wolof scriptures is held by:\n\nLes Assemblées Evangéliques du Sénégal and La Mission Baptiste du Sénégal.\n\nAll rights reserved. Used by permission.\n\n'),
+              urlGo('YoonuNjub.org\n\n', 'http://http://yoonunjub.org/',
                   linkTheme),
               urlGo('Wolof Bible online', 'http://biblewolof.com', linkTheme),
+            ])),
+            Divider(
+              thickness: 3,
+            ),
+            RichText(
+                text: TextSpan(style: defaultStyle, children: [
+              TextSpan(
+                  text: 'Thanks:\n\n',
+                  style: Theme.of(context).textTheme.headline6),
+              TextSpan(
+                  text: 'Code:\n\n',
+                  style: Theme.of(context).textTheme.subtitle2),
+              urlGo('Thanks to Oliver Gomes for several great ideas.\n\n',
+                  'https://github.com/oliver-gomes/', linkTheme),
+              TextSpan(
+                  text: 'Photos:\n\n',
+                  style: Theme.of(context).textTheme.subtitle2),
+              urlGo('Adrien Olichon\n\n', 'https://unsplash.com/@adrienolichon',
+                  linkTheme),
+              urlGo(
+                  'Mike Ko\n\n', 'https://unsplash.com/@kocreated', linkTheme),
+              urlGo('Augustine Wong\n\n', 'https://unsplash.com/@augustinewong',
+                  linkTheme),
+              urlGo('Annie Spratt\n\n', 'https://unsplash.com/@anniespratt',
+                  linkTheme),
+              urlGo('Chiranjeeb Mitra\n\n', 'https://unsplash.com/@chiro_007',
+                  linkTheme),
+              urlGo('Jeff Attaway\n\n',
+                  'https://www.flickr.com/photos/attawayjl/', linkTheme),
+              urlGo('Frank McKenna\n\n', 'https://unsplash.com/@frankiefoto',
+                  linkTheme),
+            ])),
+            Divider(
+              thickness: 3,
+            ),
+            RichText(
+                text: TextSpan(style: defaultStyle, children: [
+              TextSpan(
+                  text: 'Licenses:\n\n',
+                  style: Theme.of(context).textTheme.subtitle2),
+              TextSpan(text: 'MIT Licensed software included:\n\n'),
+              urlGo('provider\nCopyright © 2019 Remi Rousselet\n\n',
+                  'https://github.com/rrousselGit/provider', linkTheme),
+              urlGo(
+                  'just_audio\nCopyright (c) 2019-2020 Ryan Heise and the project contributors.\n\n',
+                  'https://github.com/ryanheise/just_audio',
+                  linkTheme),
+              urlGo(
+                  'audio_session\nCopyright (c) 2020 Ryan Heise and the project contributors.\n\n',
+                  'https://github.com/ryanheise/audio_session\n\n',
+                  linkTheme),
+              urlGo(
+                  'font_awesome_flutter\nCopyright (c) 2017 Brian Egan\n\n',
+                  'https://github.com/fluttercommunity/font_awesome_flutter\n\n',
+                  linkTheme),
+              TextSpan(
+                  text:
+                      'MIT License:\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n'),
             ])),
             Divider(
               thickness: 3,
@@ -65,62 +121,34 @@ class AboutScreen extends StatelessWidget {
               text: TextSpan(
                 style: defaultStyle,
                 children: [
-                  TextSpan(
-                      text: 'Thanks:\n\n',
-                      style: Theme.of(context).textTheme.headline6),
-                  TextSpan(
-                      text: 'Code:\n\n',
-                      style: Theme.of(context).textTheme.subtitle2),
-                  urlGo(
-                      'Thanks to Damion Davy for the onboarding code.\n\n',
-                      'https://github.com/drdDavi/onboarding_flutter',
-                      linkTheme),
-                  urlGo('Thanks to Oliver Gomes for several great ideas.\n\n',
-                      'https://github.com/oliver-gomes/', linkTheme),
-                  TextSpan(
-                      text: 'Photos:\n\n',
-                      style: Theme.of(context).textTheme.subtitle2),
-                  urlGo('Adrien Olichon\n\n',
-                      'https://unsplash.com/@adrienolichon', linkTheme),
-                  urlGo('Mike Ko\n\n', 'https://unsplash.com/@kocreated',
-                      linkTheme),
-                  urlGo('Augustine Wong\n\n',
-                      'https://unsplash.com/@augustinewong', linkTheme),
-                  urlGo('Annie Spratt\n\n', 'https://unsplash.com/@anniespratt',
-                      linkTheme),
-                  urlGo('Chiranjeeb Mitra\n\n',
-                      'https://unsplash.com/@chiro_007', linkTheme),
-                  urlGo('Jeff Attaway\n\n',
-                      'https://www.flickr.com/photos/attawayjl/', linkTheme),
-                  urlGo('Frank McKenna\n\n',
-                      'https://unsplash.com/@frankiefoto', linkTheme),
-                  TextSpan(
-                      text: 'Licenses:\n\n',
-                      style: Theme.of(context).textTheme.subtitle2),
-                  TextSpan(text: 'MIT Licensed software included:\n\n'),
-                  urlGo('audioplayers, Copyright © 2017 Luan Nico,\n\n',
-                      'https://github.com/luanpotter/audioplayers', linkTheme),
-                  urlGo('provider, Copyright © 2019 Remi Rousselet\n\n',
-                      'https://github.com/rrousselGit/provider', linkTheme),
-                  TextSpan(
-                      text:
-                          'MIT License:\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n'),
                   TextSpan(text: 'BSD Licensed software included:\n\n'),
                   urlGo(
-                      'shared_preferences, Copyright 2017 The Chromium Authors. All rights reserved.\n\n',
+                      'shared_preferences\nCopyright 2017 The Chromium Authors. All rights reserved.\n\n',
                       'https://github.com/flutter/plugins/tree/master/packages/shared_preferences',
                       linkTheme),
                   urlGo(
-                      'url_launcher, Copyright 2017 The Chromium Authors. All rights reserved.\n\n',
+                      'url_launcher\nCopyright 2017 The Chromium Authors. All rights reserved.\n\n',
                       'https://github.com/flutter/plugins/blob/master/packages/url_launcher',
                       linkTheme),
                   urlGo(
-                      'flutter, Copyright 2014, 2017, the Flutter project authors. All rights reserved.\n\n',
+                      'flutter\nCopyright 2014, 2017, the Flutter project authors. All rights reserved.\n\n',
                       'https://github.com/flutter/flutter/',
                       linkTheme),
                   urlGo(
-                      'share, Copyright 2014, 2017, the Flutter project authors. All rights reserved.\n\n',
+                      'share\nCopyright 2018 the Dart project authors, Inc. All rights reserved.\n\n',
                       'https://github.com/flutter/plugins/',
+                      linkTheme),
+                  urlGo(
+                      'scrollable_positioned_list\nCopyright 2014, 2017, the Flutter project authors. All rights reserved.\n\n',
+                      'https://github.com/google/flutter.widgets/',
+                      linkTheme),
+                  urlGo(
+                      'connectivity\nCopyright 2017 The Chromium Authors. All rights reserved\n\n',
+                      'https://github.com/flutter/plugins\n\n',
+                      linkTheme),
+                  urlGo(
+                      'path_provider\Copyright 2017, the Flutter project authors. All rights reserved.\n\n',
+                      'https://github.com/flutter/plugins\n\n',
                       linkTheme),
                   TextSpan(
                       text:
@@ -128,10 +156,10 @@ class AboutScreen extends StatelessWidget {
                   TextSpan(
                       text: 'License:\n\n',
                       style: Theme.of(context).textTheme.headline6),
-                  TextSpan(text: '99 © 2020 SIM.\n\n'),
+                  TextSpan(text: 'Yoonu Njub app code © 2020 SIM.\n\n'),
                   TextSpan(
                       text:
-                          'Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n'),
+                          'MIT License:\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n'),
                 ],
               ),
             ),

@@ -56,12 +56,12 @@ class MainDrawer extends StatelessWidget {
                     child: Row(
                       children: [
                         FaIcon(
-                          FontAwesomeIcons.calendarAlt,
+                          FontAwesomeIcons.road,
                           size: 27,
                           color: Theme.of(context).appBarTheme.iconTheme.color,
                         ),
                         SizedBox(width: 25),
-                        Text("Arminaatu wolof",
+                        Text("Yoonu Njub",
                             style: Theme.of(context)
                                 .appBarTheme
                                 .textTheme
@@ -88,26 +88,7 @@ class MainDrawer extends StatelessWidget {
             Divider(
               thickness: 1,
             ),
-            drawerTitle(
-              // 'Add holidays to\nGoogle Calendar TT',
-              AppLocalization.of(context).addHolidays,
-              Icons.calendar_today,
-              () async {
-                const url =
-                    'https://calendar.google.com/calendar/u/0/r?cid=NWlzbHZmZXVsczY3MG05Y2t2cG9wNDBhbzRAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ';
-                // 'https://calendar.google.com/calendar?cid=NWlzbHZmZXVsczY3MG05Y2t2cG9wNDBhbzRAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ';
 
-                if (await canLaunch(url)) {
-                  await launch(url);
-                } else {
-                  throw 'Could not launch $url';
-                }
-              },
-            ),
-
-            Divider(
-              thickness: 1,
-            ),
             drawerTitle(
               AppLocalization.of(context).shareAppLink,
               Icons.share,

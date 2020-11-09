@@ -33,5 +33,40 @@
         "showNameAS": "لُ تَخ يࣵلَّ سࣵڪّ نِتْ؟",
         "urlSnip": "Part_1",
         "filename": "005_Nit!.mp3"
+    },
+    {
+        "id": "6",
+        "showNameRS": "Yàlla wax na!",
+        "showNameAS": "يࣵلَّ وَخْ نَ!",
+        "urlSnip": "Part_1",
+        "filename": "001_Yalla_wax_na.mp3"
+    },
+    {
+        "id": "7",
+        "showNameRS": "Kan mooy Yàlla?",
+        "showNameAS": "ڪَنْ مࣷويْ يࣵلَّ؟",
+        "urlSnip": "Part_1",
+        "filename": "002_Yalla!.mp3"
+    },
+    {
+        "id": "8",
+        "showNameRS": "Seytaane ak malaaka yi",
+        "showNameAS": "سࣹيْتَانࣹ اَڪْ مَلاَڪَ يِ",
+        "urlSnip": "Part_1",
+        "filename": "003_Seytaane!.mp3"
+    },
+    {
+        "id": "9",
+        "showNameRS": "Ni Yàlla sàkkewoon àddina si",
+        "showNameAS": "نِ يࣵلَّ سࣵڪّࣹوࣷونْ اࣵدِّنَ سِ",
+        "urlSnip": "Part_1",
+        "filename": "004_Addina_si.mp3"
+    },
+    {
+        "id": "10",
+        "showNameRS": "Lu tax Yàlla sàkk nit?",
+        "showNameAS": "لُ تَخ يࣵلَّ سࣵڪّ نِتْ؟",
+        "urlSnip": "Part_1",
+        "filename": "005_Nit!.mp3"
     }
 ]

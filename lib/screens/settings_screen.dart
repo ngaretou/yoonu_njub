@@ -214,7 +214,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   // scriptPickerTitle(),
                   // asScriptPicker(),
                   // rsScriptPicker(),
-                  Divider(),
+                  // Divider(),
                   settingRow(languageTitle(), languageSetting()),
                 ],
               ),
@@ -227,7 +227,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // scriptPickerTitle(),
                 // asScriptPicker(),
                 // rsScriptPicker(),
-                Divider(),
+
                 settingColumn(languageTitle(), languageSetting()),
               ],
             ),

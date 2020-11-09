@@ -34,6 +34,7 @@ ThemeData darkTheme = ThemeData.dark().copyWith(
 ThemeData lightTheme = ThemeData.light().copyWith(
     primaryColor: Color(0xfff5f5f5),
     accentColor: Color(0xff40bf7a),
+    cardColor: Colors.grey[200],
     scaffoldBackgroundColor: Colors.white,
     floatingActionButtonTheme: FloatingActionButtonThemeData(
         // foregroundColor: Colors.white, backgroundColor: Colors.black54),
@@ -121,11 +122,11 @@ class ThemeModel extends ChangeNotifier {
   // }
 
   Future<void> initialSetupAsync(context) async {
-    await Provider.of<Shows>(context, listen: false).getData();
-    // await Provider.of<UserPrefs>(context, listen: false).setupCardPrefs();
-    await setupTheme();
-    await setupLang();
-    return;
+    Future.wait([
+      Provider.of<Shows>(context, listen: false).getData(),
+      setupTheme(),
+      setupLang()
+    ]);
   }
 
   Future<void> setupTheme() async {
