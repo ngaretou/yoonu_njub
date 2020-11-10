@@ -111,6 +111,11 @@ class ThemeModel extends ChangeNotifier {
   String userThemeName;
   ThemeData currentTheme;
   String userLang;
+  bool _downloadsApproved;
+
+  bool get downloadsApproved {
+    return _downloadsApproved;
+  }
 
 //Actually not doing that way anymore but leaving for reference
 //this is the constructor, it runs setup to initialize currentTheme
@@ -173,7 +178,43 @@ class ThemeModel extends ChangeNotifier {
           }
       }
     }
+
+    //initializing the ask to download setting
+    if (!prefs.containsKey('_downloadsApproved')) {
+      _downloadsApproved = false;
+      denyDownloading();
+    } else {
+      final temp = json.decode(prefs.getString('_downloadsApproved')) as String;
+
+      if (temp == 'true') {
+        _downloadsApproved = true;
+      } else {
+        _downloadsApproved = false;
+      }
+    }
+
     notifyListeners();
+  }
+
+  void approveDownloading() async {
+    _downloadsApproved = true;
+    //get prefs from disk
+    final prefs = await SharedPreferences.getInstance();
+
+    final tempJSONtrue = json.encode('true');
+    prefs.setString('_downloadsApproved', tempJSONtrue);
+    print('allow downloading');
+    // notifyListeners();
+  }
+
+  void denyDownloading() async {
+    _downloadsApproved = false;
+    //get prefs from disk
+    final prefs = await SharedPreferences.getInstance();
+
+    final tempJSONfalse = json.encode('false');
+    prefs.setString('_downloadsApproved', tempJSONfalse);
+    print('deny downloading');
   }
 
   void setDarkTheme() {

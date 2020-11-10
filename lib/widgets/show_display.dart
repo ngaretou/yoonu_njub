@@ -76,8 +76,7 @@ class _ShowDisplayState extends State<ShowDisplay> {
                   child: ScrollablePositionedList.builder(
                       itemScrollController: itemScrollController,
                       initialScrollIndex: initialScrollIndex,
-
-                      // physics: BouncingScrollPhysics(),
+                      physics: ClampingScrollPhysics(),
                       itemCount: shows.shows.length,
                       itemBuilder: (ctx, i) {
                         return Padding(

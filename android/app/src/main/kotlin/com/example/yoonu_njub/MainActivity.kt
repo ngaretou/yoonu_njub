@@ -1,4 +1,4 @@
-package com.example.yoonu_njub
+package org.yoonunjub.wol
 
 import io.flutter.embedding.android.FlutterActivity
 
