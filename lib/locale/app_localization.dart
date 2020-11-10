@@ -274,6 +274,30 @@ class AppLocalization {
       desc: 'More apps',
     );
   }
+
+  String get downloadTitle {
+    return Intl.message(
+      "Download audio",
+      name: 'downloadTitle',
+      desc: 'Download dialog title',
+    );
+  }
+
+  String get downloadMessage {
+    return Intl.message(
+      "Would you like to download ",
+      name: 'downloadMessage',
+      desc: 'Would you like to download...',
+    );
+  }
+
+  String get approveDownloads {
+    return Intl.message(
+      "Do not ask again, always download",
+      name: 'approveDownloads',
+      desc: 'Download automatically from now on',
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalization> {

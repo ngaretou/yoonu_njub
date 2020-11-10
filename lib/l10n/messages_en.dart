@@ -22,10 +22,13 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static _notInlinedMessages(_) => <String, Function> {
     "addHolidays" : MessageLookupByLibrary.simpleMessage("Add Holidays to\nGoogle Calendar"),
+    "approveDownloads" : MessageLookupByLibrary.simpleMessage("Do not ask again, always download."),
     "cancel" : MessageLookupByLibrary.simpleMessage("Cancel"),
     "clickHereToReadMore" : MessageLookupByLibrary.simpleMessage("Click here to read more"),
     "contactFBMessenger" : MessageLookupByLibrary.simpleMessage("Facebook Messenger"),
     "contactWhatsApp" : MessageLookupByLibrary.simpleMessage("WhatsApp"),
+    "downloadMessage" : MessageLookupByLibrary.simpleMessage("Would you like to download "),
+    "downloadTitle" : MessageLookupByLibrary.simpleMessage("Download audio"),
     "favsNoneYet" : MessageLookupByLibrary.simpleMessage("No favorites yet"),
     "favsNoneYetInstructions" : MessageLookupByLibrary.simpleMessage("Click the heart icon on your favorite names to add some."),
     "introPage1" : MessageLookupByLibrary.simpleMessage("introPage1"),

@@ -191,5 +191,23 @@
     "description": "More apps",
     "type": "text",
     "placeholders": {}
+  },  
+  "downloadTitle": "Télécharger",
+  "@downloadTitle": {
+    "description": "Download dialog title",
+    "type": "text",
+    "placeholders": {}
+  },
+  "downloadMessage": "Voulez-vous télécharger ",
+  "@downloadMessage": {
+    "description": "Would you like to download...",
+    "type": "text",
+    "placeholders": {}
+  },
+  "approveDownloads": "Ne plus demander, toujours télécharger.",
+  "@approveDownloads": {
+    "description": "Download automatically from now on",
+    "type": "text",
+    "placeholders": {}
   }
 }

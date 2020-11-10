@@ -1,5 +1,5 @@
 {
-  "@@last_modified": "2020-09-05T10:42:59.510898",
+  "@@last_modified": "2020-11-10T22:32:59.482615",
   "settingsTitle": "Settings",
   "@settingsTitle": {
     "description": "Settings screen title",
@@ -189,6 +189,24 @@
   "moreApps": "More apps",
   "@moreApps": {
     "description": "More apps",
+    "type": "text",
+    "placeholders": {}
+  },
+  "downloadTitle": "Download audio",
+  "@downloadTitle": {
+    "description": "Download dialog title",
+    "type": "text",
+    "placeholders": {}
+  },
+  "downloadMessage": "Would you like to download ",
+  "@downloadMessage": {
+    "description": "Would you like to download...",
+    "type": "text",
+    "placeholders": {}
+  },
+  "approveDownloads": "Do not ask again, always download",
+  "@approveDownloads": {
+    "description": "Download automatically from now on",
     "type": "text",
     "placeholders": {}
   }

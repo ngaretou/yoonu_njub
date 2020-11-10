@@ -22,10 +22,13 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static _notInlinedMessages(_) => <String, Function> {
     "addHolidays" : MessageLookupByLibrary.simpleMessage("Ajouter les fêtes à\nGoogle Agenda"),
+    "approveDownloads" : MessageLookupByLibrary.simpleMessage("Ne plus demander, toujours télécharger."),
     "cancel" : MessageLookupByLibrary.simpleMessage("Annuler"),
     "clickHereToReadMore" : MessageLookupByLibrary.simpleMessage("Cliquez ici pour en lire plus"),
     "contactFBMessenger" : MessageLookupByLibrary.simpleMessage("Facebook Messenger"),
     "contactWhatsApp" : MessageLookupByLibrary.simpleMessage("WhatsApp"),
+    "downloadMessage" : MessageLookupByLibrary.simpleMessage("Voulez-vous télécharger "),
+    "downloadTitle" : MessageLookupByLibrary.simpleMessage("Télécharger"),
     "favsNoneYet" : MessageLookupByLibrary.simpleMessage("Vous n\'avez pas encore choisi des favoris"),
     "favsNoneYetInstructions" : MessageLookupByLibrary.simpleMessage("Cliquez sur l\'icône du cœur pour ajouter quelques favoris"),
     "introPage1" : MessageLookupByLibrary.simpleMessage("introPage1 FR"),

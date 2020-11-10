@@ -191,5 +191,23 @@
     "description": "More apps",
     "type": "text",
     "placeholders": {}
+  },
+  "downloadTitle": "Download audio",
+  "@downloadTitle": {
+    "description": "Download dialog title",
+    "type": "text",
+    "placeholders": {}
+  },
+  "downloadMessage": "Would you like to download ",
+  "@downloadMessage": {
+    "description": "Would you like to download...",
+    "type": "text",
+    "placeholders": {}
+  },
+  "approveDownloads": "Do not ask again, always download.",
+  "@approveDownloads": {
+    "description": "Download automatically from now on",
+    "type": "text",
+    "placeholders": {}
   }
 }

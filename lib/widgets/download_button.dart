@@ -231,54 +231,56 @@ class _DownloadConfirmationState extends State<DownloadConfirmation> {
 
     return FutureBuilder(
       future: getDownloadSize(),
-      builder: (ctx, snapshot) =>
-          snapshot.connectionState == ConnectionState.waiting
-              ? Center(child: CircularProgressIndicator())
-              : AlertDialog(
-                  title: Text(
-                    'Download audio to your device?',
-                  ),
-                  content: Text(
-                    'Would you like to download ' + (snapshot.data + ' Mb?'),
-                  ),
-                  actions: [
-                    Column(
+      builder: (ctx, snapshot) => snapshot.connectionState ==
+              ConnectionState.waiting
+          ? Center(child: CircularProgressIndicator())
+          : AlertDialog(
+              title: Text(
+                AppLocalization.of(context).downloadTitle,
+              ),
+              content: Text(
+                AppLocalization.of(context).downloadMessage +
+                    (snapshot.data + ' Mb?'),
+              ),
+              actions: [
+                Column(
+                  children: [
+                    Container(
+                      width: 300,
+                      child: CheckboxListTile(
+                        title:
+                            Text(AppLocalization.of(context).approveDownloads),
+                        value: approved,
+                        onChanged: (response) {
+                          if (response) {
+                            pref.approveDownloading();
+                          } else {
+                            pref.denyDownloading();
+                          }
+                          setState(() {
+                            approved = response;
+                          });
+                        },
+                      ),
+                    ),
+                    Row(
                       children: [
-                        Container(
-                          width: 300,
-                          child: CheckboxListTile(
-                            title: Text('Do not ask again, always download'),
-                            value: approved,
-                            onChanged: (response) {
-                              if (response) {
-                                pref.approveDownloading();
-                              } else {
-                                pref.denyDownloading();
-                              }
-                              setState(() {
-                                approved = response;
-                              });
-                            },
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            FlatButton(
-                                child: Text("Yes"),
-                                onPressed: () {
-                                  Navigator.pop(context, true);
-                                }),
-                            FlatButton(
-                                child: Text(AppLocalization.of(context).cancel),
-                                onPressed: () {
-                                  Navigator.pop(context, false);
-                                }),
-                          ],
-                        ),
+                        FlatButton(
+                            child: Text(AppLocalization.of(context).settingsOK),
+                            onPressed: () {
+                              Navigator.pop(context, true);
+                            }),
+                        FlatButton(
+                            child: Text(AppLocalization.of(context).cancel),
+                            onPressed: () {
+                              Navigator.pop(context, false);
+                            }),
                       ],
                     ),
                   ],
                 ),
+              ],
+            ),
     );
   }
 }
