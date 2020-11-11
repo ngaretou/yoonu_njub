@@ -191,6 +191,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
     }
 
+    Widget downloadPermissionTitle() {
+      return settingTitle(AppLocalization.of(context).downloadTitle,
+          Icons.download_sharp, null);
+    }
+
+    Widget downloadPermissionSetting() {
+      bool approved = themeProvider.downloadsApproved;
+
+      return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+        Text(
+          AppLocalization.of(context).approveDownloads,
+          style: Theme.of(context).textTheme.subtitle1,
+        ),
+        Checkbox(
+          value: approved,
+          onChanged: (response) {
+            if (response) {
+              themeProvider.approveDownloading();
+            } else {
+              themeProvider.denyDownloading();
+            }
+            setState(() {
+              approved = response;
+            });
+          },
+        )
+      ]);
+    }
+
 ///////////////////////////////
     return Scaffold(
       appBar: AppBar(
@@ -216,6 +245,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   // rsScriptPicker(),
                   // Divider(),
                   settingRow(languageTitle(), languageSetting()),
+                  Divider(),
+                  settingRow(
+                      downloadPermissionTitle(), downloadPermissionSetting()),
                 ],
               ),
             )
@@ -229,6 +261,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // rsScriptPicker(),
 
                 settingColumn(languageTitle(), languageSetting()),
+
+                settingColumn(
+                    downloadPermissionTitle(), downloadPermissionSetting()),
               ],
             ),
       // ),

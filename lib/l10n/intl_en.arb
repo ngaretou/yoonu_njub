@@ -204,7 +204,7 @@
     "type": "text",
     "placeholders": {}
   },
-  "approveDownloads": "Do not ask again, always download.",
+  "approveDownloads": "Do not ask, always download.",
   "@approveDownloads": {
     "description": "Download automatically from now on",
     "type": "text",

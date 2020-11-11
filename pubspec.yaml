@@ -50,12 +50,12 @@ dev_dependencies:
   intl_translation: ^0.17.10
   flutter_launcher_icons: ^0.7.5
 
-# flutter_icons:
-#   android: true
-#   ios: true
-#   image_path: "dev_assets/icons/moon.png"
-#   adaptive_icon_background: "#191919"
-#   adaptive_icon_foreground: "dev_assets/icons/moon.png"
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "dev_assets/icons/yoonu_njub.png"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "dev_assets/icons/yoonu_njub.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

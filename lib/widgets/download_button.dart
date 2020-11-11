@@ -72,6 +72,20 @@ class _DownloadButtonState extends State<DownloadButton> {
     final shows = Provider.of<Shows>(context, listen: false);
     final pref = Provider.of<ThemeModel>(context, listen: false);
 
+    Future<String> getDownloadSize(url) async {
+      // if (downloadSizeGotten) {
+      //   return _totalFormatted;
+      // } else {
+      //download request
+      final http.Response r = await http.head(url);
+      final _total = r.headers["content-length"];
+      final _totalAsInt = double.parse(_total);
+      final String _totalFormatted = (_totalAsInt / 1000000).toStringAsFixed(2);
+      print(_totalFormatted);
+      // downloadSizeGotten = true;
+      return _totalFormatted;
+    }
+
     //This either deletes the file if it's on the device or downloads it if not.
     Future<void> _downloadOrDeleteFile(String url, String filename) async {
       //If you are not already downloading something...
@@ -110,21 +124,31 @@ class _DownloadButtonState extends State<DownloadButton> {
                 downloadFile(path, url, filename);
               } else {
                 //if downloading is not already approved, get feedback from the user
+                //I have
                 showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return DownloadConfirmation(url);
-                  },
-                  //now with the feedback from the dialog...
-                ).then((responseFromDialog) async {
+                    context: context,
+                    builder: (BuildContext context) {
+                      //first get the size of the download so as to pass to the dialog
+                      return FutureBuilder(
+                          future: getDownloadSize(url),
+                          builder: (ctx, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            } else {
+                              return DownloadConfirmation(url, snapshot.data);
+                            }
+                          });
+                    }).then((responseFromDialog) async {
                   //if response is true, download. If not, nothing happens.
                   if (responseFromDialog) {
                     downloadFile(path, url, filename);
                   }
                 });
               }
-            } // end of else
-          }
+            }
+          } // end of else
+
         } catch (e) {
           print('had an error checking if the file was there or not');
           print(e);
@@ -167,7 +191,7 @@ class _DownloadButtonState extends State<DownloadButton> {
       );
     }
 
-    //Here is hte main build that triggers everything.
+    //Here is the main build that triggers everything.
 
     return _isDownloading
         //If downloading you don't need to check if the file is there or not
@@ -177,7 +201,11 @@ class _DownloadButtonState extends State<DownloadButton> {
             future: shows.localAudioFileCheck(widget.show.filename),
             builder: (ctx, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return Center(
+                    child: Icon(
+                  Icons.download_sharp,
+                  color: Theme.of(context).iconTheme.color,
+                ));
               } else {
                 //set the _isDownloaded flag to true or false depending on the result of the above future, localAudioFileCheck, in shows.dart
                 _isDownloaded = snapshot.data;
@@ -190,8 +218,9 @@ class _DownloadButtonState extends State<DownloadButton> {
 //------------------------------------------------
 class DownloadConfirmation extends StatefulWidget {
   final String url;
+  final String downloadSize;
 
-  DownloadConfirmation(this.url);
+  DownloadConfirmation(this.url, this.downloadSize);
 
   @override
   _DownloadConfirmationState createState() => _DownloadConfirmationState();
@@ -199,88 +228,69 @@ class DownloadConfirmation extends StatefulWidget {
 
 class _DownloadConfirmationState extends State<DownloadConfirmation> {
   bool approved;
-  String _totalFormatted;
-  bool downloadSizeGotten;
 
   @override
   void initState() {
     approved =
         Provider.of<ThemeModel>(context, listen: false).downloadsApproved;
-    downloadSizeGotten = false;
-    super.initState();
-  }
 
-  Future<String> getDownloadSize() async {
-    if (downloadSizeGotten) {
-      return _totalFormatted;
-    } else {
-      //download request
-      final http.Response r = await http.head(widget.url);
-      final _total = r.headers["content-length"];
-      final _totalAsInt = double.parse(_total);
-      _totalFormatted = (_totalAsInt / 1000000).toStringAsFixed(2);
-      print(_totalFormatted);
-      downloadSizeGotten = true;
-      return _totalFormatted;
-    }
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final pref = Provider.of<ThemeModel>(context, listen: false);
 
-    return FutureBuilder(
-      future: getDownloadSize(),
-      builder: (ctx, snapshot) => snapshot.connectionState ==
-              ConnectionState.waiting
-          ? Center(child: CircularProgressIndicator())
-          : AlertDialog(
-              title: Text(
-                AppLocalization.of(context).downloadTitle,
+    return AlertDialog(
+      title: Text(
+        AppLocalization.of(context).downloadTitle,
+      ),
+      content: Text(
+        AppLocalization.of(context).downloadMessage +
+            widget.downloadSize +
+            ' Mb?',
+      ),
+
+      actions: [
+        Column(
+          children: [
+            Container(
+              width: 300,
+              child: CheckboxListTile(
+                title: Text(AppLocalization.of(context).approveDownloads),
+                value: approved,
+                onChanged: (response) {
+                  if (response) {
+                    pref.approveDownloading();
+                  } else {
+                    pref.denyDownloading();
+                  }
+                  setState(() {
+                    approved = response;
+                  });
+                },
               ),
-              content: Text(
-                AppLocalization.of(context).downloadMessage +
-                    (snapshot.data + ' Mb?'),
-              ),
-              actions: [
-                Column(
-                  children: [
-                    Container(
-                      width: 300,
-                      child: CheckboxListTile(
-                        title:
-                            Text(AppLocalization.of(context).approveDownloads),
-                        value: approved,
-                        onChanged: (response) {
-                          if (response) {
-                            pref.approveDownloading();
-                          } else {
-                            pref.denyDownloading();
-                          }
-                          setState(() {
-                            approved = response;
-                          });
-                        },
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        FlatButton(
-                            child: Text(AppLocalization.of(context).settingsOK),
-                            onPressed: () {
-                              Navigator.pop(context, true);
-                            }),
-                        FlatButton(
-                            child: Text(AppLocalization.of(context).cancel),
-                            onPressed: () {
-                              Navigator.pop(context, false);
-                            }),
-                      ],
-                    ),
-                  ],
-                ),
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FlatButton(
+                    child: Text(AppLocalization.of(context).settingsOK),
+                    onPressed: () {
+                      Navigator.pop(context, true);
+                    }),
+                FlatButton(
+                    child: Text(AppLocalization.of(context).cancel),
+                    onPressed: () {
+                      Navigator.pop(context, false);
+                    }),
               ],
             ),
+          ],
+        ),
+      ],
+      // ),
     );
   }
 }

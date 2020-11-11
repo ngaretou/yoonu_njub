@@ -189,21 +189,23 @@ class _ShowDisplayState extends State<ShowDisplay> {
       //ModalBottomSheet version here, other option is below DraggableScrollableSheet
       Positioned(
         bottom: 0,
-        // left: (MediaQuery.of(context).size.width - 40) / 2,
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          padding: EdgeInsets.symmetric(horizontal: 0, vertical: 6),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15.0),
-              color: Theme.of(context).cardColor),
-          child: Center(
-            child: IconButton(
-              color: Theme.of(context).iconTheme.color,
-              icon: Icon(Icons.arrow_drop_up),
-              iconSize: 40,
-              onPressed: () {
-                _popUpShowList(context, currentPageId);
-              },
+        child: GestureDetector(
+          onTap: () {
+            _popUpShowList(context, currentPageId);
+          },
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.symmetric(horizontal: 0, vertical: 6),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(15),
+                    topLeft: Radius.circular(15)),
+                color: Theme.of(context).cardColor),
+            child: Center(
+              child: Icon(
+                Icons.arrow_drop_up,
+                size: 40,
+              ),
             ),
           ),
         ),
