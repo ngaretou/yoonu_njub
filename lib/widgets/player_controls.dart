@@ -112,6 +112,29 @@ class _ControlButtonsState extends State<ControlButtons> {
 
     return Column(
       children: [
+        //SeekBar
+        StreamBuilder<Duration>(
+          stream: _player.durationStream,
+          builder: (context, snapshot) {
+            final duration = snapshot.data ?? Duration.zero;
+            return StreamBuilder<Duration>(
+              stream: _player.positionStream,
+              builder: (context, snapshot) {
+                var position = snapshot.data ?? Duration.zero;
+                if (position > duration) {
+                  position = duration;
+                }
+                return SeekBar(
+                  duration: duration,
+                  position: position,
+                  onChangeEnd: (newPosition) {
+                    _player.seek(newPosition);
+                  },
+                );
+              },
+            );
+          },
+        ),
         //This row is the control buttons. Some of the original code's controls (from just_audio plugin example) this app does not use so have just commented out rather than deleting.
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -214,28 +237,6 @@ class _ControlButtonsState extends State<ControlButtons> {
               ),
             ),
           ],
-        ),
-        StreamBuilder<Duration>(
-          stream: _player.durationStream,
-          builder: (context, snapshot) {
-            final duration = snapshot.data ?? Duration.zero;
-            return StreamBuilder<Duration>(
-              stream: _player.positionStream,
-              builder: (context, snapshot) {
-                var position = snapshot.data ?? Duration.zero;
-                if (position > duration) {
-                  position = duration;
-                }
-                return SeekBar(
-                  duration: duration,
-                  position: position,
-                  onChangeEnd: (newPosition) {
-                    _player.seek(newPosition);
-                  },
-                );
-              },
-            );
-          },
         ),
       ],
     );

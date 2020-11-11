@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-// import 'package:flutter/services.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'locale/app_localization.dart';
 
@@ -40,6 +40,14 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    //only allow portrait mode, not landscape
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+
+    SystemChrome.setEnabledSystemUIOverlays(
+        [SystemUiOverlay.top, SystemUiOverlay.bottom]);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Yoonu Njub',

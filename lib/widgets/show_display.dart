@@ -30,6 +30,7 @@ class _ShowDisplayState extends State<ShowDisplay> {
     //Data and preliminaries
     final shows = Provider.of<Shows>(context, listen: false);
     int currentPageId;
+    final mediaQuery = MediaQuery.of(context).size;
     //Text Styles
     ui.TextDirection _rtlText = ui.TextDirection.rtl;
     ui.TextDirection _ltrText = ui.TextDirection.ltr;
@@ -38,13 +39,19 @@ class _ShowDisplayState extends State<ShowDisplay> {
         // height: 1.3,
         color: Theme.of(context).textTheme.headline6.color,
         fontFamily: "Harmattan",
-        fontSize: 40);
+        fontSize: 32);
 
     TextStyle _rsStyle = TextStyle(
         // height: 1.3,
         color: Theme.of(context).textTheme.headline6.color,
         fontFamily: "Lato",
-        fontSize: 30);
+        fontSize: 22);
+
+    TextStyle showListStyle = TextStyle(
+        // height: 1.3,
+        color: Theme.of(context).textTheme.headline6.color,
+        fontFamily: "Lato",
+        fontSize: 20);
 
     final PageController _pageController = PageController(
       initialPage: shows.lastShowViewed,
@@ -55,7 +62,6 @@ class _ShowDisplayState extends State<ShowDisplay> {
 
     // Bottom playlist drawer
     void _popUpShowList(BuildContext context, int initialScrollIndex) {
-      print(shows.lastShowViewed);
       showModalBottomSheet(
         context: context,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -65,14 +71,13 @@ class _ShowDisplayState extends State<ShowDisplay> {
               topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
         ),
         builder: (context) {
-          print(shows.lastShowViewed);
           return Container(
             padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(15.0),
               child: Container(
                   padding: EdgeInsets.only(top: 8),
-                  height: MediaQuery.of(context).size.height * .8,
+                  height: mediaQuery.height * .8,
                   child: ScrollablePositionedList.builder(
                       itemScrollController: itemScrollController,
                       initialScrollIndex: initialScrollIndex,
@@ -94,17 +99,18 @@ class _ShowDisplayState extends State<ShowDisplay> {
                                     horizontal: 8.0, vertical: 16.0),
                                 child: Row(
                                   children: [
-                                    Text(
-                                        shows.shows[i].id +
-                                            ".  " +
-                                            shows.shows[i].showNameRS,
-                                        style: TextStyle(
-                                            fontFamily: "Lato", fontSize: 20)),
                                     Expanded(
-                                      child: Align(
-                                          alignment: Alignment.centerRight,
-                                          child:
-                                              DownloadButton(shows.shows[i])),
+                                        flex: 1,
+                                        child: Text(shows.shows[i].id + ".  ",
+                                            style: showListStyle)),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Text(shows.shows[i].showNameRS,
+                                          style: showListStyle),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: DownloadButton(shows.shows[i]),
                                     ),
                                   ],
                                 ),
@@ -133,55 +139,38 @@ class _ShowDisplayState extends State<ShowDisplay> {
           itemBuilder: (context, i) {
             Show show = shows.shows[i];
             currentPageId = int.parse(show.id) - 1;
-
+            print(mediaQuery.height);
             return Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 //Show image
                 AspectRatio(
-                  aspectRatio: 16 / 9,
+                  aspectRatio: mediaQuery.height > 700 ? 1 / 1 : 16 / 9,
                   child: Image.asset(
                     'assets/images/${show.id}.jpg',
-                    fit: BoxFit.fill,
+                    fit: BoxFit.cover,
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0, vertical: 10.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Column(
                     children: [
-                      //"Emission 1"
-                      Text('Emission ' + shows.shows[i].id + ':',
-                          textAlign: TextAlign.center,
-                          style: _rsStyle.copyWith(fontSize: 20),
-                          textDirection: _ltrText),
-                      Divider(
-                        thickness: 0,
-                        height: 30,
-                        color: Theme.of(context).accentColor,
-                      ),
-
-                      //AS Show name
-                      Text(shows.shows[i].showNameAS,
+                      Text(shows.shows[i].id + ': ' + shows.shows[i].showNameAS,
                           textAlign: TextAlign.center,
                           style: _asStyle,
                           textDirection: _rtlText),
-                      Text(shows.shows[i].showNameRS,
+                      Text(shows.shows[i].id + ': ' + shows.shows[i].showNameRS,
                           textAlign: TextAlign.center,
                           style: _rsStyle,
                           textDirection: _ltrText),
-                      Divider(
-                        thickness: 0,
-                        height: 30,
-                        color: Theme.of(context).accentColor,
-                      ),
-                      ControlButtons(show),
                     ],
                   ),
                 ),
-                Expanded(
-                    child: SizedBox(
-                  height: 10,
-                )),
+
+                ControlButtons(show),
+                SizedBox(
+                  height: 50,
+                )
               ],
             );
           }),
@@ -194,8 +183,8 @@ class _ShowDisplayState extends State<ShowDisplay> {
             _popUpShowList(context, currentPageId);
           },
           child: Container(
-            width: MediaQuery.of(context).size.width,
-            padding: EdgeInsets.symmetric(horizontal: 0, vertical: 6),
+            width: mediaQuery.width,
+            padding: EdgeInsets.symmetric(horizontal: 0, vertical: 1),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
                     topRight: Radius.circular(15),
