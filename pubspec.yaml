@@ -15,7 +15,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+version: 1.0.4+4
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -27,7 +27,7 @@ dependencies:
   intl: ^0.16.1
   shared_preferences: ^0.5.8
   url_launcher: ^5.5.0
-  share: ^0.6.4+3
+  share: ">=0.6.5+4 <2.0.0"
   # audioplayers: ^0.15.1
   font_awesome_flutter: ^8.8.1
   firebase_core: ^0.5.0
@@ -38,7 +38,7 @@ dependencies:
   audio_session: ^0.0.9
   path_provider: ^1.6.24
   connectivity: ^2.0.1
-  scrollable_positioned_list: ^0.1.7
+  scrollable_positioned_list: ^0.1.8
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -53,9 +53,9 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "dev_assets/icons/yoonu_njub.png"
+  image_path: "dev_assets/icons/icon.png"
   adaptive_icon_background: "#ffffff"
-  adaptive_icon_foreground: "dev_assets/icons/yoonu_njub.png"
+  adaptive_icon_foreground: "dev_assets/icons/icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -82,6 +82,18 @@ flutter:
     - assets/images/8.jpg
     - assets/images/9.jpg
     - assets/images/10.jpg
+    - assets/images/11.jpg
+    - assets/images/12.jpg
+    - assets/images/13.jpg
+    - assets/images/14.jpg
+    - assets/images/15.jpg
+    - assets/images/16.jpg
+    - assets/images/17.jpg
+    - assets/images/18.jpg
+    - assets/images/19.jpg
+    - assets/images/20.jpg
+    - assets/images/21.jpg
+    - assets/images/22.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

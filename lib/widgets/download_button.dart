@@ -81,7 +81,7 @@ class _DownloadButtonState extends State<DownloadButton> {
       final _total = r.headers["content-length"];
       final _totalAsInt = double.parse(_total);
       final String _totalFormatted = (_totalAsInt / 1000000).toStringAsFixed(2);
-      print(_totalFormatted);
+
       // downloadSizeGotten = true;
       return _totalFormatted;
     }

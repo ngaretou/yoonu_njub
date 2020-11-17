@@ -13,17 +13,27 @@ class ShowDisplay extends StatefulWidget {
 }
 
 class _ShowDisplayState extends State<ShowDisplay> {
+  PageController _pageController;
+
   // @override
   // void initState() {
-
-  //   print('initstate');
+  //   _pageController = PageController(
+  //     initialPage: Provider.of<Shows>(context, listen: false).lastShowViewed,
+  //     viewportFraction: 1,
+  //     keepPage: true,
+  //   );
   //   super.initState();
   // }
 
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  // }
+  @override
+  void didChangeDependencies() {
+    _pageController = PageController(
+      initialPage: Provider.of<Shows>(context, listen: false).lastShowViewed,
+      viewportFraction: 1,
+      keepPage: true,
+    );
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,11 +63,9 @@ class _ShowDisplayState extends State<ShowDisplay> {
         fontFamily: "Lato",
         fontSize: 20);
 
-    final PageController _pageController = PageController(
-      initialPage: shows.lastShowViewed,
-      viewportFraction: 1,
-      keepPage: true,
-    );
+    print('shows.lastShowViewed');
+    print(shows.lastShowViewed);
+
     final ItemScrollController itemScrollController = ItemScrollController();
 
     // Bottom playlist drawer
@@ -133,21 +141,22 @@ class _ShowDisplayState extends State<ShowDisplay> {
           onPageChanged: (index) {
             //Here we want the user to be able to come back to the name they were on when they
             //return to the app, so save lastpage viewed on each page swipe.
+
             shows.saveLastShowViewed(index + 1);
           },
           itemCount: shows.shows.length,
           itemBuilder: (context, i) {
             Show show = shows.shows[i];
             currentPageId = int.parse(show.id) - 1;
-            print(mediaQuery.height);
+
             return Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 //Show image
                 AspectRatio(
-                  aspectRatio: mediaQuery.height > 700 ? 1 / 1 : 16 / 9,
+                  aspectRatio: mediaQuery.height > 800 ? 8 / 7 : 16 / 9,
                   child: Image.asset(
-                    'assets/images/${show.id}.jpg',
+                    'assets/images/${show.image}.jpg',
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -180,6 +189,7 @@ class _ShowDisplayState extends State<ShowDisplay> {
         bottom: 0,
         child: GestureDetector(
           onTap: () {
+            print(currentPageId);
             _popUpShowList(context, currentPageId);
           },
           child: Container(
@@ -230,7 +240,7 @@ class _ShowDisplayState extends State<ShowDisplay> {
       //                     child: GestureDetector(
       //                       onTap: () {
       //                         // setState(() {
-      //                         //   print(_drawerOpen);
+      //
       //                         //   _drawerOpen = !_drawerOpen;
       //                         // });
       //                       },

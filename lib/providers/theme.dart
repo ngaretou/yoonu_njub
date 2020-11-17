@@ -117,21 +117,12 @@ class ThemeModel extends ChangeNotifier {
     return _downloadsApproved;
   }
 
-//Actually not doing that way anymore but leaving for reference
-//this is the constructor, it runs setup to initialize currentTheme
-//https://stackoverflow.com/questions/57662372/flutter-sharedpreferences-value-to-provider-on-applcation-start
-  // ThemeModel() {
-  //   print('ThemeModel setup');
-  //   setupTheme();
-  //   setupLang();
-  // }
-
   Future<void> initialSetupAsync(context) async {
-    Future.wait([
-      Provider.of<Shows>(context, listen: false).getData(),
-      setupTheme(),
-      setupLang()
-    ]);
+    await Provider.of<Shows>(context, listen: false).getData();
+    await setupTheme();
+    await setupLang();
+
+    return;
   }
 
   Future<void> setupTheme() async {
@@ -263,8 +254,7 @@ class ThemeModel extends ChangeNotifier {
   Future<void> setupLang() async {
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey('userLang')) {
-      // setLang('fr');
-      setLang('en');
+      setLang('fr'); // setLang('en'); setLang('wo');
     } else {
       final savedUserLang = json.decode(prefs.getString('userLang')) as String;
       setLang(savedUserLang);

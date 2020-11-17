@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:connectivity/connectivity.dart';
-// import 'dart:math';
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -16,12 +15,14 @@ class Show {
   final String showNameAS;
   final String urlSnip;
   final String filename;
+  final String image;
   const Show({
     @required this.id,
     @required this.showNameRS,
     @required this.showNameAS,
     @required this.urlSnip,
     @required this.filename,
+    @required this.image,
   });
 }
 
@@ -42,8 +43,22 @@ class Shows with ChangeNotifier {
     return 'https://bienvenueafricains.com/mp3/wolof/the-way-of-righteousness';
   }
 
+  bool _reloadMainPage = false;
+
+  bool get reloadMainPage {
+    return _reloadMainPage;
+  }
+
+  void setReloadMainPage(bool value) {
+    _reloadMainPage = value;
+    if (value == true) {
+      notifyListeners();
+    }
+  }
+
   Future getData() async {
     //check if the current session still contains the shows - if so no need to rebuild
+
     if (_shows.length != 0) {
       return;
     }
@@ -63,16 +78,18 @@ class Shows with ChangeNotifier {
             showNameRS: show['showNameRS'],
             showNameAS: show['showNameAS'],
             urlSnip: show['urlSnip'],
-            filename: show['filename']),
+            filename: show['filename'],
+            image: show['image']),
       );
     });
 
     _shows = loadedShowData;
 
     var temp = await getLastShowViewed();
+
     temp == null ? temp = 0 : _lastShowViewed = temp;
 
-    notifyListeners();
+    return true;
   }
 
   Future<void> saveLastShowViewed(lastShowViewed) async {
@@ -80,8 +97,6 @@ class Shows with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final jsonData = json.encode(lastShowViewed.toString());
     prefs.setString('lastShowViewed', jsonData);
-    print('lastShowViewed');
-    print(lastShowViewed);
   }
 
   Future<int> getLastShowViewed() async {
@@ -146,13 +161,5 @@ class Shows with ChangeNotifier {
       print('had an error checking if the file was there or not');
       return false;
     }
-  }
-
-  // ignore: unused_element
-  Future<bool> waitForTesting() async {
-    print('waiting');
-    await Future<String>.delayed(const Duration(seconds: 5));
-    print('done waiting');
-    return true;
   }
 }

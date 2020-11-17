@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import '../locale/app_localization.dart';
 import '../providers/theme.dart';
+import '../providers/shows.dart';
 
 class SettingsScreen extends StatefulWidget {
   static const routeName = '/settings-screen';
@@ -200,9 +204,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       bool approved = themeProvider.downloadsApproved;
 
       return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-        Text(
-          AppLocalization.of(context).approveDownloads,
-          style: Theme.of(context).textTheme.subtitle1,
+        SizedBox(
+          width: 20,
+        ),
+        Expanded(
+          child: Text(
+            AppLocalization.of(context).approveDownloads,
+            style: Theme.of(context).textTheme.subtitle1,
+          ),
         ),
         Checkbox(
           value: approved,
@@ -218,6 +227,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
           },
         )
       ]);
+    }
+
+    Future<String> _getSizeOfAllDownloads() async {
+      final directory = await getApplicationDocumentsDirectory();
+      int _counter = 0;
+      var myStream = directory.list(recursive: false, followLinks: false);
+      await for (var element in myStream) {
+        if (element is File) {
+          _counter += await element.length();
+        }
+      }
+      return (_counter / 1000000).toStringAsFixed(2);
+    }
+
+    Future<String> _deleteAllDownloads() async {
+      final directory = await getApplicationDocumentsDirectory();
+      int _counter = 0;
+      var myStream = directory.list(recursive: false, followLinks: false);
+      await for (var element in myStream) {
+        if (element is File) {
+          element.delete();
+        }
+      }
+      return (_counter / 1000000).toStringAsFixed(2);
+    }
+
+    Widget clearDownloads() {
+      return FutureBuilder(
+          future: _getSizeOfAllDownloads(),
+          builder: (ctx, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: LinearProgressIndicator());
+            } else {
+              return snapshot.data != '0.00'
+                  ? Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                      FlatButton.icon(
+                        color: Theme.of(context).cardColor,
+                        icon: Icon(Icons.delete_sweep_sharp),
+                        label: Text(
+                            'Delete downloads (' +
+                                snapshot.data.toString() +
+                                ' Mb)',
+                            style: Theme.of(context).textTheme.subtitle1),
+                        onPressed: () {
+                          print('clear all downloads');
+                          _deleteAllDownloads();
+                          Provider.of<Shows>(context, listen: false)
+                              .setReloadMainPage(true);
+                          setState(() {});
+                        },
+                      ),
+                      SizedBox(
+                        width: 20,
+                      )
+                    ])
+                  : SizedBox(
+                      width: 20,
+                    );
+            }
+          });
     }
 
 ///////////////////////////////
@@ -248,6 +317,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Divider(),
                   settingRow(
                       downloadPermissionTitle(), downloadPermissionSetting()),
+                  clearDownloads(),
                 ],
               ),
             )
@@ -264,6 +334,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 settingColumn(
                     downloadPermissionTitle(), downloadPermissionSetting()),
+                clearDownloads(),
               ],
             ),
       // ),

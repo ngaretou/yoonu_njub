@@ -59,9 +59,10 @@ class _MyAppState extends State<MyApp> {
                 ? Center(child: CircularProgressIndicator())
                 : MainPlayer(),
       ),
-      theme: Provider.of<ThemeModel>(context).currentTheme != null
-          ? Provider.of<ThemeModel>(context).currentTheme
-          : ThemeData.dark(),
+      theme: Provider.of<ThemeModel>(context).currentTheme,
+      // != null
+      //     ? Provider.of<ThemeModel>(context).currentTheme
+      //     : ThemeData.dark(),
       routes: {
         MainPlayer.routeName: (ctx) => MainPlayer(),
         SettingsScreen.routeName: (ctx) => SettingsScreen(),

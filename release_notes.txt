@@ -1,0 +1,2 @@
+1.0.4
+Updated sharing plugin that was not working on iPads

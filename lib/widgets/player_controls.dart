@@ -40,6 +40,10 @@ class _ControlButtonsState extends State<ControlButtons> {
 
   @override
   Widget build(BuildContext context) {
+    if (Provider.of<Shows>(context, listen: true).reloadMainPage == true) {
+      // setState(() {});
+      Provider.of<Shows>(context, listen: false).setReloadMainPage(false);
+    }
     final shows = Provider.of<Shows>(context, listen: false);
     final urlBase = shows.urlBase;
 
