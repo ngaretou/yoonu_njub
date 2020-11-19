@@ -1,2 +1,5 @@
 1.0.4
 Updated sharing plugin that was not working on iPads
+Added download manager
+New layout logic for main player
+Added all programs

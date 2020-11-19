@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:path_provider/path_provider.dart';
+
 import '../locale/app_localization.dart';
 import '../providers/theme.dart';
 import '../providers/shows.dart';
@@ -261,27 +264,61 @@ class _SettingsScreenState extends State<SettingsScreen> {
               return Center(child: LinearProgressIndicator());
             } else {
               return snapshot.data != '0.00'
-                  ? Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                      FlatButton.icon(
-                        color: Theme.of(context).cardColor,
-                        icon: Icon(Icons.delete_sweep_sharp),
-                        label: Text(
-                            'Delete downloads (' +
-                                snapshot.data.toString() +
-                                ' Mb)',
-                            style: Theme.of(context).textTheme.subtitle1),
-                        onPressed: () {
-                          print('clear all downloads');
+                  ? Padding(
+                      padding: EdgeInsets.only(left: 20, right: 10),
+                      child: GestureDetector(
+                        child: Container(
+                            color: Theme.of(context).cardColor,
+                            padding: EdgeInsets.all(10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Icon(Icons.delete_sweep_sharp),
+                                SizedBox(
+                                  width: 20,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                      AppLocalization.of(context)
+                                              .deleteDownloads +
+                                          ' (' +
+                                          snapshot.data.toString() +
+                                          ' Mb)',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .subtitle1),
+                                ),
+                              ],
+                            )),
+                        onTap: () {
                           _deleteAllDownloads();
                           Provider.of<Shows>(context, listen: false)
                               .setReloadMainPage(true);
                           setState(() {});
                         },
                       ),
-                      SizedBox(
-                        width: 20,
-                      )
-                    ])
+                    )
+                  // Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  //     FlatButton.icon(
+                  //       color: Theme.of(context).cardColor,
+                  //       icon: Icon(Icons.delete_sweep_sharp),
+                  //       label: Expanded(
+                  //         child: Text(
+                  //             AppLocalization.of(context).deleteDownloads +
+                  //                 ' (' +
+                  //                 snapshot.data.toString() +
+                  //                 ' Mb)',
+                  //             style: Theme.of(context).textTheme.subtitle1),
+                  //       ),
+                  //       onPressed: () {
+                  //         _deleteAllDownloads();
+                  //         Provider.of<Shows>(context, listen: false)
+                  //             .setReloadMainPage(true);
+                  //         setState(() {});
+                  //       },
+                  //     ),
+                  //
+                  //   ])
                   : SizedBox(
                       width: 20,
                     );
@@ -315,9 +352,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   // Divider(),
                   settingRow(languageTitle(), languageSetting()),
                   Divider(),
-                  settingRow(
-                      downloadPermissionTitle(), downloadPermissionSetting()),
-                  clearDownloads(),
+                  if (!kIsWeb)
+                    settingRow(
+                        downloadPermissionTitle(), downloadPermissionSetting()),
+                  if (!kIsWeb) clearDownloads(),
                 ],
               ),
             )
@@ -332,9 +370,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 settingColumn(languageTitle(), languageSetting()),
 
-                settingColumn(
-                    downloadPermissionTitle(), downloadPermissionSetting()),
-                clearDownloads(),
+                if (!kIsWeb)
+                  settingColumn(
+                      downloadPermissionTitle(), downloadPermissionSetting()),
+                if (!kIsWeb) clearDownloads(),
               ],
             ),
       // ),

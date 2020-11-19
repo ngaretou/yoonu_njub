@@ -209,5 +209,11 @@
     "description": "Download automatically from now on",
     "type": "text",
     "placeholders": {}
+  },  "deleteDownloads": "Supprimer les fichiers téléchargés",
+  "@deleteDownloads": {
+    "description": "Delete previously downloaded items",
+    "type": "text",
+    "placeholders": {}
   }
+
 }

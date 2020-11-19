@@ -27,6 +27,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "clickHereToReadMore" : MessageLookupByLibrary.simpleMessage("Click here to read more"),
     "contactFBMessenger" : MessageLookupByLibrary.simpleMessage("Facebook Messenger"),
     "contactWhatsApp" : MessageLookupByLibrary.simpleMessage("WhatsApp"),
+    "deleteDownloads" : MessageLookupByLibrary.simpleMessage("Delete downloads"),
     "downloadMessage" : MessageLookupByLibrary.simpleMessage("Would you like to download "),
     "downloadTitle" : MessageLookupByLibrary.simpleMessage("Download audio"),
     "favsNoneYet" : MessageLookupByLibrary.simpleMessage("No favorites yet"),

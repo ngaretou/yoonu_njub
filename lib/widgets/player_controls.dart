@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:path_provider/path_provider.dart';
@@ -9,7 +10,8 @@ import 'download_button.dart';
 
 class ControlButtons extends StatefulWidget {
   final Show show;
-  ControlButtons(this.show);
+  final Function jumpPrevNext;
+  ControlButtons(this.show, this.jumpPrevNext);
 
   @override
   _ControlButtonsState createState() => _ControlButtonsState();
@@ -141,33 +143,22 @@ class _ControlButtonsState extends State<ControlButtons> {
         ),
         //This row is the control buttons. Some of the original code's controls (from just_audio plugin example) this app does not use so have just commented out rather than deleting.
         Row(
-          mainAxisSize: MainAxisSize.min,
+          // mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            //Volume button:
-            // IconButton(
-            //   icon: Icon(Icons.volume_up),
-            //   onPressed: () {
-            //     _showSliderDialog(
-            //       context: context,
-            //       title: "Adjust volume",
-            //       divisions: 10,
-            //       min: 0.0,
-            //       max: 1.0,
-            //       stream: _player.volumeStream,
-            //       onChanged: _player.setVolume,
-            //     );
-            //   },
-            // ),
-            // IconButton(icon: Icon(Icons.download_rounded), onPressed: () {}),
-            DownloadButton(widget.show),
+            !kIsWeb
+                ? Padding(
+                    padding: const EdgeInsets.all(0.0),
+                    child: DownloadButton(widget.show),
+                  )
+                : SizedBox(width: 40, height: 10),
             //Previous button
-            // StreamBuilder<SequenceState>(
-            //   stream: _player.sequenceStateStream,
-            //   builder: (context, snapshot) => IconButton(
-            //     icon: Icon(Icons.skip_previous),
-            //     onPressed: _player.hasPrevious ? _player.seekToPrevious : null,
-            //   ),
-            // ),
+            IconButton(
+                icon: Icon(Icons.skip_previous),
+                onPressed: () {
+                  widget.jumpPrevNext('back');
+                }),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: StreamBuilder<PlayerState>(
@@ -176,10 +167,9 @@ class _ControlButtonsState extends State<ControlButtons> {
                   final playerState = snapshot.data;
                   final processingState = playerState?.processingState;
                   final playing = playerState?.playing;
-                  if (processingState == ProcessingState.loading ||
-                      processingState == ProcessingState.buffering) {
+                  if (processingState == ProcessingState.buffering) {
                     return Container(
-                      margin: EdgeInsets.all(8.0),
+                      margin: EdgeInsets.all(08.0),
                       width: 64.0,
                       height: 64.0,
                       child: CircularProgressIndicator(),
@@ -215,19 +205,23 @@ class _ControlButtonsState extends State<ControlButtons> {
               ),
             ),
             //Next button
-            // StreamBuilder<SequenceState>(
-            //   stream: _player.sequenceStateStream,
-            //   builder: (context, snapshot) => IconButton(
-            //     icon: Icon(Icons.skip_next),
-            //     onPressed: _player.hasNext ? _player.seekToNext : null,
-            //   ),
-            // ),
+            IconButton(
+                icon: Icon(Icons.skip_next),
+                onPressed: () {
+                  widget.jumpPrevNext('next');
+                }),
             StreamBuilder<double>(
               stream: _player.speedStream,
-              builder: (context, snapshot) => IconButton(
-                icon: Text("${snapshot.data?.toStringAsFixed(1)}x",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                onPressed: () {
+              builder: (context, snapshot) => GestureDetector(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text("${snapshot.data?.toStringAsFixed(1)}x",
+                      style: Theme.of(context)
+                          .textTheme
+                          .subtitle2
+                          .copyWith(fontWeight: FontWeight.bold)),
+                ),
+                onTap: () {
                   _showSliderDialog(
                     context: context,
                     title: "Adjust speed",

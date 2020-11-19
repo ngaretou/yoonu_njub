@@ -26,10 +26,34 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>yoonu_njub</title>
+  <title>Yoonu Njub</title>
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/8.0.2/firebase-app.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/8.0.2/firebase-analytics.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  var firebaseConfig = {
+    apiKey: "AIzaSyAUqqQTckcXmkTJx_nm3kSi6U_K6Jvw4A8",
+    authDomain: "yoonu-njub.firebaseapp.com",
+    databaseURL: "https://yoonu-njub.firebaseio.com",
+    projectId: "yoonu-njub",
+    storageBucket: "yoonu-njub.appspot.com",
+    messagingSenderId: "83576142284",
+    appId: "1:83576142284:web:667e6ba9978d6c05dd0569",
+    measurementId: "G-016YFDNFCK"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+</script>
   <!-- This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:
        https://developers.google.com/web/fundamentals/primers/service-workers -->

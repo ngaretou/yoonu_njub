@@ -27,6 +27,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "clickHereToReadMore" : MessageLookupByLibrary.simpleMessage("Cliquez ici pour en lire plus"),
     "contactFBMessenger" : MessageLookupByLibrary.simpleMessage("Facebook Messenger"),
     "contactWhatsApp" : MessageLookupByLibrary.simpleMessage("WhatsApp"),
+    "deleteDownloads" : MessageLookupByLibrary.simpleMessage("Supprimer les fichiers téléchargés"),
     "downloadMessage" : MessageLookupByLibrary.simpleMessage("Voulez-vous télécharger "),
     "downloadTitle" : MessageLookupByLibrary.simpleMessage("Télécharger"),
     "favsNoneYet" : MessageLookupByLibrary.simpleMessage("Vous n\'avez pas encore choisi des favoris"),

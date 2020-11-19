@@ -27,6 +27,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "clickHereToReadMore" : MessageLookupByLibrary.simpleMessage("Bësal fii ngir yokk sa njàng: "),
     "contactFBMessenger" : MessageLookupByLibrary.simpleMessage("Facebook Messenger"),
     "contactWhatsApp" : MessageLookupByLibrary.simpleMessage("WhatsApp"),
+    "deleteDownloads" : MessageLookupByLibrary.simpleMessage("Faral kàrtu dégtal yi"),
     "downloadMessage" : MessageLookupByLibrary.simpleMessage("Mu yebbi kàrtu dégtal bi - "),
     "downloadTitle" : MessageLookupByLibrary.simpleMessage("Yebbi dégtal yi"),
     "favsNoneYet" : MessageLookupByLibrary.simpleMessage("Tànnaguloo benn tur"),

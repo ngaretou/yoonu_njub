@@ -298,6 +298,14 @@ class AppLocalization {
       desc: 'Download automatically from now on',
     );
   }
+
+  String get deleteDownloads {
+    return Intl.message(
+      "Delete downloads",
+      name: 'deleteDownloads',
+      desc: 'Delete previously downloaded items',
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalization> {

@@ -56,7 +56,7 @@ ThemeData lightTheme = ThemeData.light().copyWith(
         ),
         //     subtitle2: TextStyle(color: Colors.white),
         //     subtitle1: TextStyle(color: Colors.white)),
-        color: Colors.white,
+        color: Colors.grey[100],
         actionsIconTheme: IconThemeData(color: Colors.black54)),
     buttonTheme: ButtonThemeData(minWidth: 80));
 
