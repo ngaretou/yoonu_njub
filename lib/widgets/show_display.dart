@@ -27,8 +27,6 @@ class _ShowDisplayState extends State<ShowDisplay> {
       viewportFraction: 1,
       keepPage: true,
     );
-    //only get the scroll controller going if we need it on the web
-
     super.didChangeDependencies();
   }
 
@@ -46,6 +44,11 @@ class _ShowDisplayState extends State<ShowDisplay> {
     final shows = Provider.of<Shows>(context, listen: false);
     int currentPageId;
     final mediaQuery = MediaQuery.of(context).size;
+    //Smallest iPhone is UIKit 320 x 480 = 800.
+    //Biggest (12 pro max) is 428 x 926 = 1354.
+    //Android biggest phone I can find is is 480 x 853 = 1333
+    //For tablets the smallest I can find is 768 x 1024
+    final bool _isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
 
     //Text Styles
     ui.TextDirection _rtlText = ui.TextDirection.rtl;
@@ -93,7 +96,8 @@ class _ShowDisplayState extends State<ShowDisplay> {
                   child: InkWell(
                     onTap: () {
                       //If not on the web version, pop the modal bottom sheet - if web, no need
-                      if (!kIsWeb) Navigator.pop(context);
+                      if (_isPhone || mediaQuery.width < 600)
+                        Navigator.pop(context);
                       // _pageController.jumpToPage(i);
                       _pageController.animateToPage(i,
                           duration: Duration(milliseconds: 500),
@@ -106,9 +110,10 @@ class _ShowDisplayState extends State<ShowDisplay> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8.0, vertical: 16.0),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Expanded(
-                                flex: 1,
+                                flex: 0,
                                 child: Text(shows.shows[i].id + ".  ",
                                     style: showListStyle)),
                             Expanded(
@@ -117,10 +122,11 @@ class _ShowDisplayState extends State<ShowDisplay> {
                                   style: showListStyle),
                             ),
                             if (!kIsWeb)
-                              Expanded(
-                                flex: 1,
-                                child: DownloadButton(shows.shows[i]),
-                              ),
+                              // Expanded(
+                              //   flex: 1,
+                              //   child:
+                              DownloadButton(shows.shows[i]),
+                            // ),
                           ],
                         ),
                       ),
@@ -131,13 +137,11 @@ class _ShowDisplayState extends State<ShowDisplay> {
             });
       }
 
-      return !kIsWeb
-          ? mainList()
-          : Scrollbar(
-              child: mainList(),
-              controller: _scrollController,
-              // isAlwaysShown: alwaysShowScrollbars,
-            );
+      return Scrollbar(
+        child: mainList(),
+        controller: _scrollController,
+        // isAlwaysShown: alwaysShowScrollbars,
+      );
     }
 
 // Bottom playlist drawer
@@ -151,16 +155,13 @@ class _ShowDisplayState extends State<ShowDisplay> {
               topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
         ),
         builder: (context) {
-          return Container(
-              padding: EdgeInsets.symmetric(
-                  horizontal: kIsWeb ? 100 : 0, vertical: 8),
-              child: ClipRRect(
-                  borderRadius: BorderRadius.circular(15.0),
-                  child: Container(
-                    padding: EdgeInsets.only(top: 8),
-                    height: mediaQuery.height * .8,
-                    child: playList(initialScrollIndex),
-                  )));
+          return ClipRRect(
+              borderRadius: BorderRadius.circular(15.0),
+              child: Container(
+                padding: EdgeInsets.only(top: 8),
+                height: mediaQuery.height * .8,
+                child: playList(initialScrollIndex),
+              ));
         },
       );
     }
@@ -229,7 +230,7 @@ class _ShowDisplayState extends State<ShowDisplay> {
               }),
 
           //ModalBottomSheet version here, other option is below DraggableScrollableSheet
-          if (!kIsWeb)
+          if (_isPhone || mediaQuery.width < 600)
             Positioned(
               bottom: 0,
               child: GestureDetector(
@@ -256,7 +257,7 @@ class _ShowDisplayState extends State<ShowDisplay> {
         ]);
       }
 
-      return !kIsWeb
+      return _isPhone
           ? mainStack()
           : Scrollbar(
               // isAlwaysShown: true,
@@ -275,13 +276,18 @@ class _ShowDisplayState extends State<ShowDisplay> {
     Widget webVersion() {
       return Row(
         children: [
-          Container(width: mediaQuery.width * .55, child: playerStack()),
+          Container(width: mediaQuery.width * .6, child: playerStack()),
           //playList takes an initialPage, which here is 0, the first one
-          Container(width: mediaQuery.width * .45, child: playList(0)),
+          Container(width: mediaQuery.width * .4, child: playList(0)),
         ],
       );
     }
 
-    return !kIsWeb ? phoneVersion() : webVersion();
+    print(mediaQuery.width);
+    if (_isPhone || mediaQuery.width < 600) {
+      return phoneVersion();
+    } else {
+      return webVersion();
+    }
   }
 }
