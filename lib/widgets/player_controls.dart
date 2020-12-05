@@ -167,7 +167,8 @@ class _ControlButtonsState extends State<ControlButtons> {
                   final playerState = snapshot.data;
                   final processingState = playerState?.processingState;
                   final playing = playerState?.playing;
-                  if (processingState == ProcessingState.buffering) {
+                  if (processingState == ProcessingState.buffering ||
+                      processingState == ProcessingState.loading) {
                     return Container(
                       margin: EdgeInsets.all(08.0),
                       width: 64.0,

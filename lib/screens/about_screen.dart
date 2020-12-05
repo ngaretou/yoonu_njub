@@ -46,15 +46,17 @@ class AboutScreen extends StatelessWidget {
             ),
             RichText(
                 text: TextSpan(style: defaultStyle, children: [
+              urlGo('YoonuNjub.org\n\n', 'http://yoonunjub.org/', linkTheme),
+              urlGo(
+                  'Buuru Ndam\n\n', 'https://youtu.be/99McEuAtRkk', linkTheme),
+              urlGo(
+                  'Wolof Bible online\n\n', 'http://biblewolof.com', linkTheme),
               TextSpan(
                   text: 'Yoonu Njub',
                   style: TextStyle(fontStyle: FontStyle.italic)),
               TextSpan(
                   text:
-                      ' © 1998 Paul Bramsen.\n\nWolof Scriptures quoted by permission.\n\nThey consist of:\n\nThe Old Testament selections published under the name "Mucc gi Yàlla waajal" Copyright © 1999 ;\n\n\The full text of Genesis published under the name "Njalbéen ga: xaaj bi jëkk ci Tawreetu Musaa" Copyright © 2003;\n\nThe complete New Testament, published under the name "Kàddug Dëgg Gi" Copyright © 1987;\n\nThe complete New Testament, revised edition, published under the name "Téereb Injiil di Kàddug Yàlla" Copyright © 2004.\n\nThe copyright of the Wolof scriptures is held by:\n\nLes Assemblées Evangéliques du Sénégal and La Mission Baptiste du Sénégal.\n\nAll rights reserved. Used by permission.\n\n'),
-              urlGo('YoonuNjub.org\n\n', 'http://http://yoonunjub.org/',
-                  linkTheme),
-              urlGo('Wolof Bible online', 'http://biblewolof.com', linkTheme),
+                      ' © 2020 ROCK International.\n\nWolof Scriptures quoted by permission.\n\nThe Old Testament selections published under the name "Mucc gi Yàlla waajal" Copyright © 1999 ;\n\n\The full text of Genesis published under the name "Njalbéen ga: xaaj bi jëkk ci Tawreetu Musaa" Copyright © 2003;\n\nThe complete New Testament, published under the name "Kàddug Dëgg Gi" Copyright © 1987;\n\nThe complete New Testament, revised edition, published under the name "Téereb Injiil di Kàddug Yàlla" Copyright © 2004.\n\nThe copyright of the Wolof scriptures is held by:\n\nLes Assemblées Evangéliques du Sénégal and La Mission Baptiste du Sénégal.\n\nAll rights reserved. Used by permission.\n\n'),
             ])),
             Divider(
               thickness: 3,
@@ -86,51 +88,29 @@ class AboutScreen extends StatelessWidget {
                   'https://www.flickr.com/photos/attawayjl/', linkTheme),
               urlGo('Frank McKenna\n\n', 'https://unsplash.com/@frankiefoto',
                   linkTheme),
-//
-//<span>Photo by <a href="https://unsplash.com/@lionel_gustave?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Lionel Gustave</a> on <a href="https://unsplash.com/?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
-//<span>Photo by <a href="https://unsplash.com/@vincegx?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Vince Gx</a> on <a href="https://unsplash.com/?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
-//<span>Photo by <a href="https://unsplash.com/@frostroomhead?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Rodion Kutsaev</a> on <a href="https://unsplash.com/?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
-//<span>Photo by <a href="https://unsplash.com/@nimri?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Fares Nimri</a> on <a href="https://unsplash.com/?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
-//<span>Photo by <a href="https://unsplash.com/@kazuend?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">kazuend</a> on <a href="https://unsplash.com/?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
-//<span>Photo by <a href="https://unsplash.com/@dynamicwang?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">DynamicWang</a> on <a href="https://unsplash.com/?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
-//<span>Photo by <a href="https://unsplash.com/@airdeez?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">The AIRDEEz</a> on <a href="https://unsplash.com/?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
-//<span>Photo by <a href="https://unsplash.com/@pictagramar?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Amar Yashlaha</a> on <a href="https://unsplash.com/?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
-//<span>Photo by <a href="https://unsplash.com/@alicekat?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Alice Donovan Rouse</a> on <a href="https://unsplash.com/?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
-//<span>Photo by <a href="https://unsplash.com/@kiprono_kitur?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Gabriel Kiprono</a> on <a href="https://unsplash.com/?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
-//<span>Photo by <a href="https://unsplash.com/@duagram?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Julien Gaud</a> on <a href="https://unsplash.com/?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
-//
-//
-//
-//
-//
-//
+              urlGo('Lionel Gustave\n\n',
+                  'https://unsplash.com/@lionel_gustave', linkTheme),
+              urlGo('Vince Gx\n\n', 'https://unsplash.com/@vincegx', linkTheme),
+              urlGo('Rodion Kutsaev\n\n', 'https://unsplash.com/@frostroomhead',
+                  linkTheme),
+              urlGo(
+                  'Fares Nimri\n\n', 'https://unsplash.com/@nimri', linkTheme),
+              urlGo('kazuend\n\n', 'https://unsplash.com/@kazuend', linkTheme),
+              urlGo('DynamicWang\n\n', 'https://unsplash.com/@dynamicwang',
+                  linkTheme),
+              urlGo('The AIRDEEz\n\n', 'https://unsplash.com/@airdeez',
+                  linkTheme),
+              urlGo('Amar Yashlaha\n\n', 'https://unsplash.com/@pictagramar',
+                  linkTheme),
+              urlGo('Alice Donovan Rouse\n\n', 'https://unsplash.com/@alicekat',
+                  linkTheme),
+              urlGo('Gabriel Kiprono\n\n',
+                  'https://unsplash.com/@kiprono_kitur', linkTheme),
+              urlGo('Julien Gaud\n\n', 'https://unsplash.com/@duagram',
+                  linkTheme),
 
 //
-//
-//
 
-//
-//
-//
-
-//
-//
-//
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 //
             ])),
             Divider(

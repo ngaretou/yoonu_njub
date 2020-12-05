@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import '../locale/app_localization.dart';
+
 import '../widgets/drawer.dart';
 import '../widgets/show_display.dart';
+import '../widgets/contact_options.dart';
 
 class MainPlayer extends StatelessWidget {
   static const routeName = 'main-player-screen';
@@ -31,18 +35,27 @@ class MainPlayer extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Yoonu Njub"),
-        // actions: [
-        // IconButton(
-        //   icon: Icon(Icons.calendar_today),
-        //   onPressed: () {
-        //     Navigator.of(context).pushNamed(DateScreen.routeName,
-        //         arguments: DateScreenArgs(
-        //             year: currentYear,
-        //             month: currentMonth,
-        //             date: currentDate));
-        //   },
-        // ),
-        // ],
+        actions: [
+          IconButton(
+            icon: Icon(Icons.help_outline),
+            onPressed: () {
+              //open the contact us possibilities
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return SimpleDialog(
+                    title: Text(
+                      AppLocalization.of(context).settingsContactUs,
+                    ),
+                    // content:
+                    //     Text(AppLocalization.of(context).settingsContactUs),
+                    children: [ContactOptions()],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       drawer: MainDrawer(),
       body: ShowDisplay(),

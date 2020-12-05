@@ -122,8 +122,8 @@ class Shows with ChangeNotifier {
   }
 
   snackbarMessageNoInternet(BuildContext context) {
-    Scaffold.of(context).hideCurrentSnackBar();
-    Scaffold.of(context).showSnackBar(SnackBar(
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

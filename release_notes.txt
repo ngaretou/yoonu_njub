@@ -1,3 +1,11 @@
+1.0.6
+Addition of a question mark button at top right of main screen leading to contact options
+Graceful picture loading
+
+1.0.5
+Adaptive display for web and tablet
+Cleanup
+
 1.0.4
 Updated sharing plugin that was not working on iPads
 Added download manager
