@@ -43,12 +43,14 @@ class Shows with ChangeNotifier {
     return 'https://bienvenueafricains.com/mp3/wolof/the-way-of-righteousness';
   }
 
+//reloadMainPage is necessary when the user clears downloads - it has the screen reload to check if it has a download on device or not
   bool _reloadMainPage = false;
 
   bool get reloadMainPage {
     return _reloadMainPage;
   }
 
+//This is called from clear downloads in settings screen
   void setReloadMainPage(bool value) {
     _reloadMainPage = value;
     if (value == true) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:yoonu_njub/providers/player_manager.dart';
 import 'locale/app_localization.dart';
 
 import './providers/shows.dart';
@@ -20,6 +21,9 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (ctx) => ThemeModel(),
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) => PlayerManager(),
         ),
       ],
       child: MyApp(),

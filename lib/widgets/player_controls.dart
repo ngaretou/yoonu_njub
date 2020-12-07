@@ -6,25 +6,32 @@ import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:path_provider/path_provider.dart';
 import '../providers/shows.dart';
+import '../providers/player_manager.dart';
 import 'download_button.dart';
 
 class ControlButtons extends StatefulWidget {
   final Show show;
   final Function jumpPrevNext;
-  ControlButtons(this.show, this.jumpPrevNext);
+
+  ControlButtons({
+    Key key,
+    @required this.show,
+    @required this.jumpPrevNext,
+  }) : super(key: key);
 
   @override
-  _ControlButtonsState createState() => _ControlButtonsState();
+  ControlButtonsState createState() => ControlButtonsState();
 }
 
-class _ControlButtonsState extends State<ControlButtons> {
-  AudioPlayer _player;
+class ControlButtonsState extends State<ControlButtons> {
+  // AudioPlayer _player;
+  final _player = AudioPlayer();
   bool _playerIsInitialized;
 
   @override
   void initState() {
     super.initState();
-    _player = AudioPlayer();
+    // _player = AudioPlayer();
     _initializeSession();
     _playerIsInitialized = false;
   }
@@ -40,14 +47,40 @@ class _ControlButtonsState extends State<ControlButtons> {
     await session.configure(AudioSessionConfiguration.speech());
   }
 
+  void testingFun() {
+    print('testingFun');
+  }
+
   @override
   Widget build(BuildContext context) {
+    void gracefulStopInBuild() async {
+      print('starting to stop');
+      //Gradually turn down volume
+      for (var i = 10; i >= 0; i--) {
+        _player.setVolume(i / 10);
+        await Future.delayed(Duration(milliseconds: 100));
+        print('looping in for ' + widget.show.filename);
+      }
+
+      _player.pause();
+    }
+
+    //only keep playing if it's the show we are looking at and it's actually playing
+    if (Provider.of<PlayerManager>(context, listen: true).showToPlay !=
+            widget.show.id &&
+        _player.playing) {
+      gracefulStopInBuild();
+    }
+
+    final showsProvider = Provider.of<Shows>(context, listen: false);
+
+    //This is to refresh the main view after downloads are clear
     if (Provider.of<Shows>(context, listen: true).reloadMainPage == true) {
       // setState(() {});
-      Provider.of<Shows>(context, listen: false).setReloadMainPage(false);
+      showsProvider.setReloadMainPage(false);
     }
-    final shows = Provider.of<Shows>(context, listen: false);
-    final urlBase = shows.urlBase;
+
+    final urlBase = showsProvider.urlBase;
 
     Future _loadRemoteAudio(url) async {
       print('streaming remote audio');
@@ -92,7 +125,7 @@ class _ControlButtonsState extends State<ControlButtons> {
         _playerIsInitialized = true;
 
         //This waits for all the prelim checks to be done then gets to the next part
-        if (await shows.localAudioFileCheck(filename)) {
+        if (await showsProvider.localAudioFileCheck(filename)) {
           //source is local
           print('File is downloaded');
           _loadLocalAudio(filename);
@@ -100,7 +133,7 @@ class _ControlButtonsState extends State<ControlButtons> {
         } else {
           //file is not downloaded; source is remote:
           //check if connected:
-          if (await shows.connectivityCheck) {
+          if (await showsProvider.connectivityCheck) {
             //if so, load the file:
             _loadRemoteAudio('$urlBase/$urlSnip/$filename');
             return true;
@@ -109,7 +142,7 @@ class _ControlButtonsState extends State<ControlButtons> {
             //The player is not initialized because there's nothing to play;
             //if you get here there's no local file and no internet connection.
             _playerIsInitialized = false;
-            shows.snackbarMessageNoInternet(context);
+            showsProvider.snackbarMessageNoInternet(context);
             return false;
           }
         }
@@ -122,6 +155,8 @@ class _ControlButtonsState extends State<ControlButtons> {
         StreamBuilder<Duration>(
           stream: _player.durationStream,
           builder: (context, snapshot) {
+            print('in streambuilder for ' + widget.show.filename);
+
             final duration = snapshot.data ?? Duration.zero;
             return StreamBuilder<Duration>(
               stream: _player.positionStream,
@@ -153,20 +188,24 @@ class _ControlButtonsState extends State<ControlButtons> {
                   )
                 : SizedBox(width: 40, height: 10),
             //Previous button
-            IconButton(
-                icon: Icon(Icons.skip_previous),
-                onPressed: () {
-                  widget.jumpPrevNext('back');
-                }),
+            Padding(
+              padding: const EdgeInsets.only(left: 5),
+              child: IconButton(
+                  icon: Icon(Icons.skip_previous),
+                  onPressed: () {
+                    widget.jumpPrevNext('back');
+                  }),
+            ),
 
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 5),
               child: StreamBuilder<PlayerState>(
                 stream: _player.playerStateStream,
                 builder: (context, snapshot) {
                   final playerState = snapshot.data;
                   final processingState = playerState?.processingState;
                   final playing = playerState?.playing;
+
                   if (processingState == ProcessingState.buffering ||
                       processingState == ProcessingState.loading) {
                     return Container(
@@ -184,6 +223,7 @@ class _ControlButtonsState extends State<ControlButtons> {
                                 widget.show.filename)
                             .then((shouldPlay) {
                           if (shouldPlay) {
+                            _player.setVolume(1);
                             _player.play();
                           }
                         });
@@ -206,11 +246,14 @@ class _ControlButtonsState extends State<ControlButtons> {
               ),
             ),
             //Next button
-            IconButton(
-                icon: Icon(Icons.skip_next),
-                onPressed: () {
-                  widget.jumpPrevNext('next');
-                }),
+            Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: IconButton(
+                  icon: Icon(Icons.skip_next),
+                  onPressed: () {
+                    widget.jumpPrevNext('next');
+                  }),
+            ),
             StreamBuilder<double>(
               stream: _player.speedStream,
               builder: (context, snapshot) => GestureDetector(

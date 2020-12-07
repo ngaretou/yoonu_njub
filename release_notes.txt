@@ -1,6 +1,8 @@
 1.0.6
 Addition of a question mark button at top right of main screen leading to contact options
 Graceful picture loading
+Graceful stop of audio at page change
+Evened up spacing of player controls
 
 1.0.5
 Adaptive display for web and tablet

@@ -34,11 +34,15 @@ dependencies:
   firebase_analytics: ^6.0.1
   flutter_localizations:
     sdk: flutter
-  just_audio: ^0.5.5
+  just_audio: ^0.5.6
   audio_session: ^0.0.9
   path_provider: ^1.6.24
   connectivity: ^2.0.1
   scrollable_positioned_list: ^0.1.8
+  preload_page_view:
+    git:
+      url: "https://github.com/crtl/preload_page_view.git"
+      ref: "fix-null-check-operators"
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

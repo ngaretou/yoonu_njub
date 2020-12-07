@@ -1,12 +1,15 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'download_button.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+import 'package:provider/provider.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:preload_page_view/preload_page_view.dart';
+
+import 'download_button.dart';
 import '../providers/shows.dart';
+import '../providers/player_manager.dart';
 import '../widgets/player_controls.dart';
 
 class ShowDisplay extends StatefulWidget {
@@ -15,16 +18,16 @@ class ShowDisplay extends StatefulWidget {
 }
 
 class _ShowDisplayState extends State<ShowDisplay> {
-  PageController _pageController;
+  PreloadPageController _pageController;
   ScrollController _scrollController = ScrollController();
   ScrollController _pageScrollController = ScrollController();
   final ItemScrollController itemScrollController = ItemScrollController();
 
   @override
   void didChangeDependencies() {
-    _pageController = PageController(
+    _pageController = PreloadPageController(
       initialPage: Provider.of<Shows>(context, listen: false).lastShowViewed,
-      viewportFraction: 1,
+      viewportFraction: 1.0,
       keepPage: true,
     );
     super.didChangeDependencies();
@@ -41,7 +44,8 @@ class _ShowDisplayState extends State<ShowDisplay> {
   @override
   Widget build(BuildContext context) {
     //Data and preliminaries
-    final shows = Provider.of<Shows>(context, listen: false);
+    final showsProvider = Provider.of<Shows>(context, listen: false);
+    final playerManager = Provider.of<PlayerManager>(context, listen: false);
     int currentPageId;
     final mediaQuery = MediaQuery.of(context).size;
     //Smallest iPhone is UIKit 320 x 480 = 800.
@@ -88,7 +92,7 @@ class _ShowDisplayState extends State<ShowDisplay> {
             itemScrollController: itemScrollController,
             initialScrollIndex: initialScrollIndex,
             physics: ClampingScrollPhysics(),
-            itemCount: shows.shows.length,
+            itemCount: showsProvider.shows.length,
             itemBuilder: (ctx, i) {
               return Container(
                 child: Padding(
@@ -114,18 +118,18 @@ class _ShowDisplayState extends State<ShowDisplay> {
                           children: [
                             Expanded(
                                 flex: 0,
-                                child: Text(shows.shows[i].id + ".  ",
+                                child: Text(showsProvider.shows[i].id + ".  ",
                                     style: showListStyle)),
                             Expanded(
                               flex: 3,
-                              child: Text(shows.shows[i].showNameRS,
+                              child: Text(showsProvider.shows[i].showNameRS,
                                   style: showListStyle),
                             ),
                             if (!kIsWeb)
                               // Expanded(
                               //   flex: 1,
                               //   child:
-                              DownloadButton(shows.shows[i]),
+                              DownloadButton(showsProvider.shows[i]),
                             // ),
                           ],
                         ),
@@ -170,22 +174,28 @@ class _ShowDisplayState extends State<ShowDisplay> {
     Widget playerStack() {
       Widget mainStack() {
         return Stack(children: [
-          PageView.builder(
-              physics: BouncingScrollPhysics(),
+          PreloadPageView.builder(
+              physics: AlwaysScrollableScrollPhysics(),
               scrollDirection: Axis.horizontal,
               controller: _pageController,
+              // preloadPagesCount: 3,
+              itemCount: showsProvider.shows.length,
               onPageChanged: (index) {
                 //Here we want the user to be able to come back to the name they were on when they
                 //return to the app, so save lastpage viewed on each page swipe.
 
-                shows.saveLastShowViewed(index + 1);
+                showsProvider.saveLastShowViewed(index);
+
+                //This tells the player manager which show to stop.
+                playerManager.showToPlay =
+                    (int.parse(showsProvider.shows[index].id)).toString();
               },
-              itemCount: shows.shows.length,
               itemBuilder: (context, i) {
-                Show show = shows.shows[i];
+                Show show = showsProvider.shows[i];
                 currentPageId = int.parse(show.id) - 1;
 
                 return Column(
+                  key: UniqueKey(),
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     //Show image
@@ -193,10 +203,16 @@ class _ShowDisplayState extends State<ShowDisplay> {
                       flex: 1,
                       child: Container(
                         width: mediaQuery.width,
-                        child: Image.asset(
-                          'assets/images/${show.image}.jpg',
-                          fit: BoxFit.cover,
-                        ),
+
+                        child: Image(
+                            image:
+                                AssetImage('assets/images/${show.image}.jpg'),
+                            fit: BoxFit.cover),
+
+                        // child: Image.asset(
+                        //   'assets/images/${show.image}.jpg',
+                        //   fit: BoxFit.cover,
+                        // ),
                       ),
                     ),
                     SizedBox(
@@ -207,13 +223,13 @@ class _ShowDisplayState extends State<ShowDisplay> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(shows.shows[i].id,
+                          Text(showsProvider.shows[i].id,
                               style: _rsStyle.copyWith(fontSize: 18)),
-                          Text(shows.shows[i].showNameAS,
+                          Text(showsProvider.shows[i].showNameAS,
                               textAlign: TextAlign.center,
                               style: _asStyle,
                               textDirection: _rtlText),
-                          Text(shows.shows[i].showNameRS,
+                          Text(showsProvider.shows[i].showNameRS,
                               textAlign: TextAlign.center,
                               style: _rsStyle,
                               textDirection: _ltrText),
@@ -221,15 +237,16 @@ class _ShowDisplayState extends State<ShowDisplay> {
                       ),
                     ),
 
-                    ControlButtons(show, jumpPrevNext),
+                    ControlButtons(
+                        key: ValueKey(show.filename),
+                        show: show,
+                        jumpPrevNext: jumpPrevNext),
                     SizedBox(
                       height: 50,
                     )
                   ],
                 );
               }),
-
-          //ModalBottomSheet version here, other option is below DraggableScrollableSheet
           if (_isPhone || mediaQuery.width < 600)
             Positioned(
               bottom: 0,
@@ -283,8 +300,9 @@ class _ShowDisplayState extends State<ShowDisplay> {
       );
     }
 
-    print(mediaQuery.width);
+    // print(mediaQuery.width);
     if (_isPhone || mediaQuery.width < 600) {
+      print('returning phoneVersion');
       return phoneVersion();
     } else {
       return webVersion();
