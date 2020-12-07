@@ -54,14 +54,11 @@ class ControlButtonsState extends State<ControlButtons> {
   @override
   Widget build(BuildContext context) {
     void gracefulStopInBuild() async {
-      print('starting to stop');
       //Gradually turn down volume
       for (var i = 10; i >= 0; i--) {
         _player.setVolume(i / 10);
         await Future.delayed(Duration(milliseconds: 100));
-        print('looping in for ' + widget.show.filename);
       }
-
       _player.pause();
     }
 
@@ -76,7 +73,6 @@ class ControlButtonsState extends State<ControlButtons> {
 
     //This is to refresh the main view after downloads are clear
     if (Provider.of<Shows>(context, listen: true).reloadMainPage == true) {
-      // setState(() {});
       showsProvider.setReloadMainPage(false);
     }
 
@@ -85,12 +81,18 @@ class ControlButtonsState extends State<ControlButtons> {
     Future _loadRemoteAudio(url) async {
       print('streaming remote audio');
       AudioSource source = AudioSource.uri(Uri.parse(url));
+      print(source);
       try {
         await _player.load(source);
-        // await _player.setUrl(url);
       } catch (e) {
         // catch load errors: 404, invalid url ...
-        print("An error occured $e");
+        print("Unable to stream remote audio. Error message: $e");
+        //If we get past the connectivitycheck above but there's a problem wiht the source url; example the site is down,
+        //we can get an error. If that happens, show the snackbar but also refresh the page using the below code
+        //to get rid of the circular progress indicator (there is a listener for that value that will rebuild)
+        showsProvider.snackbarMessageNoInternet(context);
+        Provider.of<Shows>(context, listen: false).setReloadMainPage(true);
+        return;
       }
     }
 
@@ -105,10 +107,9 @@ class ControlButtonsState extends State<ControlButtons> {
       AudioSource source = ProgressiveAudioSource(Uri.file('$path/$filename'));
       try {
         await _player.load(source);
-        // await _player.setAsset('$path/$filename');
       } catch (e) {
         // catch load errors: 404, invalid url ...
-        print("An error occured $e");
+        print("Unable to load local audio. Error message: $e");
       }
     }
 
@@ -176,7 +177,7 @@ class ControlButtonsState extends State<ControlButtons> {
             );
           },
         ),
-        //This row is the control buttons. Some of the original code's controls (from just_audio plugin example) this app does not use so have just commented out rather than deleting.
+        //This row is the control buttons.
         Row(
           // mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -225,6 +226,8 @@ class ControlButtonsState extends State<ControlButtons> {
                           if (shouldPlay) {
                             _player.setVolume(1);
                             _player.play();
+                          } else {
+                            print('shouldPlay false');
                           }
                         });
                       },

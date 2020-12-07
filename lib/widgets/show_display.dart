@@ -8,9 +8,9 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:preload_page_view/preload_page_view.dart';
 
 import 'download_button.dart';
+import '../widgets/player_controls.dart';
 import '../providers/shows.dart';
 import '../providers/player_manager.dart';
-import '../widgets/player_controls.dart';
 
 class ShowDisplay extends StatefulWidget {
   @override
@@ -103,9 +103,12 @@ class _ShowDisplayState extends State<ShowDisplay> {
                       if (_isPhone || mediaQuery.width < 600)
                         Navigator.pop(context);
                       // _pageController.jumpToPage(i);
-                      _pageController.animateToPage(i,
-                          duration: Duration(milliseconds: 500),
-                          curve: Curves.easeIn);
+                      // _pageController.animateToPage(i,
+                      //     duration: Duration(milliseconds: 500),
+                      //     curve: Curves.easeIn);
+                      _pageController.jumpToPage(
+                        i,
+                      );
                     },
                     child: Card(
                       elevation: 5,
@@ -164,6 +167,7 @@ class _ShowDisplayState extends State<ShowDisplay> {
               child: Container(
                 padding: EdgeInsets.only(top: 8),
                 height: mediaQuery.height * .8,
+                //Here is the real content, the playList widget
                 child: playList(initialScrollIndex),
               ));
         },
@@ -178,7 +182,7 @@ class _ShowDisplayState extends State<ShowDisplay> {
               physics: AlwaysScrollableScrollPhysics(),
               scrollDirection: Axis.horizontal,
               controller: _pageController,
-              // preloadPagesCount: 3,
+              preloadPagesCount: 2,
               itemCount: showsProvider.shows.length,
               onPageChanged: (index) {
                 //Here we want the user to be able to come back to the name they were on when they
@@ -192,7 +196,8 @@ class _ShowDisplayState extends State<ShowDisplay> {
               },
               itemBuilder: (context, i) {
                 Show show = showsProvider.shows[i];
-                currentPageId = int.parse(show.id) - 1;
+                currentPageId =
+                    Provider.of<Shows>(context, listen: false).lastShowViewed;
 
                 return Column(
                   key: UniqueKey(),
@@ -295,7 +300,10 @@ class _ShowDisplayState extends State<ShowDisplay> {
         children: [
           Container(width: mediaQuery.width * .6, child: playerStack()),
           //playList takes an initialPage, which here is 0, the first one
-          Container(width: mediaQuery.width * .4, child: playList(0)),
+          Container(
+              width: mediaQuery.width * .4,
+              child: playList(
+                  Provider.of<Shows>(context, listen: false).lastShowViewed)),
         ],
       );
     }

@@ -3,6 +3,7 @@ Addition of a question mark button at top right of main screen leading to contac
 Graceful picture loading
 Graceful stop of audio at page change
 Evened up spacing of player controls
+More robust connectivity check and error checking on interrupted connections
 
 1.0.5
 Adaptive display for web and tablet

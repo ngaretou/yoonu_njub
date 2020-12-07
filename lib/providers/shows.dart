@@ -4,6 +4,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:connectivity/connectivity.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'dart:async';
 import 'dart:convert';
@@ -114,13 +115,27 @@ class Shows with ChangeNotifier {
 
   //Code accessible from multiple points
   Future<bool> get connectivityCheck async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.mobile ||
-        connectivityResult == ConnectivityResult.wifi) {
-      return true;
+    bool connected;
+    if (kIsWeb) {
+      var connectivityResult = await (Connectivity().checkConnectivity());
+      if (connectivityResult == ConnectivityResult.mobile ||
+          connectivityResult == ConnectivityResult.wifi) {
+        connected = true;
+      } else {
+        connected = false;
+      }
     } else {
-      return false;
+      try {
+        final result = await InternetAddress.lookup('google.com');
+        if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+          connected = true;
+        }
+      } on SocketException catch (_) {
+        connected = false;
+      }
     }
+
+    return connected;
   }
 
   snackbarMessageNoInternet(BuildContext context) {
