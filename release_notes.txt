@@ -4,6 +4,8 @@ Beta version of flutter breaks iOS 10 rendering of images; downgrading for this 
     Framework • revision 1aafb3a8b9 (4 weeks ago) • 2020-11-13 09:59:28 -0800
     Engine • revision 2c956a31c0
     Tools • Dart 2.10.4 
+Playlist button in action bar
+Player control resizing on reload fix
 
 1.0.6
 Addition of a question mark button at top right of main screen leading to contact options

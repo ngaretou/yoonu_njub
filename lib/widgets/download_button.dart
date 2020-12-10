@@ -202,11 +202,17 @@ class _DownloadButtonState extends State<DownloadButton> {
             future: shows.localAudioFileCheck(widget.show.filename),
             builder: (ctx, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(
-                    child: Icon(
+                return
+                    // Center(
+                    //     child: Padding(
+                    //   padding: const EdgeInsets.symmetric(horizontal: 14.5),
+                    //   child:
+                    Icon(
                   Icons.download_sharp,
                   color: Theme.of(context).iconTheme.color,
-                ));
+                )
+                    // ))
+                    ;
               } else {
                 //set the _isDownloaded flag to true or false depending on the result of the above future, localAudioFileCheck, in shows.dart
                 _isDownloaded = snapshot.data;

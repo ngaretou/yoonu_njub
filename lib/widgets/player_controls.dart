@@ -177,10 +177,11 @@ class ControlButtonsState extends State<ControlButtons> {
         Row(
           // mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
           children: [
             !kIsWeb
-                ? Padding(
-                    padding: const EdgeInsets.all(0.0),
+                ? Container(
+                    width: 40,
                     child: DownloadButton(widget.show),
                   )
                 : SizedBox(width: 40, height: 10),
@@ -255,27 +256,36 @@ class ControlButtonsState extends State<ControlButtons> {
             ),
             StreamBuilder<double>(
               stream: _player.speedStream,
-              builder: (context, snapshot) => GestureDetector(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text("${snapshot.data?.toStringAsFixed(1)}x",
-                      style: Theme.of(context)
-                          .textTheme
-                          .subtitle2
-                          .copyWith(fontWeight: FontWeight.bold)),
-                ),
-                onTap: () {
-                  _showSliderDialog(
-                    context: context,
-                    title: "Adjust speed",
-                    divisions: 10,
-                    min: 0.5,
-                    max: 1.5,
-                    stream: _player.speedStream,
-                    onChanged: _player.setSpeed,
-                  );
-                },
-              ),
+              builder: (context, snapshot) {
+                String speed;
+                if (snapshot.data != null) {
+                  speed = snapshot.data?.toStringAsFixed(1);
+                } else {
+                  speed = '1.0';
+                }
+
+                return GestureDetector(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text("${speed}x",
+                        style: Theme.of(context)
+                            .textTheme
+                            .subtitle2
+                            .copyWith(fontWeight: FontWeight.bold)),
+                  ),
+                  onTap: () {
+                    _showSliderDialog(
+                      context: context,
+                      title: "Adjust speed",
+                      divisions: 10,
+                      min: 0.5,
+                      max: 1.5,
+                      stream: _player.speedStream,
+                      onChanged: _player.setSpeed,
+                    );
+                  },
+                );
+              },
             ),
           ],
         ),
