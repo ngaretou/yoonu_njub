@@ -7,8 +7,20 @@ import '../widgets/drawer.dart';
 import '../widgets/show_display.dart';
 import '../widgets/contact_options.dart';
 
-class MainPlayer extends StatelessWidget {
+class MainPlayer extends StatefulWidget {
   static const routeName = 'main-player-screen';
+
+  @override
+  _MainPlayerState createState() => _MainPlayerState();
+}
+
+class _MainPlayerState extends State<MainPlayer> {
+  bool _showPlaylist;
+  @override
+  void initState() {
+    _showPlaylist = false;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +44,19 @@ class MainPlayer extends StatelessWidget {
     }
 
     print('_MainPlayerState build');
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Yoonu Njub"),
         actions: [
-          IconButton(icon: Icon(Icons.playlist_play), onPressed: () {}),
+          if (_isPhone || mediaQuery.width < 600)
+            IconButton(
+                icon: Icon(Icons.list),
+                onPressed: () {
+                  setState(() {
+                    _showPlaylist = true;
+                  });
+                }),
           IconButton(
             icon: Icon(Icons.help_outline),
             onPressed: () {
@@ -59,7 +79,7 @@ class MainPlayer extends StatelessWidget {
         ],
       ),
       drawer: MainDrawer(),
-      body: ShowDisplay(),
+      body: ShowDisplay(_showPlaylist),
     );
   }
 }

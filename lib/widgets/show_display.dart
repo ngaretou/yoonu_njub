@@ -2,7 +2,6 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-// import 'package:flutter/services.dart';
 
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -14,11 +13,13 @@ import '../providers/shows.dart';
 import '../providers/player_manager.dart';
 
 class ShowDisplay extends StatefulWidget {
+  final bool showPlaylist;
+  ShowDisplay(this.showPlaylist);
   @override
-  _ShowDisplayState createState() => _ShowDisplayState();
+  ShowDisplayState createState() => ShowDisplayState();
 }
 
-class _ShowDisplayState extends State<ShowDisplay> {
+class ShowDisplayState extends State<ShowDisplay> {
   PreloadPageController _pageController;
   ScrollController _scrollController = ScrollController();
   ScrollController _pageScrollController = ScrollController();
@@ -31,6 +32,7 @@ class _ShowDisplayState extends State<ShowDisplay> {
       viewportFraction: 1.0,
       keepPage: true,
     );
+
     super.didChangeDependencies();
   }
 
@@ -47,13 +49,20 @@ class _ShowDisplayState extends State<ShowDisplay> {
     //Data and preliminaries
     final showsProvider = Provider.of<Shows>(context, listen: false);
     final playerManager = Provider.of<PlayerManager>(context, listen: false);
-    int currentPageId;
     final mediaQuery = MediaQuery.of(context).size;
     //Smallest iPhone is UIKit 320 x 480 = 800.
     //Biggest (12 pro max) is 428 x 926 = 1354.
     //Android biggest phone I can find is is 480 x 853 = 1333
     //For tablets the smallest I can find is 768 x 1024
     final bool _isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
+
+    void jumpPrevNext(String direction) {
+      direction == 'next'
+          ? _pageController.nextPage(
+              duration: Duration(milliseconds: 500), curve: Curves.ease)
+          : _pageController.previousPage(
+              duration: Duration(milliseconds: 500), curve: Curves.ease);
+    }
 
     //Text Styles
     ui.TextDirection _rtlText = ui.TextDirection.rtl;
@@ -77,21 +86,13 @@ class _ShowDisplayState extends State<ShowDisplay> {
         fontFamily: "Lato",
         fontSize: 20);
 
-    void jumpPrevNext(String direction) {
-      direction == 'next'
-          ? _pageController.nextPage(
-              duration: Duration(milliseconds: 500), curve: Curves.ease)
-          : _pageController.previousPage(
-              duration: Duration(milliseconds: 500), curve: Curves.ease);
-    }
-
-//This page is split up into components that can be recombined based on the platform.
-//This is the playList widget. For web, it will go side by side; for app, it will go as a drawer.
-    Widget playList(int initialScrollIndex) {
+// //This page is split up into components that can be recombined based on the platform.
+// //This is the playList widget. For web, it will go side by side; for app, it will go as a drawer.
+    Widget playList() {
       Widget mainList() {
         return ScrollablePositionedList.builder(
             itemScrollController: itemScrollController,
-            initialScrollIndex: initialScrollIndex,
+            initialScrollIndex: showsProvider.lastShowViewed,
             physics: ClampingScrollPhysics(),
             itemCount: showsProvider.shows.length,
             itemBuilder: (ctx, i) {
@@ -153,7 +154,8 @@ class _ShowDisplayState extends State<ShowDisplay> {
     }
 
 // Bottom playlist drawer
-    void _popUpShowList(BuildContext context, int initialScrollIndex) {
+    void _popUpShowList() {
+      print('showing playlist');
       showModalBottomSheet(
         context: context,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -169,11 +171,17 @@ class _ShowDisplayState extends State<ShowDisplay> {
                 padding: EdgeInsets.only(top: 8),
                 height: mediaQuery.height * .8,
                 //Here is the real content, the playList widget
-                child: playList(initialScrollIndex),
+                child: playList(),
               ));
         },
       );
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.showPlaylist == true) {
+        _popUpShowList();
+      }
+    });
 
     //This is the main player component
     Widget playerStack() {
@@ -183,7 +191,7 @@ class _ShowDisplayState extends State<ShowDisplay> {
               physics: AlwaysScrollableScrollPhysics(),
               scrollDirection: Axis.horizontal,
               controller: _pageController,
-              preloadPagesCount: 2,
+              preloadPagesCount: 3,
               itemCount: showsProvider.shows.length,
               onPageChanged: (index) {
                 //Here we want the user to be able to come back to the name they were on when they
@@ -197,8 +205,7 @@ class _ShowDisplayState extends State<ShowDisplay> {
               },
               itemBuilder: (context, i) {
                 Show show = showsProvider.shows[i];
-                currentPageId =
-                    Provider.of<Shows>(context, listen: false).lastShowViewed;
+
                 print('assets/images/${show.image}.jpg');
                 return Column(
                   key: UniqueKey(),
@@ -220,15 +227,6 @@ class _ShowDisplayState extends State<ShowDisplay> {
                             ),
                           ),
                         ),
-                        // child: Image(
-                        //     image:
-                        //         AssetImage('assets/images/${show.image}.jpg'),
-                        //     fit: BoxFit.cover),
-
-                        // child: Image.asset(
-                        //   'assets/images/${show.image}.jpg',
-                        //   fit: BoxFit.cover,
-                        // ),
                       ),
                     ),
                     SizedBox(
@@ -268,7 +266,7 @@ class _ShowDisplayState extends State<ShowDisplay> {
               bottom: 0,
               child: GestureDetector(
                 onTap: () {
-                  _popUpShowList(context, currentPageId);
+                  _popUpShowList();
                 },
                 child: Container(
                   width: mediaQuery.width,
@@ -311,10 +309,7 @@ class _ShowDisplayState extends State<ShowDisplay> {
         children: [
           Container(width: mediaQuery.width * .6, child: playerStack()),
           //playList takes an initialPage, which here is 0, the first one
-          Container(
-              width: mediaQuery.width * .4,
-              child: playList(
-                  Provider.of<Shows>(context, listen: false).lastShowViewed)),
+          Container(width: mediaQuery.width * .4, child: playList()),
         ],
       );
     }
