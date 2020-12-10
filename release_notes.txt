@@ -1,3 +1,10 @@
+1.0.7
+Beta version of flutter breaks iOS 10 rendering of images; downgrading for this release to below stable version (Dec 9 2020): 
+    Flutter 1.22.4 • channel stable • https://github.com/flutter/flutter.git
+    Framework • revision 1aafb3a8b9 (4 weeks ago) • 2020-11-13 09:59:28 -0800
+    Engine • revision 2c956a31c0
+    Tools • Dart 2.10.4 
+
 1.0.6
 Addition of a question mark button at top right of main screen leading to contact options
 Graceful picture loading

@@ -139,8 +139,10 @@ class Shows with ChangeNotifier {
   }
 
   snackbarMessageNoInternet(BuildContext context) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    // ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    Scaffold.of(context).hideCurrentSnackBar();
+    Scaffold.of(context).showSnackBar(SnackBar(
       content: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -170,7 +172,7 @@ class Shows with ChangeNotifier {
 
         return true;
       } else {
-        print('The file seems to not be there');
+        // print('The file seems to not be there');
 
         return false;
       }

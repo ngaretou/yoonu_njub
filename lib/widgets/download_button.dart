@@ -92,6 +92,7 @@ class _DownloadButtonState extends State<DownloadButton> {
       if (!_isDownloading) {
         final directory = await getApplicationDocumentsDirectory();
         final path = directory.path;
+        print(directory.path);
         //see if it's on the device
         try {
           final file = File('$path/$filename');

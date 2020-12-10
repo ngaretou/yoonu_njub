@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+// import 'package:flutter/services.dart';
 
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -198,7 +199,7 @@ class _ShowDisplayState extends State<ShowDisplay> {
                 Show show = showsProvider.shows[i];
                 currentPageId =
                     Provider.of<Shows>(context, listen: false).lastShowViewed;
-
+                print('assets/images/${show.image}.jpg');
                 return Column(
                   key: UniqueKey(),
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -208,11 +209,21 @@ class _ShowDisplayState extends State<ShowDisplay> {
                       flex: 1,
                       child: Container(
                         width: mediaQuery.width,
-
-                        child: Image(
-                            image:
-                                AssetImage('assets/images/${show.image}.jpg'),
-                            fit: BoxFit.cover),
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: AssetImage(
+                              "assets/images/${show.image}.jpg",
+                              // bundle: DefaultAssetBundle.of(context)),
+                              // bundle: rootBundle
+                            ),
+                          ),
+                        ),
+                        // child: Image(
+                        //     image:
+                        //         AssetImage('assets/images/${show.image}.jpg'),
+                        //     fit: BoxFit.cover),
 
                         // child: Image.asset(
                         //   'assets/images/${show.image}.jpg',

@@ -1,0 +1,24 @@
+Running "flutter pub get" in yoonu_njub...
+Launching lib/main.dart on iPhone 5s in debug mode...
+lib/main.dart:1
+Xcode build done.                                           103.9s
+objc[5674]: Class PLBuildVersion is implemented in both /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 10.3.simruntime/Contents/Resources/RuntimeRoot/System/Library/PrivateFrameworks/AssetsLibraryServices.framework/AssetsLibraryServices (0x1227dccc0) and /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 10.3.simruntime/Contents/Resources/RuntimeRoot/System/Library/PrivateFrameworks/PhotoLibraryServices.framework/PhotoLibraryServices (0x1225f36f0). One of the two will be used. Which one is undefined.
+adding notification observers
+6.33.0 - [Firebase/Core][I-COR000012] Could not locate configuration file: 'GoogleService-Info.plist'.
+
+
+/Users/corey/Library/Developer/CoreSimulator/Devices/F7EEA643-D461-42FF-89AD-6122F36CF928/data/Containers/Data/Application/0AB1A2BF-A4E5-4102-9A37-18A92DF99081/Documents
+
+  pc 0x00b2f1eb fp 0x19621ec4 Dart_EnterIsolate+0x96
+  pc 0x00706519 fp 0x19621ed0 tonic::DartIsolateScope::DartIsolateScope(_Dart_Isolate*)+0x38
+  pc 0x007052f3 fp 0x19621eec tonic::DartWeakPersistentValue::Clear()+0x4c
+  pc 0x00705429 fp 0x19621ef8 tonic::DartWrappable::~DartWrappable()+0x1a
+  pc 0x007702d1 fp 0x19621f00 flutter::ImageDescriptor::~ImageDescriptor()+0x8
+  pc 0x0076dbef fp 0x19621f10 flutter::ImageDecoder::Decode(fml::RefPtr<flutter::ImageDescriptor>, unsigned int, unsigned int, std::__1::function<void (flutter::SkiaGPUObject<SkImage>)> const&)::$_1::~$_1()+0x66
+  pc 0x0076f353 fp 0x19621f1c std::__1::__function::__alloc_func<fml::internal::CopyableLambda<flutter::ImageDecoder::Decode(fml::RefPtr<flutter::ImageDescriptor>, unsigned int, unsigned int, std::__1::function<void (flutter::SkiaGPUObject<SkImage>)> const&)::$_1>, std::__1::allocator<fml::internal::CopyableLambda<flutter::ImageDecoder::Decode(fml::RefPtr<flutter::ImageDescriptor>, unsigned int, unsigned int, std::__1::function<void (flutter::SkiaGPUObject<SkImage>)> const&)::$_1> >, void ()>::destroy()+0x2a
+  pc 0x0076dd8b fp 0x19621f28 std::__1::__function::__func<fml::internal::CopyableLambda<flutter::ImageDecoder::Decode(fml::RefPtr<flutter::ImageDescriptor>, unsigned int, unsigned int, std::__1::function<void (flutter::SkiaGPUObject<SkImage>)> const&)::$_1>, std::__1::allocator<fml::internal::CopyableLambda<flutter::ImageDecoder::Decode(fml::RefPtr<flutter::ImageDescriptor>, unsigned int, unsigned int, std::__1::function<void (flutter::SkiaGPUObject<SkImage>)> const&)::$_1> >, void ()>::destroy_deallocate()+0xc
+  pc 0x0049140f fp 0x19621fa4 std::__1::__thread_proxy<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct> >, fml::ConcurrentMessageLoop::ConcurrentMessageLoop(unsigned long)::$_0> >(void*, void*)+0x272
+  pc 0x1a70493b fp 0x19621fb8 <redacted>+0xd8
+  pc 0x1a70485d fp 0x19621fe0 _pthread_start+0xea
+-- End of DumpStackTrace
+Lost connection to device.

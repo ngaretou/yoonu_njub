@@ -47,10 +47,6 @@ class ControlButtonsState extends State<ControlButtons> {
     await session.configure(AudioSessionConfiguration.speech());
   }
 
-  void testingFun() {
-    print('testingFun');
-  }
-
   @override
   Widget build(BuildContext context) {
     void gracefulStopInBuild() async {

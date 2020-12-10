@@ -36,6 +36,7 @@ class MainPlayer extends StatelessWidget {
       appBar: AppBar(
         title: Text("Yoonu Njub"),
         actions: [
+          IconButton(icon: Icon(Icons.playlist_play), onPressed: () {}),
           IconButton(
             icon: Icon(Icons.help_outline),
             onPressed: () {
