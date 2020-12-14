@@ -1,4 +1,10 @@
-1.0.7
+1.0.9
+Fixed a bug that could show the playlist at the wrong time
+Corrected 'share this app' link in drawer
+Added Buuru Ndam link in drawer
+Changed icons in drawer
+
+1.0.8
 Beta version of flutter breaks iOS 10 rendering of images; downgrading for this release to below stable version (Dec 9 2020): 
     Flutter 1.22.4 • channel stable • https://github.com/flutter/flutter.git
     Framework • revision 1aafb3a8b9 (4 weeks ago) • 2020-11-13 09:59:28 -0800

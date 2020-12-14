@@ -52,10 +52,17 @@ class _MainPlayerState extends State<MainPlayer> {
           if (_isPhone || mediaQuery.width < 600)
             IconButton(
                 icon: Icon(Icons.list),
-                onPressed: () {
+                onPressed: () async {
+                  //when triggered rebuild the page so the popup is shown
+
                   setState(() {
                     _showPlaylist = true;
                   });
+                  //then switch back to false wihtout setState for the next time.
+                  //The future is necessary because otherwise flutter is *too* fast - if you don't wait it
+                  //switches before it can build and you don't get the popup!
+                  await new Future.delayed(const Duration(seconds: 5))
+                      .then((value) => _showPlaylist = false);
                 }),
           IconButton(
             icon: Icon(Icons.help_outline),

@@ -43,6 +43,36 @@ class MainDrawer extends StatelessWidget {
       );
     }
 
+    Widget drawerTileWithFormatting(title, icon, tapHandler) {
+      return InkWell(
+        onTap: tapHandler,
+        child: Container(
+            width: 300,
+            child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Row(
+                  children: [
+                    icon.toString().startsWith("FontAwesomeIcons")
+                        ? FaIcon(icon,
+                            size: 27,
+                            color:
+                                Theme.of(context).appBarTheme.iconTheme.color)
+                        : Icon(
+                            icon,
+                            size: 27,
+                            color:
+                                Theme.of(context).appBarTheme.iconTheme.color,
+                          ),
+                    SizedBox(width: 25),
+                    Text(title,
+                        style:
+                            (Theme.of(context).appBarTheme.textTheme.headline6)
+                                .copyWith(fontStyle: FontStyle.italic)),
+                  ],
+                ))),
+      );
+    }
+
     return Drawer(
       elevation: 5.0,
       child: Container(
@@ -96,17 +126,35 @@ class MainDrawer extends StatelessWidget {
               Icons.share,
               () async {
                 Navigator.of(context).pop();
-                Share.share('https://sng.al/cal');
+                Share.share('https://sng.al/yn');
               },
             ),
+
             Divider(
               thickness: 1,
             ),
             drawerTitle(
               AppLocalization.of(context).moreApps,
-              Icons.web_asset,
+              Icons.apps,
               () async {
                 const url = 'https://sng.al/app';
+                if (await canLaunch(url)) {
+                  await launch(url);
+                } else {
+                  throw 'Could not launch $url';
+                }
+              },
+            ),
+            Divider(
+              thickness: 1,
+            ),
+            //Buuru Ndam
+
+            drawerTileWithFormatting(
+              "Buuru Ndam",
+              Icons.ondemand_video,
+              () async {
+                const url = 'https://youtu.be/99McEuAtRkk';
                 if (await canLaunch(url)) {
                   await launch(url);
                 } else {
@@ -141,7 +189,7 @@ class MainDrawer extends StatelessWidget {
             ),
             drawerTitle(
               AppLocalization.of(context).settingsAbout,
-              Icons.question_answer,
+              Icons.info,
               () {
                 Navigator.of(context).popAndPushNamed(AboutScreen.routeName);
               },

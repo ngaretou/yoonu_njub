@@ -46,6 +46,7 @@ class ShowDisplayState extends State<ShowDisplay> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.showPlaylist);
     //Data and preliminaries
     final showsProvider = Provider.of<Shows>(context, listen: false);
     final playerManager = Provider.of<PlayerManager>(context, listen: false);
@@ -191,7 +192,7 @@ class ShowDisplayState extends State<ShowDisplay> {
               physics: AlwaysScrollableScrollPhysics(),
               scrollDirection: Axis.horizontal,
               controller: _pageController,
-              preloadPagesCount: 3,
+              preloadPagesCount: 2,
               itemCount: showsProvider.shows.length,
               onPageChanged: (index) {
                 //Here we want the user to be able to come back to the name they were on when they
