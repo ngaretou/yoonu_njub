@@ -856,6 +856,14 @@
             "image": "10"
         },
         {
+            "id": "108",
+            "showNameRS": "Tukkitel àddina",
+            "showNameAS": "تُڪِّتࣹلْ اࣵدِّنَ",
+            "urlSnip": "Part_6",
+            "filename": "108_Tukkitel_àddina.mp3",
+            "image": "2"
+        },
+        {
             "id": "109",
             "showNameRS": "Rammukat bi",
             "showNameAS": "رَمُّڪَتْ بِ",
@@ -928,6 +936,14 @@
             "image": "19"
         },
         {
+            "id": "118",
+            "showNameRS": "Ndogalu Yàlla",
+            "showNameAS": "ندࣷگَلُ يࣵلَّ",
+            "urlSnip": "Part_6",
+            "filename": "118_Ndogalu_Yàlla.mp3",
+            "image": "10"
+        },
+        {
             "id": "119",
             "showNameRS": "Sibbiru",
             "showNameAS": "سِبِّرُ",
@@ -950,6 +966,14 @@
             "urlSnip": "Part_6",
             "filename": "121_Ngistal.mp3",
             "image": "3"
+        },
+        {
+            "id": "122",
+            "showNameRS": "Rëy",
+            "showNameAS": "رࣴيْ",
+            "urlSnip": "Part_6",
+            "filename": "122_Rëy.mp3",
+            "image": "13"
         },
         {
             "id": "123",

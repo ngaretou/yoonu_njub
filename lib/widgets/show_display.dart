@@ -46,7 +46,6 @@ class ShowDisplayState extends State<ShowDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.showPlaylist);
     //Data and preliminaries
     final showsProvider = Provider.of<Shows>(context, listen: false);
     final playerManager = Provider.of<PlayerManager>(context, listen: false);
@@ -135,7 +134,11 @@ class ShowDisplayState extends State<ShowDisplay> {
                               // Expanded(
                               //   flex: 1,
                               //   child:
-                              DownloadButton(showsProvider.shows[i]),
+                              Container(
+                                  width: 40,
+                                  height: 40,
+                                  child:
+                                      DownloadButton(showsProvider.shows[i])),
                             // ),
                           ],
                         ),

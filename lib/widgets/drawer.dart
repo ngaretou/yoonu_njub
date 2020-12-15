@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -9,6 +10,7 @@ import '../screens/about_screen.dart';
 import '../screens/settings_screen.dart';
 
 import 'contact_options.dart';
+import 'deep_link.dart';
 
 class MainDrawer extends StatelessWidget {
   @override
@@ -154,12 +156,39 @@ class MainDrawer extends StatelessWidget {
               "Buuru Ndam",
               Icons.ondemand_video,
               () async {
-                const url = 'https://youtu.be/99McEuAtRkk';
-                if (await canLaunch(url)) {
-                  await launch(url);
-                } else {
-                  throw 'Could not launch $url';
-                }
+                launchDeepLink('youtube', '99McEuAtRkk');
+                // const url = 'https://youtu.be/99McEuAtRkk';
+                // const deepLink = 'youtube://99McEuAtRkk';
+
+                // //Plain vanilla url launch
+                // simpleLaunch() async {
+                //   if (await canLaunch(url)) {
+                //     await launch(url);
+                //   } else {
+                //     throw 'Could not launch $url';
+                //   }
+                // }
+
+                // //Now figure out what we need to do based on platform
+                // if (kIsWeb) {
+                //   simpleLaunch();
+                // } else if (Platform.isIOS) {
+                //   //https://github.com/flutter/flutter/issues/25991#issuecomment-453255012
+                //   if (await canLaunch('youtube://')) {
+                //     await launch(deepLink, forceSafariVC: false);
+                //   } else {
+                //     await launch(url, forceSafariVC: true);
+                //   }
+                // } else {
+                //   //Not web, not iOS = Android
+                //   simpleLaunch();
+                // }
+
+                // if (await canLaunch(url)) {
+                //   await launch(url);
+                // } else {
+                //   throw 'Could not launch $url';
+                // }
               },
             ),
             //Contact Us section

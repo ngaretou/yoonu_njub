@@ -46,17 +46,15 @@ class AboutScreen extends StatelessWidget {
             ),
             RichText(
                 text: TextSpan(style: defaultStyle, children: [
-              urlGo('YoonuNjub.org\n\n', 'http://yoonunjub.org/', linkTheme),
-              urlGo(
-                  'Buuru Ndam\n\n', 'https://youtu.be/99McEuAtRkk', linkTheme),
-              urlGo(
-                  'Wolof Bible online\n\n', 'http://biblewolof.com', linkTheme),
               TextSpan(
                   text: 'Yoonu Njub',
                   style: TextStyle(fontStyle: FontStyle.italic)),
               TextSpan(
                   text:
                       ' © 2020 ROCK International.\n\nWolof Scriptures quoted by permission.\n\nThe Old Testament selections published under the name "Mucc gi Yàlla waajal" Copyright © 1999 ;\n\n\The full text of Genesis published under the name "Njalbéen ga: xaaj bi jëkk ci Tawreetu Musaa" Copyright © 2003;\n\nThe complete New Testament, published under the name "Kàddug Dëgg Gi" Copyright © 1987;\n\nThe complete New Testament, revised edition, published under the name "Téereb Injiil di Kàddug Yàlla" Copyright © 2004.\n\nThe copyright of the Wolof scriptures is held by:\n\nLes Assemblées Evangéliques du Sénégal and La Mission Baptiste du Sénégal.\n\nAll rights reserved. Used by permission.\n\n'),
+              urlGo('YoonuNjub.org\n\n', 'http://yoonunjub.org/', linkTheme),
+              urlGo(
+                  'Wolof Bible online\n\n', 'http://biblewolof.com', linkTheme),
             ])),
             Divider(
               thickness: 3,

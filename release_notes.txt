@@ -1,3 +1,8 @@
+1.0.10
+Added missing shows from source site
+Fixed jumping elements in playlist when downloaded show is deleted
+Enabled improved deep linking directly to YouTube, WhatsApp, and Facebook Messenger apps on iOS
+
 1.0.9
 Fixed a bug that could show the playlist at the wrong time
 Corrected 'share this app' link in drawer
