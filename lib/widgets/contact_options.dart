@@ -61,12 +61,6 @@ class ContactOptions extends StatelessWidget {
           FontAwesomeIcons.whatsapp,
           () async {
             launchDeepLink('whatsapp', '221776427432');
-            // const url = 'https://wa.me/221776427432';
-            // if (await canLaunch(url)) {
-            //   await launch(url);
-            // } else {
-            //   throw 'Could not launch $url';
-            // }
             Navigator.of(context).pop();
           },
         ),
@@ -75,12 +69,6 @@ class ContactOptions extends StatelessWidget {
           FontAwesomeIcons.facebookMessenger,
           () async {
             launchDeepLink('fb', '107408064239821');
-            // const url = 'https://m.me/kaddugyallagi/';
-            // if (await canLaunch(url)) {
-            //   await launch(url);
-            // } else {
-            //   throw 'Could not launch $url';
-            // }
             Navigator.of(context).pop();
           },
         ),

@@ -51,7 +51,7 @@ class _MainPlayerState extends State<MainPlayer> {
         actions: [
           if (_isPhone || mediaQuery.width < 600)
             IconButton(
-                icon: Icon(Icons.list),
+                icon: Icon(Icons.playlist_play),
                 onPressed: () async {
                   //when triggered rebuild the page so the popup is shown
 
