@@ -24,7 +24,10 @@ dependencies:
   flutter:
     sdk: flutter
   provider: ^4.3.2+3
-  intl: ^0.16.1
+  # for stable
+  # intl: ^0.16.1
+  # for beta 1.23
+  intl: 0.17.0-nullsafety.2
   shared_preferences: ^0.5.12+4
   url_launcher: ^5.7.10
   share: ">=0.6.5+4 <2.0.0"
@@ -39,12 +42,13 @@ dependencies:
   path_provider: ^1.6.24
   connectivity: ^2.0.2
   scrollable_positioned_list: ^0.1.8
-  preload_page_view: ^0.1.4
+  # for stable 1.22
+  # preload_page_view: ^0.1.4
   #for 1.24 with null safety
-  #preload_page_view:
-  #  git:
-  #    url: "https://github.com/crtl/preload_page_view.git"
-  #    ref: "fix-null-check-operators"
+  preload_page_view:
+    git:
+      url: "https://github.com/crtl/preload_page_view.git"
+      ref: "fix-null-check-operators"
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -53,7 +57,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  intl_translation: ^0.17.10+1
+  # take out below if problems in rendering for web on beta 1.23
+  # intl_translation: ^0.17.10+1
   flutter_launcher_icons: ^0.8.1
 
 flutter_icons:

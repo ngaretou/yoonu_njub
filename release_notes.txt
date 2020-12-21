@@ -6,6 +6,9 @@ Added missing shows from source site
 Fixed jumping elements in playlist when downloaded show is deleted
 Enabled improved deep linking directly to YouTube, WhatsApp, and Facebook Messenger apps on iOS
 ]
+First public release. 
+Mobile versions built with Flutter stable 1.22.5.
+Web app built with Flutter beta 1.23.0-18.1.pre.
 
 1.0.10
 Added missing shows from source site
