@@ -205,7 +205,6 @@ class ThemeModel extends ChangeNotifier {
 
     final tempJSONfalse = json.encode('false');
     prefs.setString('_downloadsApproved', tempJSONfalse);
-    print('deny downloading');
   }
 
   void setDarkTheme() {
