@@ -23,11 +23,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   provider: ^5.0.0-nullsafety.3
   # for stable
   # intl: ^0.16.1
   # for beta 1.23
-  intl: 0.17.0-nullsafety.2
+  intl: ^0.17.0
   shared_preferences: ^0.5.12+4
   url_launcher: ^6.0.0-nullsafety.4
   share: ">=0.6.5+4 <2.0.0-nullsafety.2"
@@ -35,8 +37,7 @@ dependencies:
   font_awesome_flutter: ^8.10.1
   firebase_core: ^0.5.3
   firebase_analytics: ^6.0.1
-  flutter_localizations:
-    sdk: flutter
+
   just_audio: ^0.5.7
   audio_session: ^0.0.9
   path_provider: ^1.6.24

@@ -95,13 +95,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          RaisedButton(
-            padding: EdgeInsets.all(0),
-            child: userThemeName == 'lightTheme' ? Icon(Icons.check) : null,
-            shape: CircleBorder(),
-            color: Colors.white,
+          ElevatedButton(
+            child: userThemeName == 'lightTheme'
+                ? Icon(
+                    Icons.check,
+                    color: Colors.black,
+                  )
+                : null,
+            style: ElevatedButton.styleFrom(
+              primary: Colors.white,
+              padding: EdgeInsets.all(0),
+              shape: CircleBorder(),
+            ),
             onPressed: () {
               themeProvider.setLightTheme();
+            },
+          ),
+          ElevatedButton(
+            child: userThemeName == 'darkTheme'
+                ? Icon(
+                    Icons.check,
+                    color: Colors.white,
+                  )
+                : null,
+            style: ElevatedButton.styleFrom(
+              primary: Colors.black,
+              padding: EdgeInsets.all(0),
+              shape: CircleBorder(),
+            ),
+            onPressed: () {
+              themeProvider.setDarkTheme();
             },
           ),
           // RaisedButton(
@@ -121,17 +144,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
           //     onPressed: () {
           //       themeProvider.setTealTheme();
           //     }),
-          RaisedButton(
-            padding: EdgeInsets.all(0),
-            child: userThemeName == 'darkTheme' ? Icon(Icons.check) : null,
-            shape: CircleBorder(),
-            color: Colors.black,
-            onPressed: () {
-              setState(() {
-                themeProvider.setDarkTheme();
-              });
-            },
-          ),
+
+          // RaisedButton(
+          //   padding: EdgeInsets.all(0),
+          //   child: userThemeName == 'darkTheme' ? Icon(Icons.check) : null,
+          //   shape: CircleBorder(),
+          //   color: Colors.black,
+          //   onPressed: () {
+          //     setState(() {
+          //       themeProvider.setDarkTheme();
+          //     });
+          //   },
+          // ),
         ],
       );
     }

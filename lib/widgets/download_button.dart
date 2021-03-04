@@ -282,12 +282,12 @@ class _DownloadConfirmationState extends State<DownloadConfirmation> {
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                FlatButton(
+                TextButton(
                     child: Text(AppLocalization.of(context).settingsOK),
                     onPressed: () {
                       Navigator.pop(context, true);
                     }),
-                FlatButton(
+                TextButton(
                     child: Text(AppLocalization.of(context).cancel),
                     onPressed: () {
                       Navigator.pop(context, false);
