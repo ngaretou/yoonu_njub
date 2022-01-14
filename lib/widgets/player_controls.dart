@@ -23,21 +23,22 @@ class ControlButtons extends StatefulWidget {
   ControlButtonsState createState() => ControlButtonsState();
 }
 
-class ControlButtonsState extends State<ControlButtons> {
-  // AudioPlayer _player;
+class ControlButtonsState extends State<ControlButtons>
+    with WidgetsBindingObserver {
   final _player = AudioPlayer();
   bool _playerIsInitialized;
 
   @override
   void initState() {
     super.initState();
-    // _player = AudioPlayer();
+    WidgetsBinding.instance?.addObserver(this);
     _initializeSession();
     _playerIsInitialized = false;
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance?.removeObserver(this);
     _player.dispose();
     super.dispose();
   }
@@ -79,7 +80,7 @@ class ControlButtonsState extends State<ControlButtons> {
       AudioSource source = AudioSource.uri(Uri.parse(url));
       print(source);
       try {
-        await _player.load(source);
+        await _player.setAudioSource(source);
       } catch (e) {
         // catch load errors: 404, invalid url ...
         print("Unable to stream remote audio. Error message: $e");
@@ -102,7 +103,7 @@ class ControlButtonsState extends State<ControlButtons> {
       // AudioSource source = AudioSource.uri(myUri);
       AudioSource source = ProgressiveAudioSource(Uri.file('$path/$filename'));
       try {
-        await _player.load(source);
+        await _player.setAudioSource(source);
       } catch (e) {
         // catch load errors: 404, invalid url ...
         print("Unable to load local audio. Error message: $e");
