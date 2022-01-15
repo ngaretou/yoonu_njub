@@ -15,6 +15,13 @@ import 'deep_link.dart';
 class MainDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    TextStyle drawerEntryStyle = Theme.of(context).textTheme.headline6;
+    TextStyle whiteHeadline6 = drawerEntryStyle.copyWith(color: Colors.white);
+
+    // TextStyle drawerEntryStyle = Theme.of(context)
+    //     .appBarTheme
+    //     .titleTextStyle /*!*/ .copyWith(color: Colors.white);
+
     //Main template for all titles
     Widget drawerTitle(String title, IconData icon, Function tapHandler) {
       return InkWell(
@@ -37,9 +44,7 @@ class MainDrawer extends StatelessWidget {
                                 Theme.of(context).appBarTheme.iconTheme.color,
                           ),
                     SizedBox(width: 25),
-                    Text(title,
-                        style:
-                            Theme.of(context).appBarTheme.textTheme.headline6),
+                    Text(title, style: whiteHeadline6),
                   ],
                 ))),
       );
@@ -67,9 +72,17 @@ class MainDrawer extends StatelessWidget {
                           ),
                     SizedBox(width: 25),
                     Text(title,
+                        // style:
+                        //     (Theme.of(context).appBarTheme.titleTextStyle) /*!*/
+                        //         .copyWith(fontStyle: FontStyle.italic)),
+                        // style:
+                        //     (Theme.of(context).appBarTheme.titleTextStyle) /*!*/
+                        // ),
                         style:
-                            (Theme.of(context).appBarTheme.textTheme.headline6)
-                                .copyWith(fontStyle: FontStyle.italic)),
+                            whiteHeadline6.copyWith(fontStyle: FontStyle.italic)
+                        /*!*/
+                        ),
+                    // )
                   ],
                 ))),
       );
@@ -79,7 +92,8 @@ class MainDrawer extends StatelessWidget {
       elevation: 5.0,
       child: Container(
         width: MediaQuery.of(context).size.width * .8,
-        color: Theme.of(context).appBarTheme.color,
+        //The color of the Drawer
+        color: Theme.of(context).appBarTheme.backgroundColor,
         child: ListView(
           children: [
             //Main title
@@ -97,15 +111,9 @@ class MainDrawer extends StatelessWidget {
                         SizedBox(width: 25),
                         Text("Yoonu Njub",
                             style: Theme.of(context)
-                                .appBarTheme
                                 .textTheme
-                                .headline6
-                                .copyWith(
-                                  fontSize: 24,
-                                  fontFamily: 'Lato',
-                                  fontWeight: FontWeight.w300,
-                                  letterSpacing: -0.5,
-                                ))
+                                .headline5 /*!*/
+                                .copyWith(color: Colors.white))
                       ],
                     ))),
             Divider(
@@ -157,38 +165,6 @@ class MainDrawer extends StatelessWidget {
               Icons.ondemand_video,
               () async {
                 launchDeepLink('youtube', '99McEuAtRkk');
-                // const url = 'https://youtu.be/99McEuAtRkk';
-                // const deepLink = 'youtube://99McEuAtRkk';
-
-                // //Plain vanilla url launch
-                // simpleLaunch() async {
-                //   if (await canLaunch(url)) {
-                //     await launch(url);
-                //   } else {
-                //     throw 'Could not launch $url';
-                //   }
-                // }
-
-                // //Now figure out what we need to do based on platform
-                // if (kIsWeb) {
-                //   simpleLaunch();
-                // } else if (Platform.isIOS) {
-                //   //https://github.com/flutter/flutter/issues/25991#issuecomment-453255012
-                //   if (await canLaunch('youtube://')) {
-                //     await launch(deepLink, forceSafariVC: false);
-                //   } else {
-                //     await launch(url, forceSafariVC: true);
-                //   }
-                // } else {
-                //   //Not web, not iOS = Android
-                //   simpleLaunch();
-                // }
-
-                // if (await canLaunch(url)) {
-                //   await launch(url);
-                // } else {
-                //   throw 'Could not launch $url';
-                // }
               },
             ),
             //Contact Us section
@@ -203,16 +179,14 @@ class MainDrawer extends StatelessWidget {
                     child: Row(
                       children: [
                         Text(AppLocalizations.of(context).settingsContactUs,
-                            style: Theme.of(context)
-                                .appBarTheme
-                                .textTheme
-                                .headline6),
+                            style: whiteHeadline6.copyWith(fontSize: 24)),
                       ],
                     ))),
 
             // drawerTitle(
             //     AppLocalizations.of(context).settingsContactUs, null, null),
-            ContactOptions(),
+            ContactOptions(Brightness.dark),
+
             Divider(
               thickness: 2,
             ),

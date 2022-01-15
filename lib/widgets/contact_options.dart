@@ -6,8 +6,23 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'deep_link.dart';
 
 class ContactOptions extends StatelessWidget {
+  final Brightness /*?*/ contextualBrightness;
+  ContactOptions([this.contextualBrightness]);
+
   @override
   Widget build(BuildContext context) {
+    /*late*/ Color foregroundColor;
+
+    if (contextualBrightness == null) {
+      foregroundColor = Theme.of(context).textTheme.headline6.color;
+    } else {
+      if (contextualBrightness == Brightness.dark) {
+        foregroundColor = ThemeData.dark().textTheme.headline6.color;
+      } else {
+        foregroundColor = ThemeData.light().textTheme.headline6.color;
+      }
+    }
+
     Widget drawerTitle(String title, IconData icon, Function tapHandler) {
       return InkWell(
         onTap: tapHandler,
@@ -18,23 +33,19 @@ class ContactOptions extends StatelessWidget {
                 child: Row(
                   children: [
                     icon.toString().startsWith("FontAwesomeIcons")
-                        ? FaIcon(icon,
-                            size: 27,
-                            color:
-                                Theme.of(context).appBarTheme.iconTheme.color)
+                        ? FaIcon(icon, size: 27, color: foregroundColor)
                         : Icon(
                             icon,
                             size: 27,
-                            color:
-                                Theme.of(context).appBarTheme.iconTheme.color,
+                            color: foregroundColor,
                           ),
                     SizedBox(width: 25),
                     Expanded(
                       child: Text(title,
                           style: Theme.of(context)
-                              .appBarTheme
                               .textTheme
-                              .headline6),
+                              .headline6
+                              .copyWith(color: foregroundColor)),
                     ),
                   ],
                 ))),
