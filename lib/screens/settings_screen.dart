@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:path_provider/path_provider.dart';
 
-import '../locale/app_localization.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../providers/theme.dart';
 import '../providers/shows.dart';
 
@@ -27,7 +27,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final userThemeName =
         Provider.of<ThemeModel>(context, listen: false).userThemeName;
     final themeProvider = Provider.of<ThemeModel>(context, listen: false);
-    final userLang = Provider.of<ThemeModel>(context, listen: false).userLang;
+    Locale /*?*/ userLocale =
+        Provider.of<ThemeModel>(context, listen: false).userLocale;
 
     //Widgets
     //Main template for all setting titles
@@ -82,13 +83,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     //Now individual implementations of it
     Widget themeTitle() {
-      return settingTitle(AppLocalization.of(context).settingsTheme,
+      return settingTitle(AppLocalizations.of(context).settingsTheme,
           Icons.settings_brightness, null);
     }
 
     Widget languageTitle() {
       return settingTitle(
-          AppLocalization.of(context).settingsLanguage, Icons.translate, null);
+          AppLocalizations.of(context).settingsLanguage, Icons.translate, null);
     }
 
     Widget themeSettings() {
@@ -160,6 +161,67 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
     }
 
+    // Widget languageSetting() {
+    //   return Row(
+    //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    //     children: [
+    //       Wrap(
+    //         direction: Axis.horizontal,
+    //         spacing: 15,
+    //         children: [
+    //           ChoiceChip(
+    //             padding: EdgeInsets.symmetric(horizontal: 10),
+    //             selected: userLang == 'wo' ? true : false,
+    //             label: Text(
+    //               "Wolof",
+    //               style: Theme.of(context).textTheme.subtitle1,
+    //             ),
+    //             backgroundColor: Theme.of(context).primaryColor,
+    //             selectedColor: Theme.of(context).accentColor,
+    //             onSelected: (bool selected) {
+    //               setState(() {
+    //                 Provider.of<ThemeModel>(context, listen: false)
+    //                     .setLang('wo');
+    //               });
+    //             },
+    //           ),
+    //           ChoiceChip(
+    //             padding: EdgeInsets.symmetric(horizontal: 10),
+    //             selected: userLang == 'fr' ? true : false,
+    //             label: Text(
+    //               "Français",
+    //               style: Theme.of(context).textTheme.subtitle1,
+    //             ),
+    //             backgroundColor: Theme.of(context).primaryColor,
+    //             selectedColor: Theme.of(context).accentColor,
+    //             onSelected: (bool selected) {
+    //               setState(() {
+    //                 Provider.of<ThemeModel>(context, listen: false)
+    //                     .setLang('fr');
+    //               });
+    //             },
+    //           ),
+    //           ChoiceChip(
+    //             padding: EdgeInsets.symmetric(horizontal: 10),
+    //             selected: userLang == 'en' ? true : false,
+    //             label: Text(
+    //               "English",
+    //               style: Theme.of(context).textTheme.subtitle1,
+    //             ),
+    //             backgroundColor: Theme.of(context).primaryColor,
+    //             selectedColor: Theme.of(context).accentColor,
+    //             onSelected: (bool selected) {
+    //               setState(() {
+    //                 Provider.of<ThemeModel>(context, listen: false)
+    //                     .setLang('en');
+    //               });
+    //             },
+    //           ),
+    //         ],
+    //       ),
+    //     ],
+    //   );
+    // }
     Widget languageSetting() {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -170,50 +232,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               ChoiceChip(
                 padding: EdgeInsets.symmetric(horizontal: 10),
-                selected: userLang == 'wo' ? true : false,
+                selected: userLocale.toString() == 'fr_CH' ? true : false,
                 label: Text(
                   "Wolof",
                   style: Theme.of(context).textTheme.subtitle1,
                 ),
-                backgroundColor: Theme.of(context).primaryColor,
-                selectedColor: Theme.of(context).accentColor,
+                // backgroundColor: Theme.of(context).primaryColor,
+
                 onSelected: (bool selected) {
-                  setState(() {
-                    Provider.of<ThemeModel>(context, listen: false)
-                        .setLang('wo');
-                  });
+                  themeProvider.setLocale('fr_CH');
                 },
               ),
               ChoiceChip(
                 padding: EdgeInsets.symmetric(horizontal: 10),
-                selected: userLang == 'fr' ? true : false,
+                selected: userLocale.toString() == 'fr' ? true : false,
+
                 label: Text(
                   "Français",
                   style: Theme.of(context).textTheme.subtitle1,
                 ),
-                backgroundColor: Theme.of(context).primaryColor,
-                selectedColor: Theme.of(context).accentColor,
+                // backgroundColor: Theme.of(context).primaryColor,
+                // selectedColor: Theme.of(context).accentColor,
                 onSelected: (bool selected) {
-                  setState(() {
-                    Provider.of<ThemeModel>(context, listen: false)
-                        .setLang('fr');
-                  });
+                  themeProvider.setLocale('fr');
+                  print(AppLocalizations.of(context) /*!*/ .addHolidays);
                 },
               ),
               ChoiceChip(
                 padding: EdgeInsets.symmetric(horizontal: 10),
-                selected: userLang == 'en' ? true : false,
+
+                selected: userLocale.toString() == 'en' ? true : false,
                 label: Text(
                   "English",
                   style: Theme.of(context).textTheme.subtitle1,
                 ),
-                backgroundColor: Theme.of(context).primaryColor,
-                selectedColor: Theme.of(context).accentColor,
+                // backgroundColor: Theme.of(context).primaryColor,
+                // selectedColor: Theme.of(context).accentColor,
                 onSelected: (bool selected) {
-                  setState(() {
-                    Provider.of<ThemeModel>(context, listen: false)
-                        .setLang('en');
-                  });
+                  themeProvider.setLocale('en');
                 },
               ),
             ],
@@ -223,7 +279,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     Widget downloadPermissionTitle() {
-      return settingTitle(AppLocalization.of(context).downloadTitle,
+      return settingTitle(AppLocalizations.of(context).downloadTitle,
           Icons.download_sharp, null);
     }
 
@@ -236,7 +292,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         Expanded(
           child: Text(
-            AppLocalization.of(context).approveDownloads,
+            AppLocalizations.of(context).approveDownloads,
             style: Theme.of(context).textTheme.subtitle1,
           ),
         ),
@@ -303,7 +359,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                                 Expanded(
                                   child: Text(
-                                      AppLocalization.of(context)
+                                      AppLocalizations.of(context)
                                               .deleteDownloads +
                                           ' (' +
                                           snapshot.data.toString() +
@@ -328,7 +384,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   //       icon: Icon(Icons.delete_sweep_sharp),
                   //       label: Expanded(
                   //         child: Text(
-                  //             AppLocalization.of(context).deleteDownloads +
+                  //             AppLocalizations.of(context).deleteDownloads +
                   //                 ' (' +
                   //                 snapshot.data.toString() +
                   //                 ' Mb)',
@@ -354,7 +410,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          AppLocalization.of(context).settingsTitle,
+          AppLocalizations.of(context).settingsTitle,
         ),
       ),
       //If the width of the screen is greater or equal to 730 (whether or not _isPhone is true)

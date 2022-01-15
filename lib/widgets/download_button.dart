@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
-import '../locale/app_localization.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../providers/shows.dart';
 import '../providers/theme.dart';
@@ -76,7 +76,7 @@ class _DownloadButtonState extends State<DownloadButton> {
       //   return _totalFormatted;
       // } else {
       //download request
-      final http.Response r = await http.head(url);
+      final http.Response r = await http.head(Uri.parse(url));
       final _total = r.headers["content-length"];
       final _totalAsInt = double.parse(_total);
       final String _totalFormatted = (_totalAsInt / 1000000).toStringAsFixed(2);
@@ -249,10 +249,10 @@ class _DownloadConfirmationState extends State<DownloadConfirmation> {
 
     return AlertDialog(
       title: Text(
-        AppLocalization.of(context).downloadTitle,
+        AppLocalizations.of(context).downloadTitle,
       ),
       content: Text(
-        AppLocalization.of(context).downloadMessage +
+        AppLocalizations.of(context).downloadMessage +
             widget.downloadSize +
             ' Mb?',
       ),
@@ -263,7 +263,7 @@ class _DownloadConfirmationState extends State<DownloadConfirmation> {
             Container(
               width: 300,
               child: CheckboxListTile(
-                title: Text(AppLocalization.of(context).approveDownloads),
+                title: Text(AppLocalizations.of(context).approveDownloads),
                 value: approved,
                 onChanged: (response) {
                   if (response) {
@@ -282,12 +282,12 @@ class _DownloadConfirmationState extends State<DownloadConfirmation> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                    child: Text(AppLocalization.of(context).settingsOK),
+                    child: Text(AppLocalizations.of(context).settingsOK),
                     onPressed: () {
                       Navigator.pop(context, true);
                     }),
                 TextButton(
-                    child: Text(AppLocalization.of(context).cancel),
+                    child: Text(AppLocalizations.of(context).cancel),
                     onPressed: () {
                       Navigator.pop(context, false);
                     }),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../locale/app_localization.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'deep_link.dart';
 
 class ContactOptions extends StatelessWidget {
@@ -44,7 +44,7 @@ class ContactOptions extends StatelessWidget {
     return Column(
       children: [
         drawerTitle(
-          AppLocalization.of(context).settingsContactUsEmail,
+          AppLocalizations.of(context).settingsContactUsEmail,
           Icons.email,
           () async {
             const url = 'mailto:equipedevmbs@gmail.com';
@@ -57,7 +57,7 @@ class ContactOptions extends StatelessWidget {
           },
         ),
         drawerTitle(
-          AppLocalization.of(context).contactWhatsApp,
+          AppLocalizations.of(context).contactWhatsApp,
           FontAwesomeIcons.whatsapp,
           () async {
             launchDeepLink('whatsapp', '221776427432');
@@ -65,7 +65,7 @@ class ContactOptions extends StatelessWidget {
           },
         ),
         drawerTitle(
-          AppLocalization.of(context).contactFBMessenger,
+          AppLocalizations.of(context).contactFBMessenger,
           FontAwesomeIcons.facebookMessenger,
           () async {
             launchDeepLink('fb', '107408064239821');

@@ -4,7 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../locale/app_localization.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../screens/about_screen.dart';
 import '../screens/settings_screen.dart';
@@ -112,7 +112,7 @@ class MainDrawer extends StatelessWidget {
               thickness: 3,
             ),
             drawerTitle(
-              AppLocalization.of(context).settingsTitle,
+              AppLocalizations.of(context).settingsTitle,
               Icons.settings,
               () {
                 Navigator.of(context).popAndPushNamed(SettingsScreen.routeName);
@@ -124,7 +124,7 @@ class MainDrawer extends StatelessWidget {
             ),
 
             drawerTitle(
-              AppLocalization.of(context).shareAppLink,
+              AppLocalizations.of(context).shareAppLink,
               Icons.share,
               () async {
                 Navigator.of(context).pop();
@@ -136,7 +136,7 @@ class MainDrawer extends StatelessWidget {
               thickness: 1,
             ),
             drawerTitle(
-              AppLocalization.of(context).moreApps,
+              AppLocalizations.of(context).moreApps,
               Icons.apps,
               () async {
                 const url = 'https://sng.al/app';
@@ -202,7 +202,7 @@ class MainDrawer extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     child: Row(
                       children: [
-                        Text(AppLocalization.of(context).settingsContactUs,
+                        Text(AppLocalizations.of(context).settingsContactUs,
                             style: Theme.of(context)
                                 .appBarTheme
                                 .textTheme
@@ -211,13 +211,13 @@ class MainDrawer extends StatelessWidget {
                     ))),
 
             // drawerTitle(
-            //     AppLocalization.of(context).settingsContactUs, null, null),
+            //     AppLocalizations.of(context).settingsContactUs, null, null),
             ContactOptions(),
             Divider(
               thickness: 2,
             ),
             drawerTitle(
-              AppLocalization.of(context).settingsAbout,
+              AppLocalizations.of(context).settingsAbout,
               Icons.info,
               () {
                 Navigator.of(context).popAndPushNamed(AboutScreen.routeName);

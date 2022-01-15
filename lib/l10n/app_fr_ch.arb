@@ -1,144 +1,143 @@
 {
-  "@@last_modified": "2020-08-07T19:54:38.584472",
-  "settingsTitle": "Paramètres",
+  "settingsTitle": "Kërale yi",
   "@settingsTitle": {
     "description": "Settings screen title",
     "type": "text",
     "placeholders": {}
   },
-  "settingsTheme": "Thème",
+  "settingsTheme": "Melow wërale bi",
   "@settingsTheme": {
     "description": "settings: Theme section",
     "type": "text",
     "placeholders": {}
   },
-  "settingsCardBackground": "Fond de carte",
+  "settingsCardBackground": "Melow kàrt yi",
   "@settingsCardBackground": {
     "description": "settings: CardBackground section",
     "type": "text",
     "placeholders": {}
   },
-  "settingsLanguage": "Langue",
+  "settingsLanguage": "Làkku tegtal yi",
   "@settingsLanguage": {
     "description": "settingsLanguage",
     "type": "text",
     "placeholders": {}
   },
-  "settingsAbout": "A propos & Copyright",
+  "settingsAbout": "Ci mbirum appli bi",
   "@settingsAbout": {
     "description": "settingsAbout",
     "type": "text",
     "placeholders": {}
   },
-  "settingsCardDirection": "Sens des cartes",
+  "settingsCardDirection": "Kàrt yi man nañu jëm: ",
   "@settingsCardDirection": {
     "description": "settingsCardDirection",
     "type": "text",
     "placeholders": {}
   },
-  "settingsLTR": "GD",
+  "settingsLTR": "Ndeyjoor",
   "@settingsLTR": {
     "description": "settingsLTR",
     "type": "text",
     "placeholders": {}
   },
-  "settingsRTL": "DG",
+  "settingsRTL": "Càmmoñ",
   "@settingsRTL": {
     "description": "settingsRTL",
     "type": "text",
     "placeholders": {}
   },
-  "settingsVerseDisplay": "Affichage des versets",
+  "settingsVerseDisplay": "Aaya yi nga bëgga gis: ",
   "@settingsVerseDisplay": {
     "description": "settingsVerseDisplay",
     "type": "text",
     "placeholders": {}
   },
-  "settingsVerseinWolofal": "Versets en wolofal",
+  "settingsVerseinWolofal": "Aaya yi ci Wolofal",
   "@settingsVerseinWolofal": {
     "description": "settingsVerseinWolofal",
     "type": "text",
     "placeholders": {}
   },
-  "settingsVerseinWolof": "Versets en wolof",
+  "settingsVerseinWolof": "Aaya yi ci Wolof",
   "@settingsVerseinWolof": {
     "description": "settingsVerseinWolof",
     "type": "text",
     "placeholders": {}
   },
-  "settingsShowFavs": "Affichage des favoris",
+  "settingsShowFavs": "Woneel tur: ",
   "@settingsShowFavs": {
     "description": "settingsShowFavs",
     "type": "text",
     "placeholders": {}
   },
-  "settingsFavorites": "Les favoris",
+  "settingsFavorites": "Yi ma tànn",
   "@settingsFavorites": {
     "description": "settingsFavorites",
     "type": "text",
     "placeholders": {}
   },
-  "settingsTextAll": "Tout",
+  "settingsTextAll": "Yépp",
   "@settingsTextAll": {
     "description": "settingsTextAll",
     "type": "text",
     "placeholders": {}
   },
-  "settingsViewIntro": "Regarder l'introduction",
+  "settingsViewIntro": "Xoolat ubbite gi",
   "@settingsViewIntro": {
     "description": "settingsViewIntro",
     "type": "text",
     "placeholders": {}
   },
-  "sharingTitle": "Partage",
+  "sharingTitle": "Séddoo ab aaya",
   "@sharingTitle": {
     "description": "sharingTitle",
     "type": "text",
     "placeholders": {}
   },
-  "sharingMsg": "Choisissez le script dans lequel que vous souhaitez partager",
+  "sharingMsg": "Ci ban mbindin nga bëgga séddoo?",
   "@sharingMsg": {
     "description": "sharingMsg",
     "type": "text",
     "placeholders": {}
   },
-  "cancel": "Annuler",
+  "cancel": "Fomm",
   "@cancel": {
     "description": "cancel",
     "type": "text",
     "placeholders": {}
   },
-  "clickHereToReadMore": "Cliquez ici pour en lire plus",
+  "clickHereToReadMore": "Bësal fii ngir yokk sa njàng: ",
   "@clickHereToReadMore": {
     "description": "clickHereToReadMore",
     "type": "text",
     "placeholders": {}
   },
-  "introPage1": "introPage1 FR",
+  "introPage1": "introPage1 WO",
   "@introPage1": {
     "description": "introPage1",
     "type": "text",
     "placeholders": {}
   },
-  "introPage2": "introPage2 FR",
+  "introPage2": "introPage2 WO",
   "@introPage2": {
     "description": "introPage2",
     "type": "text",
     "placeholders": {}
   },
-  "introPage3": "introPage3 FR",
+  "introPage3": "introPage3 WO",
   "@introPage3": {
     "description": "introPage3",
     "type": "text",
     "placeholders": {}
   },
-  "favsNoneYet": "Vous n'avez pas encore choisi des favoris",
+  "favsNoneYet": "Tànnaguloo benn tur",
   "@favsNoneYet": {
     "description": "favsNoneYet",
     "type": "text",
     "placeholders": {}
   },
-  "favsNoneYetInstructions": "Cliquez sur l'icône du cœur pour ajouter quelques favoris",
+  "favsNoneYetInstructions": "Bëssal ci xol ba ci tuur yi nga gën bëgg.",
   "@favsNoneYetInstructions": {
     "description": "favsNoneYetInstructions",
     "type": "text",
@@ -150,19 +149,19 @@
     "type": "text",
     "placeholders": {}
   },
-  "addHolidays": "Ajouter les fêtes à\nGoogle Agenda",
+  "addHolidays": "Arminaat bi ci sa\nAgenda Google",
   "@addHolidays": {
     "description": "Add Holidays to Google Calendar",
     "type": "text",
     "placeholders": {}
   },
-  "settingsContactUs": "Contacter nous par: ",
+  "settingsContactUs": "Jokkook nun ci: ",
   "@settingsContactUs": {
     "description": "settingsContactUs",
     "type": "text",
     "placeholders": {}
   },
-  "settingsContactUsEmail": "Courriel",
+  "settingsContactUsEmail": "Email",
   "@settingsContactUsEmail": {
     "description": "settingsContactUsEmail",
     "type": "text",
@@ -180,40 +179,40 @@
     "type": "text",
     "placeholders": {}
   },
-  "shareAppLink": "Partager l'appli",
+  "shareAppLink": "Séddoo appli bi",
   "@shareAppLink": {
     "description": "Share link to app on app store",
     "type": "text",
     "placeholders": {}
   },
-  "moreApps": "D'autres applis",
+  "moreApps": "Yeneen appli",
   "@moreApps": {
     "description": "More apps",
     "type": "text",
     "placeholders": {}
-  },  
-  "downloadTitle": "Télécharger",
+  }, 
+  "downloadTitle": "Yebbi dégtal yi",
   "@downloadTitle": {
     "description": "Download dialog title",
     "type": "text",
     "placeholders": {}
   },
-  "downloadMessage": "Voulez-vous télécharger ",
+  "downloadMessage": "Mu yebbi kàrtu dégtal bi - ",
   "@downloadMessage": {
     "description": "Would you like to download...",
     "type": "text",
     "placeholders": {}
   },
-  "approveDownloads": "Ne plus demander, toujours télécharger.",
+  "approveDownloads": "Gannaaw-si tey, na yebbi gi doxal boppam.",
   "@approveDownloads": {
     "description": "Download automatically from now on",
     "type": "text",
     "placeholders": {}
-  },  "deleteDownloads": "Supprimer les fichiers téléchargés",
+  }, 
+  "deleteDownloads": "Faral kàrtu dégtal yi",
   "@deleteDownloads": {
     "description": "Delete previously downloaded items",
     "type": "text",
     "placeholders": {}
   }
-
 }

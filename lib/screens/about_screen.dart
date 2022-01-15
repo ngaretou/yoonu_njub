@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../locale/app_localization.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AboutScreen extends StatelessWidget {
   static const routeName = 'about-screen';
@@ -29,7 +29,7 @@ class AboutScreen extends StatelessWidget {
     TextStyle defaultStyle = Theme.of(context).textTheme.subtitle1;
     return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalization.of(context).settingsAbout,
+          title: Text(AppLocalizations.of(context).settingsAbout,
               style: Theme.of(context).textTheme.headline6),
         ),
         body: Padding(

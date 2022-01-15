@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../locale/app_localization.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../widgets/drawer.dart';
 import '../widgets/show_display.dart';
@@ -73,10 +73,10 @@ class _MainPlayerState extends State<MainPlayer> {
                 builder: (BuildContext context) {
                   return SimpleDialog(
                     title: Text(
-                      AppLocalization.of(context).settingsContactUs,
+                      AppLocalizations.of(context).settingsContactUs,
                     ),
                     // content:
-                    //     Text(AppLocalization.of(context).settingsContactUs),
+                    //     Text(AppLocalizations.of(context).settingsContactUs),
                     children: [ContactOptions()],
                   );
                 },
