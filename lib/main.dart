@@ -59,9 +59,7 @@ class _MyAppState extends State<MyApp> {
       String savedUserLang =
           json.decode(prefs.getString('userLang')!) as String;
 
-      if (savedUserLang != null) {
-        setLocale(savedUserLang);
-      }
+      setLocale(savedUserLang);
     }
   }
   //end language code

@@ -165,7 +165,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // selectedColor: Theme.of(context).accentColor,
                 onSelected: (bool selected) {
                   themeProvider.setLocale('fr');
-                  print(AppLocalizations.of(context)!.addHolidays);
+                  print(AppLocalizations.of(context).addHolidays);
                 },
               ),
               ChoiceChip(

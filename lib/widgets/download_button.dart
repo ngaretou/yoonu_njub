@@ -18,7 +18,7 @@ class DownloadButton extends StatefulWidget {
 }
 
 class _DownloadButtonState extends State<DownloadButton> {
-  late bool? _isDownloaded;
+  bool? _isDownloaded;
   late bool _isDownloading;
   double? _percentDone;
   // bool approved;
@@ -106,12 +106,13 @@ class _DownloadButtonState extends State<DownloadButton> {
                 _isDownloaded = false;
               });
             } catch (e) {
-              print('had an error checking if the file was there or not');
+              print('had an error deleting the file');
               // return false;
             }
           } else {
             //If file not on the device, check if we have internet connection
-            if (!(await (shows.connectivityCheck as Future<bool>))) {
+            bool? connected = await shows.connectivityCheck;
+            if (!connected!) {
               //No connection; show the no internet message and stop
               shows.snackbarMessageNoInternet(context);
             } else {
@@ -208,7 +209,7 @@ class _DownloadButtonState extends State<DownloadButton> {
                 );
               } else {
                 //set the _isDownloaded flag to true or false depending on the result of the above future, localAudioFileCheck, in shows.dart
-                // _isDownloaded = snapshot.data; COREY HERE
+                _isDownloaded = snapshot.data as bool;
                 return iconStack();
               }
             });

@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -80,9 +78,8 @@ class MainDrawer extends StatelessWidget {
                         // style:
                         //     (Theme.of(context).appBarTheme.titleTextStyle) /*!*/
                         // ),
-                        style:
-                            whiteHeadline6.copyWith(fontStyle: FontStyle.italic)!
-                        ),
+                        style: whiteHeadline6.copyWith(
+                            fontStyle: FontStyle.italic)),
                     // )
                   ],
                 ))),

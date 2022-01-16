@@ -1,5 +1,3 @@
-
-
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -133,8 +131,8 @@ class ControlButtonsState extends State<ControlButtons>
         } else {
           //file is not downloaded; source is remote:
           //check if connected:
-          if (await (showsProvider.connectivityCheck as FutureOr<bool>)) {
-            //if so, load the file:
+          bool? connected = await showsProvider.connectivityCheck;
+          if (connected!) {
             _loadRemoteAudio('$urlBase/$urlSnip/$filename');
             return true;
           } else {
