@@ -1,5 +1,3 @@
-// @dart=2.9
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -26,9 +24,9 @@ class AboutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     TextStyle linkTheme = Theme.of(context)
         .textTheme
-        .subtitle1
+        .subtitle1!
         .copyWith(decoration: TextDecoration.underline);
-    TextStyle defaultStyle = Theme.of(context).textTheme.subtitle1;
+    TextStyle defaultStyle = Theme.of(context).textTheme.subtitle1!;
     return Scaffold(
         appBar: AppBar(
           title: Text(AppLocalizations.of(context).settingsAbout,

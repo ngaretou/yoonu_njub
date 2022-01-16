@@ -1,5 +1,3 @@
-// @dart=2.9
-
 import 'dart:async';
 import 'dart:io';
 
@@ -29,14 +27,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final userThemeName =
         Provider.of<ThemeModel>(context, listen: false).userThemeName;
     final themeProvider = Provider.of<ThemeModel>(context, listen: false);
-    Locale /*?*/ userLocale =
-        Provider.of<ThemeModel>(context, listen: false).userLocale;
+    Locale userLocale =
+        Provider.of<ThemeModel>(context, listen: false).userLocale!;
 
     //Widgets
     //Main template for all setting titles
-    Widget settingTitle(String title, IconData icon, Function tapHandler) {
+    Widget settingTitle(String title, IconData icon, Function? tapHandler) {
       return InkWell(
-        onTap: tapHandler,
+        onTap: tapHandler as void Function()?,
         child: Container(
             width: 300,
             child: Padding(
@@ -46,7 +44,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Icon(
                       icon,
                       size: 27,
-                      color: Theme.of(context).textTheme.headline6.color,
+                      color: Theme.of(context).textTheme.headline6!.color,
                     ),
                     SizedBox(width: 25),
                     Text(title, style: Theme.of(context).textTheme.headline6),
@@ -130,100 +128,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               themeProvider.setDarkTheme();
             },
           ),
-          // RaisedButton(
-          //   padding: EdgeInsets.all(0),
-          //   child: userThemeName == 'blueTheme' ? Icon(Icons.check) : null,
-          //   shape: CircleBorder(),
-          //   color: Colors.blue,
-          //   onPressed: () {
-          //     themeProvider.setBlueTheme();
-          //   },
-          // ),
-          // RaisedButton(
-          //     padding: EdgeInsets.all(0),
-          //     child: userThemeName == 'tealTheme' ? Icon(Icons.check) : null,
-          //     shape: CircleBorder(),
-          //     color: Colors.teal,
-          //     onPressed: () {
-          //       themeProvider.setTealTheme();
-          //     }),
-
-          // RaisedButton(
-          //   padding: EdgeInsets.all(0),
-          //   child: userThemeName == 'darkTheme' ? Icon(Icons.check) : null,
-          //   shape: CircleBorder(),
-          //   color: Colors.black,
-          //   onPressed: () {
-          //     setState(() {
-          //       themeProvider.setDarkTheme();
-          //     });
-          //   },
-          // ),
         ],
       );
     }
 
-    // Widget languageSetting() {
-    //   return Row(
-    //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    //     children: [
-    //       Wrap(
-    //         direction: Axis.horizontal,
-    //         spacing: 15,
-    //         children: [
-    //           ChoiceChip(
-    //             padding: EdgeInsets.symmetric(horizontal: 10),
-    //             selected: userLang == 'wo' ? true : false,
-    //             label: Text(
-    //               "Wolof",
-    //               style: Theme.of(context).textTheme.subtitle1,
-    //             ),
-    //             backgroundColor: Theme.of(context).primaryColor,
-    //             selectedColor: Theme.of(context).accentColor,
-    //             onSelected: (bool selected) {
-    //               setState(() {
-    //                 Provider.of<ThemeModel>(context, listen: false)
-    //                     .setLang('wo');
-    //               });
-    //             },
-    //           ),
-    //           ChoiceChip(
-    //             padding: EdgeInsets.symmetric(horizontal: 10),
-    //             selected: userLang == 'fr' ? true : false,
-    //             label: Text(
-    //               "Français",
-    //               style: Theme.of(context).textTheme.subtitle1,
-    //             ),
-    //             backgroundColor: Theme.of(context).primaryColor,
-    //             selectedColor: Theme.of(context).accentColor,
-    //             onSelected: (bool selected) {
-    //               setState(() {
-    //                 Provider.of<ThemeModel>(context, listen: false)
-    //                     .setLang('fr');
-    //               });
-    //             },
-    //           ),
-    //           ChoiceChip(
-    //             padding: EdgeInsets.symmetric(horizontal: 10),
-    //             selected: userLang == 'en' ? true : false,
-    //             label: Text(
-    //               "English",
-    //               style: Theme.of(context).textTheme.subtitle1,
-    //             ),
-    //             backgroundColor: Theme.of(context).primaryColor,
-    //             selectedColor: Theme.of(context).accentColor,
-    //             onSelected: (bool selected) {
-    //               setState(() {
-    //                 Provider.of<ThemeModel>(context, listen: false)
-    //                     .setLang('en');
-    //               });
-    //             },
-    //           ),
-    //         ],
-    //       ),
-    //     ],
-    //   );
-    // }
     Widget languageSetting() {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -257,7 +165,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // selectedColor: Theme.of(context).accentColor,
                 onSelected: (bool selected) {
                   themeProvider.setLocale('fr');
-                  print(AppLocalizations.of(context) /*!*/ .addHolidays);
+                  print(AppLocalizations.of(context)!.addHolidays);
                 },
               ),
               ChoiceChip(
@@ -286,7 +194,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     Widget downloadPermissionSetting() {
-      bool approved = themeProvider.downloadsApproved;
+      bool approved = themeProvider.downloadsApproved!;
 
       return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
         SizedBox(
@@ -301,7 +209,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Checkbox(
           value: approved,
           onChanged: (response) {
-            if (response) {
+            if (response!) {
               themeProvider.approveDownloading();
             } else {
               themeProvider.denyDownloading();
@@ -380,27 +288,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         },
                       ),
                     )
-                  // Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                  //     FlatButton.icon(
-                  //       color: Theme.of(context).cardColor,
-                  //       icon: Icon(Icons.delete_sweep_sharp),
-                  //       label: Expanded(
-                  //         child: Text(
-                  //             AppLocalizations.of(context).deleteDownloads +
-                  //                 ' (' +
-                  //                 snapshot.data.toString() +
-                  //                 ' Mb)',
-                  //             style: Theme.of(context).textTheme.subtitle1),
-                  //       ),
-                  //       onPressed: () {
-                  //         _deleteAllDownloads();
-                  //         Provider.of<Shows>(context, listen: false)
-                  //             .setReloadMainPage(true);
-                  //         setState(() {});
-                  //       },
-                  //     ),
-                  //
-                  //   ])
                   : SizedBox(
                       width: 20,
                     );

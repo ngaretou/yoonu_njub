@@ -1,5 +1,3 @@
-// @dart=2.9
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -17,7 +15,7 @@ class MainPlayer extends StatefulWidget {
 }
 
 class _MainPlayerState extends State<MainPlayer> {
-  bool _showPlaylist;
+  late bool _showPlaylist;
   @override
   void initState() {
     _showPlaylist = false;

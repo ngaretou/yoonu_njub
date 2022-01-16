@@ -1,5 +1,4 @@
-
-
+// @dart=2.9
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
@@ -58,8 +57,9 @@ class _MyAppState extends State<MyApp> {
       setLocale('fr_CH');
     } else {
       //otherwise grab the saved setting
-      String? savedUserLang =
-          json.decode(prefs.getString('userLang')!) as String?;
+      String /*!*/ savedUserLang =
+          json.decode(prefs.getString('userLang') /*!*/) as String;
+
       if (savedUserLang != null) {
         setLocale(savedUserLang);
       }

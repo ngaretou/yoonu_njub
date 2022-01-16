@@ -1,4 +1,4 @@
-// @dart=2.9
+
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -20,12 +20,12 @@ class Show {
   final String filename;
   final String image;
   const Show({
-    @required this.id,
-    @required this.showNameRS,
-    @required this.showNameAS,
-    @required this.urlSnip,
-    @required this.filename,
-    @required this.image,
+    required this.id,
+    required this.showNameRS,
+    required this.showNameAS,
+    required this.urlSnip,
+    required this.filename,
+    required this.image,
   });
 }
 
@@ -36,7 +36,7 @@ class Shows with ChangeNotifier {
     return [..._shows];
   }
 
-  int _lastShowViewed;
+  late int _lastShowViewed;
 
   int get lastShowViewed {
     return _lastShowViewed;
@@ -109,15 +109,15 @@ class Shows with ChangeNotifier {
     if (!prefs.containsKey('lastShowViewed')) {
       return 0;
     } else {
-      final storedValue = json.decode(prefs.getString('lastShowViewed'));
+      final storedValue = json.decode(prefs.getString('lastShowViewed')!);
       int _lastShowViewed = int.parse(storedValue);
       return _lastShowViewed;
     }
   }
 
   //Code accessible from multiple points
-  Future<bool> get connectivityCheck async {
-    bool connected;
+  Future<bool?> get connectivityCheck async {
+    bool? connected;
     if (kIsWeb) {
       var connectivityResult = await (Connectivity().checkConnectivity());
       if (connectivityResult == ConnectivityResult.mobile ||
