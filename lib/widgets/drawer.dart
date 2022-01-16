@@ -1,4 +1,4 @@
-// @dart=2.9
+
 
 import 'package:flutter/material.dart';
 
@@ -17,7 +17,7 @@ import 'deep_link.dart';
 class MainDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    TextStyle drawerEntryStyle = Theme.of(context).textTheme.headline6;
+    TextStyle drawerEntryStyle = Theme.of(context).textTheme.headline6!;
     TextStyle whiteHeadline6 = drawerEntryStyle.copyWith(color: Colors.white);
 
     // TextStyle drawerEntryStyle = Theme.of(context)
@@ -27,7 +27,7 @@ class MainDrawer extends StatelessWidget {
     //Main template for all titles
     Widget drawerTitle(String title, IconData icon, Function tapHandler) {
       return InkWell(
-        onTap: tapHandler,
+        onTap: tapHandler as void Function()?,
         child: Container(
             width: 300,
             child: Padding(
@@ -38,12 +38,12 @@ class MainDrawer extends StatelessWidget {
                         ? FaIcon(icon,
                             size: 27,
                             color:
-                                Theme.of(context).appBarTheme.iconTheme.color)
+                                Theme.of(context).appBarTheme.iconTheme!.color)
                         : Icon(
                             icon,
                             size: 27,
                             color:
-                                Theme.of(context).appBarTheme.iconTheme.color,
+                                Theme.of(context).appBarTheme.iconTheme!.color,
                           ),
                     SizedBox(width: 25),
                     Text(title, style: whiteHeadline6),
@@ -65,12 +65,12 @@ class MainDrawer extends StatelessWidget {
                         ? FaIcon(icon,
                             size: 27,
                             color:
-                                Theme.of(context).appBarTheme.iconTheme.color)
+                                Theme.of(context).appBarTheme.iconTheme!.color)
                         : Icon(
                             icon,
                             size: 27,
                             color:
-                                Theme.of(context).appBarTheme.iconTheme.color,
+                                Theme.of(context).appBarTheme.iconTheme!.color,
                           ),
                     SizedBox(width: 25),
                     Text(title,
@@ -81,8 +81,7 @@ class MainDrawer extends StatelessWidget {
                         //     (Theme.of(context).appBarTheme.titleTextStyle) /*!*/
                         // ),
                         style:
-                            whiteHeadline6.copyWith(fontStyle: FontStyle.italic)
-                        /*!*/
+                            whiteHeadline6.copyWith(fontStyle: FontStyle.italic)!
                         ),
                     // )
                   ],
@@ -108,13 +107,13 @@ class MainDrawer extends StatelessWidget {
                         FaIcon(
                           FontAwesomeIcons.road,
                           size: 27,
-                          color: Theme.of(context).appBarTheme.iconTheme.color,
+                          color: Theme.of(context).appBarTheme.iconTheme!.color,
                         ),
                         SizedBox(width: 25),
                         Text("Yoonu Njub",
                             style: Theme.of(context)
                                 .textTheme
-                                .headline5 /*!*/
+                                .headline5!
                                 .copyWith(color: Colors.white))
                       ],
                     ))),

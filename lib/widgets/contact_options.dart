@@ -1,4 +1,4 @@
-// @dart=2.9
+
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -8,26 +8,26 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'deep_link.dart';
 
 class ContactOptions extends StatelessWidget {
-  final Brightness /*?*/ contextualBrightness;
+  final Brightness? contextualBrightness;
   ContactOptions([this.contextualBrightness]);
 
   @override
   Widget build(BuildContext context) {
-    /*late*/ Color foregroundColor;
+    late Color? foregroundColor;
 
     if (contextualBrightness == null) {
-      foregroundColor = Theme.of(context).textTheme.headline6.color;
+      foregroundColor = Theme.of(context).textTheme.headline6!.color;
     } else {
       if (contextualBrightness == Brightness.dark) {
-        foregroundColor = ThemeData.dark().textTheme.headline6.color;
+        foregroundColor = ThemeData.dark().textTheme.headline6!.color;
       } else {
-        foregroundColor = ThemeData.light().textTheme.headline6.color;
+        foregroundColor = ThemeData.light().textTheme.headline6!.color;
       }
     }
 
     Widget drawerTitle(String title, IconData icon, Function tapHandler) {
       return InkWell(
-        onTap: tapHandler,
+        onTap: tapHandler as void Function()?,
         child: Container(
             width: 300,
             child: Padding(
@@ -46,7 +46,7 @@ class ContactOptions extends StatelessWidget {
                       child: Text(title,
                           style: Theme.of(context)
                               .textTheme
-                              .headline6
+                              .headline6!
                               .copyWith(color: foregroundColor)),
                     ),
                   ],

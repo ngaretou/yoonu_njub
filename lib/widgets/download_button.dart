@@ -1,5 +1,3 @@
-// @dart=2.9
-
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -20,10 +18,10 @@ class DownloadButton extends StatefulWidget {
 }
 
 class _DownloadButtonState extends State<DownloadButton> {
-  bool _isDownloaded;
-  bool _isDownloading;
-  double _percentDone;
-  bool approved;
+  late bool? _isDownloaded;
+  late bool _isDownloading;
+  double? _percentDone;
+  // bool approved;
 
   @override
   void initState() {
@@ -52,7 +50,7 @@ class _DownloadButtonState extends State<DownloadButton> {
       setState(() {
         _bytes.addAll(value);
         _received += value.length;
-        _percentDone = ((_received) / _total);
+        _percentDone = ((_received) / _total!);
       });
     }, onDone: () async {
       final file = File("$path/$filename");
@@ -79,7 +77,7 @@ class _DownloadButtonState extends State<DownloadButton> {
       // } else {
       //download request
       final http.Response r = await http.head(Uri.parse(url));
-      final _total = r.headers["content-length"];
+      final _total = r.headers["content-length"]!;
       final _totalAsInt = double.parse(_total);
       final String _totalFormatted = (_totalAsInt / 1000000).toStringAsFixed(2);
 
@@ -109,11 +107,11 @@ class _DownloadButtonState extends State<DownloadButton> {
               });
             } catch (e) {
               print('had an error checking if the file was there or not');
-              return false;
+              // return false;
             }
           } else {
             //If file not on the device, check if we have internet connection
-            if (!(await shows.connectivityCheck)) {
+            if (!(await (shows.connectivityCheck as Future<bool>))) {
               //No connection; show the no internet message and stop
               shows.snackbarMessageNoInternet(context);
             } else {
@@ -121,7 +119,7 @@ class _DownloadButtonState extends State<DownloadButton> {
               print(
                   'The file seems to not be there - starting downloading process');
               //The user can choose to not be warned of download size, that is stored in downloadsApproved
-              if (pref.downloadsApproved) {
+              if (pref.downloadsApproved!) {
                 //downloading is approved - just download the file.
                 downloadFile(path, url, filename);
               } else {
@@ -138,7 +136,8 @@ class _DownloadButtonState extends State<DownloadButton> {
                                 ConnectionState.waiting) {
                               return Center(child: CircularProgressIndicator());
                             } else {
-                              return DownloadConfirmation(url, snapshot.data);
+                              return DownloadConfirmation(
+                                  url, snapshot.data.toString());
                             }
                           });
                     }).then((responseFromDialog) async {
@@ -169,7 +168,7 @@ class _DownloadButtonState extends State<DownloadButton> {
             value: _isDownloading ? _percentDone : 0,
           ),
           IconButton(
-              icon: _isDownloaded
+              icon: _isDownloaded!
                   ? Icon(
                       Icons.download_sharp,
                       color: Theme.of(context).colorScheme.secondary,
@@ -203,20 +202,13 @@ class _DownloadButtonState extends State<DownloadButton> {
             future: shows.localAudioFileCheck(widget.show.filename),
             builder: (ctx, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return
-                    // Center(
-                    //     child: Padding(
-                    //   padding: const EdgeInsets.symmetric(horizontal: 14.5),
-                    //   child:
-                    Icon(
+                return Icon(
                   Icons.download_sharp,
                   color: Theme.of(context).iconTheme.color,
-                )
-                    // ))
-                    ;
+                );
               } else {
                 //set the _isDownloaded flag to true or false depending on the result of the above future, localAudioFileCheck, in shows.dart
-                _isDownloaded = snapshot.data;
+                // _isDownloaded = snapshot.data; COREY HERE
                 return iconStack();
               }
             });
@@ -226,7 +218,7 @@ class _DownloadButtonState extends State<DownloadButton> {
 //------------------------------------------------
 class DownloadConfirmation extends StatefulWidget {
   final String url;
-  final String downloadSize;
+  final String? downloadSize;
 
   DownloadConfirmation(this.url, this.downloadSize);
 
@@ -235,7 +227,7 @@ class DownloadConfirmation extends StatefulWidget {
 }
 
 class _DownloadConfirmationState extends State<DownloadConfirmation> {
-  bool approved;
+  bool? approved;
 
   @override
   void initState() {
@@ -255,7 +247,7 @@ class _DownloadConfirmationState extends State<DownloadConfirmation> {
       ),
       content: Text(
         AppLocalizations.of(context).downloadMessage +
-            widget.downloadSize +
+            widget.downloadSize! +
             ' Mb?',
       ),
 
@@ -268,7 +260,7 @@ class _DownloadConfirmationState extends State<DownloadConfirmation> {
                 title: Text(AppLocalizations.of(context).approveDownloads),
                 value: approved,
                 onChanged: (response) {
-                  if (response) {
+                  if (response!) {
                     pref.approveDownloading();
                   } else {
                     pref.denyDownloading();

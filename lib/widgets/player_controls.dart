@@ -1,4 +1,4 @@
-// @dart=2.9
+
 
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -16,9 +16,9 @@ class ControlButtons extends StatefulWidget {
   final Function jumpPrevNext;
 
   ControlButtons({
-    Key key,
-    @required this.show,
-    @required this.jumpPrevNext,
+    Key? key,
+    required this.show,
+    required this.jumpPrevNext,
   }) : super(key: key);
 
   @override
@@ -28,7 +28,7 @@ class ControlButtons extends StatefulWidget {
 class ControlButtonsState extends State<ControlButtons>
     with WidgetsBindingObserver {
   final _player = AudioPlayer();
-  bool _playerIsInitialized;
+  late bool _playerIsInitialized;
 
   @override
   void initState() {
@@ -133,7 +133,7 @@ class ControlButtonsState extends State<ControlButtons>
         } else {
           //file is not downloaded; source is remote:
           //check if connected:
-          if (await showsProvider.connectivityCheck) {
+          if (await (showsProvider.connectivityCheck as FutureOr<bool>)) {
             //if so, load the file:
             _loadRemoteAudio('$urlBase/$urlSnip/$filename');
             return true;
@@ -152,7 +152,7 @@ class ControlButtonsState extends State<ControlButtons>
     return Column(
       children: [
         //SeekBar
-        StreamBuilder<Duration>(
+        StreamBuilder<Duration?>(
           stream: _player.durationStream,
           builder: (context, snapshot) {
             print('in streambuilder for ' + widget.show.filename);
@@ -260,7 +260,7 @@ class ControlButtonsState extends State<ControlButtons>
             StreamBuilder<double>(
               stream: _player.speedStream,
               builder: (context, snapshot) {
-                String speed;
+                late String? speed;
                 if (snapshot.data != null) {
                   speed = snapshot.data?.toStringAsFixed(1);
                 } else {
@@ -273,7 +273,7 @@ class ControlButtonsState extends State<ControlButtons>
                     child: Text("${speed}x",
                         style: Theme.of(context)
                             .textTheme
-                            .subtitle2
+                            .subtitle2!
                             .copyWith(fontWeight: FontWeight.bold)),
                   ),
                   onTap: () {
@@ -300,12 +300,12 @@ class ControlButtonsState extends State<ControlButtons>
 class SeekBar extends StatefulWidget {
   final Duration duration;
   final Duration position;
-  final ValueChanged<Duration> onChanged;
-  final ValueChanged<Duration> onChangeEnd;
+  final ValueChanged<Duration>? onChanged;
+  final ValueChanged<Duration>? onChangeEnd;
 
   SeekBar({
-    @required this.duration,
-    @required this.position,
+    required this.duration,
+    required this.position,
     this.onChanged,
     this.onChangeEnd,
   });
@@ -315,7 +315,7 @@ class SeekBar extends StatefulWidget {
 }
 
 class _SeekBarState extends State<SeekBar> {
-  double _dragValue;
+  double? _dragValue;
 
   @override
   Widget build(BuildContext context) {
@@ -331,12 +331,12 @@ class _SeekBarState extends State<SeekBar> {
               _dragValue = value;
             });
             if (widget.onChanged != null) {
-              widget.onChanged(Duration(milliseconds: value.round()));
+              widget.onChanged!(Duration(milliseconds: value.round()));
             }
           },
           onChangeEnd: (value) {
             if (widget.onChangeEnd != null) {
-              widget.onChangeEnd(Duration(milliseconds: value.round()));
+              widget.onChangeEnd!(Duration(milliseconds: value.round()));
             }
             _dragValue = null;
           },
@@ -359,19 +359,19 @@ class _SeekBarState extends State<SeekBar> {
 }
 
 _showSliderDialog({
-  BuildContext context,
-  String title,
-  int divisions,
-  double min,
-  double max,
+  required BuildContext context,
+  String? title,
+  int? divisions,
+  double? min,
+  double? max,
   String valueSuffix = '',
-  Stream<double> stream,
-  ValueChanged<double> onChanged,
+  Stream<double>? stream,
+  ValueChanged<double>? onChanged,
 }) {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text(title, textAlign: TextAlign.center),
+      title: Text(title!, textAlign: TextAlign.center),
       content: StreamBuilder<double>(
         stream: stream,
         builder: (context, snapshot) => Container(
@@ -386,8 +386,8 @@ _showSliderDialog({
                   )),
               Slider(
                 divisions: divisions,
-                min: min,
-                max: max,
+                min: min!,
+                max: max!,
                 value: snapshot.data ?? 1.0,
                 onChanged: onChanged,
               ),

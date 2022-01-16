@@ -1,4 +1,4 @@
-// @dart=2.9
+
 
 import 'dart:ui' as ui;
 
@@ -22,7 +22,7 @@ class ShowDisplay extends StatefulWidget {
 }
 
 class ShowDisplayState extends State<ShowDisplay> {
-  PreloadPageController _pageController;
+  PreloadPageController? _pageController;
   ScrollController _scrollController = ScrollController();
   ScrollController _pageScrollController = ScrollController();
   final ItemScrollController itemScrollController = ItemScrollController();
@@ -40,7 +40,7 @@ class ShowDisplayState extends State<ShowDisplay> {
 
   @override
   void dispose() {
-    _pageController.dispose();
+    _pageController!.dispose();
     _scrollController.dispose();
     _pageScrollController.dispose();
     super.dispose();
@@ -60,9 +60,9 @@ class ShowDisplayState extends State<ShowDisplay> {
 
     void jumpPrevNext(String direction) {
       direction == 'next'
-          ? _pageController.nextPage(
+          ? _pageController!.nextPage(
               duration: Duration(milliseconds: 500), curve: Curves.ease)
-          : _pageController.previousPage(
+          : _pageController!.previousPage(
               duration: Duration(milliseconds: 500), curve: Curves.ease);
     }
 
@@ -72,19 +72,19 @@ class ShowDisplayState extends State<ShowDisplay> {
 
     TextStyle _asStyle = TextStyle(
         // height: 1.3,
-        color: Theme.of(context).textTheme.headline6.color,
+        color: Theme.of(context).textTheme.headline6!.color,
         fontFamily: "Harmattan",
         fontSize: 32);
 
     TextStyle _rsStyle = TextStyle(
         // height: 1.3,
-        color: Theme.of(context).textTheme.headline6.color,
+        color: Theme.of(context).textTheme.headline6!.color,
         fontFamily: "Lato",
         fontSize: 22);
 
     TextStyle showListStyle = TextStyle(
         // height: 1.3,
-        color: Theme.of(context).textTheme.headline6.color,
+        color: Theme.of(context).textTheme.headline6!.color,
         fontFamily: "Lato",
         fontSize: 20);
 
@@ -110,7 +110,7 @@ class ShowDisplayState extends State<ShowDisplay> {
                       // _pageController.animateToPage(i,
                       //     duration: Duration(milliseconds: 500),
                       //     curve: Curves.easeIn);
-                      _pageController.jumpToPage(
+                      _pageController!.jumpToPage(
                         i,
                       );
                     },
@@ -183,7 +183,7 @@ class ShowDisplayState extends State<ShowDisplay> {
       );
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (widget.showPlaylist == true) {
         _popUpShowList();
       }

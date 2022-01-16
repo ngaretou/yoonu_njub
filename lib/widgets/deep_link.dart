@@ -1,5 +1,3 @@
-// @dart=2.9
-
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
@@ -8,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 //This gives a centralized way of handling deep links and urls
 //For iOS, make sure the appURLSchemes are in Info.plist
 Future<void> launchDeepLink(String appToLaunch, String identifier) async {
-  String url, urlPrefix, deepLink, appURLScheme, appURLSchemeCompleter;
+  late String url, urlPrefix, deepLink, appURLScheme, appURLSchemeCompleter;
 
   if (appToLaunch == 'youtube') {
     urlPrefix = 'https://youtu.be/';
