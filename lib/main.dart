@@ -1,15 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter/services.dart';
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:yoonu_njub/providers/player_manager.dart';
-
-// import 'locale/app_localization.dart';
-
+import './providers/player_manager.dart';
 import './providers/shows.dart';
 import './providers/theme.dart';
 
@@ -44,7 +43,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  //Language code:
+  //Language code: Initialize the locale
   Future<void> setupLang() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     Function setLocale =
@@ -88,14 +87,10 @@ class _MyAppState extends State<MyApp> {
                 : MainPlayer(),
       ),
       theme: Provider.of<ThemeModel>(context).currentTheme,
-      // != null
-      //     ? Provider.of<ThemeModel>(context).currentTheme
-      //     : ThemeData.dark(),
       routes: {
         MainPlayer.routeName: (ctx) => MainPlayer(),
         SettingsScreen.routeName: (ctx) => SettingsScreen(),
         AboutScreen.routeName: (ctx) => AboutScreen(),
-        // OnboardingScreen.routeName: (ctx) => OnboardingScreen(),
       },
       localizationsDelegates: [
         AppLocalizations.delegate,

@@ -1,7 +1,5 @@
-
-
 import 'dart:ui' as ui;
-
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
@@ -14,6 +12,16 @@ import '../widgets/player_controls.dart';
 import '../providers/shows.dart';
 import '../providers/player_manager.dart';
 
+//To adapt to new Flutter 2.8 behavior that does not allow mice to drag - which is our desired behavior here
+class MyCustomScrollBehavior extends ScrollBehavior {
+  // Override behavior methods and getters like dragDevices
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+      };
+}
+
 class ShowDisplay extends StatefulWidget {
   final bool showPlaylist;
   ShowDisplay(this.showPlaylist);
@@ -22,9 +30,10 @@ class ShowDisplay extends StatefulWidget {
 }
 
 class ShowDisplayState extends State<ShowDisplay> {
-  PreloadPageController? _pageController;
-  ScrollController _scrollController = ScrollController();
-  ScrollController _pageScrollController = ScrollController();
+  PreloadPageController _pageController = PreloadPageController();
+  final ScrollController _pageScrollController = ScrollController();
+
+  final ScrollController _scrollController = ScrollController();
   final ItemScrollController itemScrollController = ItemScrollController();
 
   @override
@@ -40,7 +49,7 @@ class ShowDisplayState extends State<ShowDisplay> {
 
   @override
   void dispose() {
-    _pageController!.dispose();
+    _pageController.dispose();
     _scrollController.dispose();
     _pageScrollController.dispose();
     super.dispose();
@@ -57,14 +66,6 @@ class ShowDisplayState extends State<ShowDisplay> {
     //Android biggest phone I can find is is 480 x 853 = 1333
     //For tablets the smallest I can find is 768 x 1024
     final bool _isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
-
-    void jumpPrevNext(String direction) {
-      direction == 'next'
-          ? _pageController!.nextPage(
-              duration: Duration(milliseconds: 500), curve: Curves.ease)
-          : _pageController!.previousPage(
-              duration: Duration(milliseconds: 500), curve: Curves.ease);
-    }
 
     //Text Styles
     ui.TextDirection _rtlText = ui.TextDirection.rtl;
@@ -88,10 +89,33 @@ class ShowDisplayState extends State<ShowDisplay> {
         fontFamily: "Lato",
         fontSize: 20);
 
-// //This page is split up into components that can be recombined based on the platform.
-// //This is the playList widget. For web, it will go side by side; for app, it will go as a drawer.
+    //code for prev/next buttons - this makes clicking the button equivalent to scrolling
+    void jumpPrevNext(String direction) {
+      direction == 'next'
+          ? _pageController.nextPage(
+              duration: Duration(milliseconds: 500), curve: Curves.ease)
+          : _pageController.previousPage(
+              duration: Duration(milliseconds: 500), curve: Curves.ease);
+    }
+
+    //This page is split up into components that can be recombined based on the platform.
+
+    // For web, a widget to facilitate dragging
+    Widget webScrollable(Widget childWidget) {
+      return MouseRegion(
+          cursor: SystemMouseCursors.grab,
+          child: ScrollConfiguration(
+              //The 2.8 Flutter behavior is to not have mice grabbing and dragging - but we do want this in the web version of the app, so the custom scroll behavior here
+              //Turn off scrollbar here so as to be able to control it more below with Scrollbar widget
+              behavior: MyCustomScrollBehavior()
+                  .copyWith(scrollbars: kIsWeb ? true : false),
+              child: childWidget));
+    }
+
+    //This is the playList widget. For web, it will go side by side; for app, it will go as a drawer.
+
     Widget playList() {
-      Widget mainList() {
+      Widget playListInterior() {
         return ScrollablePositionedList.builder(
             itemScrollController: itemScrollController,
             initialScrollIndex: showsProvider.lastShowViewed,
@@ -106,11 +130,7 @@ class ShowDisplayState extends State<ShowDisplay> {
                       //If not on the web version, pop the modal bottom sheet - if web, no need
                       if (_isPhone || mediaQuery.width < 600)
                         Navigator.pop(context);
-                      // _pageController.jumpToPage(i);
-                      // _pageController.animateToPage(i,
-                      //     duration: Duration(milliseconds: 500),
-                      //     curve: Curves.easeIn);
-                      _pageController!.jumpToPage(
+                      _pageController.jumpToPage(
                         i,
                       );
                     },
@@ -133,9 +153,6 @@ class ShowDisplayState extends State<ShowDisplay> {
                                   style: showListStyle),
                             ),
                             if (!kIsWeb)
-                              // Expanded(
-                              //   flex: 1,
-                              //   child:
                               Container(
                                   width: 40,
                                   height: 40,
@@ -152,14 +169,10 @@ class ShowDisplayState extends State<ShowDisplay> {
             });
       }
 
-      return Scrollbar(
-        child: mainList(),
-        controller: _scrollController,
-        // isAlwaysShown: alwaysShowScrollbars,
-      );
+      return webScrollable(playListInterior());
     }
 
-// Bottom playlist drawer
+    // The function that shows the bottom playlist drawer, playList()
     void _popUpShowList() {
       print('showing playlist');
       showModalBottomSheet(
@@ -183,13 +196,15 @@ class ShowDisplayState extends State<ShowDisplay> {
       );
     }
 
+    //this shows when you reload it from the AppBar button
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (widget.showPlaylist == true) {
         _popUpShowList();
       }
     });
+    //End of the playlist section
 
-    //This is the main player component
+    //This is the main player component - the picture, show name, player controls
     Widget playerStack() {
       Widget mainStack() {
         return Stack(children: [
@@ -197,12 +212,11 @@ class ShowDisplayState extends State<ShowDisplay> {
               physics: AlwaysScrollableScrollPhysics(),
               scrollDirection: Axis.horizontal,
               controller: _pageController,
-              preloadPagesCount: 2,
+              preloadPagesCount: 1,
               itemCount: showsProvider.shows.length,
               onPageChanged: (index) {
                 //Here we want the user to be able to come back to the name they were on when they
                 //return to the app, so save lastpage viewed on each page swipe.
-
                 showsProvider.saveLastShowViewed(index);
 
                 //This tells the player manager which show to stop.
@@ -267,6 +281,7 @@ class ShowDisplayState extends State<ShowDisplay> {
                   ],
                 );
               }),
+          //Bottom wide button with small arrow up
           if (_isPhone || mediaQuery.width < 600)
             Positioned(
               bottom: 0,
@@ -294,14 +309,13 @@ class ShowDisplayState extends State<ShowDisplay> {
         ]);
       }
 
-      return _isPhone
-          ? mainStack()
-          : Scrollbar(
-              // isAlwaysShown: true,
-              controller: _pageScrollController,
-              child: mainStack());
+      //playerStack return:
+      // return _isPhone ? mainStack() : webScrollable(mainStack());
+      return webScrollable(mainStack());
     }
+    //End of main player component
 
+    //Putting it all together. First set up the widget combinations
     Widget phoneVersion() {
       return Center(
         child: Container(
@@ -310,22 +324,21 @@ class ShowDisplayState extends State<ShowDisplay> {
       );
     }
 
-    Widget webVersion() {
+    Widget wideVersion() {
       return Row(
         children: [
           Container(width: mediaQuery.width * .6, child: playerStack()),
-          //playList takes an initialPage, which here is 0, the first one
           Container(width: mediaQuery.width * .4, child: playList()),
         ],
       );
     }
 
-    // print(mediaQuery.width);
+    //Now figure out which version to use and build it
+
     if (_isPhone || mediaQuery.width < 600) {
-      print('returning phoneVersion');
       return phoneVersion();
     } else {
-      return webVersion();
+      return wideVersion();
     }
   }
 }

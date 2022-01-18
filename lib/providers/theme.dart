@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -211,8 +209,7 @@ class ThemeModel extends ChangeNotifier {
     if (!prefs.containsKey('userThemeName')) {
       setLightTheme();
     } else {
-      userThemeName =
-          json.decode(prefs.getString('userThemeName')!) as String?;
+      userThemeName = json.decode(prefs.getString('userThemeName')!) as String?;
 
       switch (userThemeName) {
         case 'darkTheme':
@@ -248,7 +245,8 @@ class ThemeModel extends ChangeNotifier {
       _downloadsApproved = false;
       denyDownloading();
     } else {
-      final temp = json.decode(prefs.getString('_downloadsApproved')!) as String?;
+      final temp =
+          json.decode(prefs.getString('_downloadsApproved')!) as String?;
 
       if (temp == 'true') {
         _downloadsApproved = true;
