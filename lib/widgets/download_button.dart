@@ -7,7 +7,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../providers/shows.dart';
 import '../providers/theme.dart';
-// import 'package:just_audio/just_audio.dart';
 
 class DownloadButton extends StatefulWidget {
   final Show show;
@@ -61,7 +60,8 @@ class _DownloadButtonState extends State<DownloadButton> {
         _isDownloaded = true;
       });
     }, onError: (e) {
-      print('had an error checking if the file was there or not');
+      print(
+          'had an error checking if the file was there or not - downloadFile()');
       print(e);
     }, cancelOnError: true);
   }
@@ -72,16 +72,11 @@ class _DownloadButtonState extends State<DownloadButton> {
     final pref = Provider.of<ThemeModel>(context, listen: false);
 
     Future<String> getDownloadSize(url) async {
-      // if (downloadSizeGotten) {
-      //   return _totalFormatted;
-      // } else {
-      //download request
       final http.Response r = await http.head(Uri.parse(url));
       final _total = r.headers["content-length"]!;
       final _totalAsInt = double.parse(_total);
       final String _totalFormatted = (_totalAsInt / 1000000).toStringAsFixed(2);
 
-      // downloadSizeGotten = true;
       return _totalFormatted;
     }
 

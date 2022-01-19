@@ -295,6 +295,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
           });
     }
 
+    Widget checkShowsButton(BuildContext context) {
+      return Center(
+        child: ElevatedButton(
+            onPressed: () {
+              Provider.of<Shows>(context, listen: false)
+                  .checkShowsOnWeb(context);
+            },
+            child: Text('Check Shows on Web')),
+      );
+    }
+
 ///////////////////////////////
     return Scaffold(
       appBar: AppBar(
@@ -311,38 +322,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   settingRow(themeTitle(), themeSettings()),
                   Divider(),
-                  // settingRow(backgroundTitle(), backgroundSettings()),
-                  // Divider(),
-                  // settingRow(directionTitle(), directionSettings()),
-                  // Divider(),
-                  // scriptPickerTitle(),
-                  // asScriptPicker(),
-                  // rsScriptPicker(),
-                  // Divider(),
                   settingRow(languageTitle(), languageSetting()),
                   Divider(),
                   if (!kIsWeb)
                     settingRow(
                         downloadPermissionTitle(), downloadPermissionSetting()),
                   if (!kIsWeb) clearDownloads(),
+                  //Button to check all shows for current presence online
+                  // checkShowsButton(context)
                 ],
               ),
             )
           : ListView(
               children: [
                 settingColumn(themeTitle(), themeSettings()),
-                // settingColumn(backgroundTitle(), backgroundSettings()),
-                // settingColumn(directionTitle(), directionSettings()),
-                // scriptPickerTitle(),
-                // asScriptPicker(),
-                // rsScriptPicker(),
-
                 settingColumn(languageTitle(), languageSetting()),
-
                 if (!kIsWeb)
                   settingColumn(
                       downloadPermissionTitle(), downloadPermissionSetting()),
                 if (!kIsWeb) clearDownloads(),
+                // checkShowsButton(context)
               ],
             ),
       // ),

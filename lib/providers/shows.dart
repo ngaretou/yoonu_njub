@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:connectivity/connectivity.dart';
-// import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'dart:async';
 import 'dart:convert';
@@ -176,6 +176,117 @@ class Shows with ChangeNotifier {
 
         return false;
       }
+    } catch (e) {
+      print('had an error checking if the file was there or not');
+      return false;
+    }
+  }
+
+/////////
+  Future<bool> checkShowsOnWeb(BuildContext context) async {
+    Future<List<String>> checkLogic() async {
+      List<String> showsWithErrors = [];
+
+      //shows.forEach doesn't await
+      for (var show in shows) {
+        try {
+          final url = urlBase + '/' + show.urlSnip + '/' + show.filename;
+          final http.Response r = await http.head(Uri.parse(url));
+          final _total = r.headers["content-length"]!;
+          print(_total);
+        } catch (e) {
+          print('Error checking show ' + show.id.toString());
+          showsWithErrors.add(show.id.toString());
+        }
+      }
+
+      return showsWithErrors;
+    }
+
+    // ignore: unused_element
+    Future<List<String>> checkLogicTest() async {
+      List<String> temp = [];
+      final url = "http://audio.sng.al/CBB/CBB01.mp3";
+
+      try {
+        final http.Response r = await http.head(Uri.parse(url));
+        final _total = r.headers["content-length"]!;
+        // final _totalAsInt = double.parse(_total);
+
+        print(_total);
+        temp.add('worked');
+      } catch (e) {
+        print('Error checking url ' + url);
+        temp.add('error');
+      }
+      return temp;
+    }
+
+    Widget checkResultMessage(List<String> errorList) {
+      late String message;
+      //if no errors
+      if (errorList.length == 0) {
+        message = "No errors detected";
+      } else {
+        String errorListString = "Errors in shows: ";
+        errorList.forEach((element) {
+          errorListString = errorListString + " " + element;
+        });
+        message = errorListString;
+      }
+
+      return AlertDialog(
+        title: Text(
+          'Check Result',
+        ),
+        content: Text(
+          message,
+        ),
+        actions: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
+              ),
+              TextButton(
+                  child: Text('Cancel'),
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  }),
+            ],
+          ),
+        ],
+        // ),
+      );
+    }
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          //first get the size of the download so as to pass to the dialog
+          return FutureBuilder(
+              future: checkLogic(),
+              builder: (ctx, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else {
+                  return checkResultMessage(snapshot.data as List<String>);
+                }
+              });
+        }).then((responseFromDialog) async {
+      //if response is true, download. If not, nothing happens.
+      if (responseFromDialog) {
+        print(responseFromDialog);
+        //do something
+      }
+    });
+    try {
+      return true;
     } catch (e) {
       print('had an error checking if the file was there or not');
       return false;
