@@ -329,7 +329,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         downloadPermissionTitle(), downloadPermissionSetting()),
                   if (!kIsWeb) clearDownloads(),
                   //Button to check all shows for current presence online
-                  // checkShowsButton(context)
+                  checkShowsButton(context)
                 ],
               ),
             )
@@ -341,7 +341,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   settingColumn(
                       downloadPermissionTitle(), downloadPermissionSetting()),
                 if (!kIsWeb) clearDownloads(),
-                // checkShowsButton(context)
+                checkShowsButton(context)
               ],
             ),
       // ),
