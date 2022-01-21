@@ -29,14 +29,14 @@ class _DownloadButtonState extends State<DownloadButton> {
   }
 
   //path is the local app Document path; url is the WHOLE url you need to download, filename is just the filename
-  Future downloadFile(String path, String url, String filename) async {
+  Future downloadFile(String path, String urlbase, Show show) async {
     //here we set the flag to true so we don't restart the process
     setState(() {
       _isDownloading = true;
     });
     //This will hold the downloaded file temporarily before writing
     List<int> _bytes = [];
-
+    String url = urlbase + '/' + show.urlSnip + '/' + show.filename;
     final http.StreamedResponse _response =
         await http.Client().send(http.Request('GET', Uri.parse("$url")));
     //total size of download
@@ -52,7 +52,7 @@ class _DownloadButtonState extends State<DownloadButton> {
         _percentDone = ((_received) / _total!);
       });
     }, onDone: () async {
-      final file = File("$path/$filename");
+      final file = File("$path/${show.filename}");
       await file.writeAsBytes(_bytes);
       print('download done');
       setState(() {
@@ -81,7 +81,9 @@ class _DownloadButtonState extends State<DownloadButton> {
     }
 
     //This either deletes the file if it's on the device or downloads it if not.
-    Future<void> _downloadOrDeleteFile(String url, String filename) async {
+    Future<void> _downloadOrDeleteFile(String urlbase, Show show) async {
+      //putting together the whole url for the show we're looking at
+      String url = shows.urlBase + '/' + show.urlSnip + '/' + show.filename;
       //If you are not already downloading something...
       if (!_isDownloading) {
         final directory = await getApplicationDocumentsDirectory();
@@ -89,12 +91,12 @@ class _DownloadButtonState extends State<DownloadButton> {
         print(directory.path);
         //see if it's on the device
         try {
-          final file = File('$path/$filename');
+          final file = File('$path/${show.filename}');
 
           if (await file.exists()) {
             //delete the file
             try {
-              final file = File('$path/$filename');
+              final file = File('$path/${show.filename}');
               file.delete();
               print('deleting file');
               setState(() {
@@ -106,18 +108,25 @@ class _DownloadButtonState extends State<DownloadButton> {
             }
           } else {
             //If file not on the device, check if we have internet connection
+            //check if connected:
             bool? connected = await shows.connectivityCheck;
+            //check if file exists
+            List<String> showExists = await shows.checkShows(show);
+            //If not connected, just stop.
             if (!connected!) {
               //No connection; show the no internet message and stop
               shows.snackbarMessageNoInternet(context);
-            } else {
+            } else if (connected && showExists.length != 0) {
+              //We're connected but teh show isn't there
+              shows.snackbarMessageError(context);
+            } else if (connected && showExists.length == 0) {
               //download the file
               print(
                   'The file seems to not be there - starting downloading process');
               //The user can choose to not be warned of download size, that is stored in downloadsApproved
               if (pref.downloadsApproved!) {
                 //downloading is approved - just download the file.
-                downloadFile(path, url, filename);
+                downloadFile(path, shows.urlBase, show);
               } else {
                 //if downloading is not already approved, get feedback from the user
                 //I have
@@ -139,13 +148,16 @@ class _DownloadButtonState extends State<DownloadButton> {
                     }).then((responseFromDialog) async {
                   //if response is true, download. If not, nothing happens.
                   if (responseFromDialog) {
-                    downloadFile(path, url, filename);
+                    downloadFile(path, urlbase, show);
                   }
                 });
               }
-            }
-          } // end of else
+            } else {
+              //We should have covered our bases here but
+              shows.snackbarMessageNoInternet(context);
+            } // end of else
 
+          }
         } catch (e) {
           print('had an error checking if the file was there or not');
           print(e);
@@ -175,12 +187,12 @@ class _DownloadButtonState extends State<DownloadButton> {
                     ),
               onPressed: () {
                 //NB 'url' is the whole url you need to download the file
-                String url = shows.urlBase +
-                    '/' +
-                    widget.show.urlSnip +
-                    '/' +
-                    widget.show.filename;
-                _downloadOrDeleteFile(url, widget.show.filename);
+                // String url = shows.urlBase +
+                //     '/' +
+                //     widget.show.urlSnip +
+                //     '/' +
+                //     widget.show.filename;
+                _downloadOrDeleteFile(shows.urlBase, widget.show);
                 // setState(() {});
               }),
         ],

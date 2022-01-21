@@ -110,8 +110,7 @@ class ControlButtonsState extends State<ControlButtons>
       }
     }
 
-    Future _initializePlayer(
-        String urlBase, String urlSnip, String filename) async {
+    Future _initializePlayer(String urlBase, Show show) async {
       //This checks to see if the player has already been initialized.
       //If it already has, we know where our audio is coming from and can just play (see button code below).
       //But if not, check to see if we're ready to rock.
@@ -123,20 +122,30 @@ class ControlButtonsState extends State<ControlButtons>
         _playerIsInitialized = true;
 
         //This waits for all the prelim checks to be done then gets to the next part
-        if (await showsProvider.localAudioFileCheck(filename)) {
+        if (await showsProvider.localAudioFileCheck(show.filename)) {
           //source is local
           print('File is downloaded');
-          _loadLocalAudio(filename);
+          _loadLocalAudio(show.filename);
           return true;
         } else {
           //file is not downloaded; source is remote:
           //check if connected:
           bool? connected = await showsProvider.connectivityCheck;
-          if (connected!) {
-            _loadRemoteAudio('$urlBase/$urlSnip/$filename');
+          //check if file exists
+          List<String> showExists = await showsProvider.checkShows(show);
+
+          //Now if we're good start playing - if not then give a message
+          if (connected! && showExists.length == 0) {
+            //We're connected to internet and the show can be found
+            _loadRemoteAudio('$urlBase/${show.urlSnip}/${show.filename}');
             return true;
+          } else if (connected && showExists.length != 0) {
+            //We're connected to internet but the show can NOT be found
+            _playerIsInitialized = false;
+            showsProvider.snackbarMessageError(context);
+            return false;
           } else {
-            //Do this if file is not downloaded but we're not connected
+            //Do this if file is not downloaded and we're not connected
             //The player is not initialized because there's nothing to play;
             //if you get here there's no local file and no internet connection.
             _playerIsInitialized = false;
@@ -218,8 +227,7 @@ class ControlButtonsState extends State<ControlButtons>
                       icon: Icon(Icons.play_arrow),
                       iconSize: 64.0,
                       onPressed: () {
-                        _initializePlayer(urlBase, widget.show.urlSnip,
-                                widget.show.filename)
+                        _initializePlayer(urlBase, widget.show)
                             .then((shouldPlay) {
                           if (shouldPlay) {
                             _player.setVolume(1);

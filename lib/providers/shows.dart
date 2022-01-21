@@ -2,9 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:connectivity/connectivity.dart';
+import 'package:provider/provider.dart';
+
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
+
+import '../providers/messaging.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -146,14 +153,31 @@ class Shows with ChangeNotifier {
       content: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.signal_wifi_off, size: 36),
+          Icon(
+            Icons.signal_wifi_off,
+            size: 36,
+            color: Theme.of(context).colorScheme.primary,
+          ),
         ],
       ),
-      // action: SnackBarAction(
-      //     label: "OK",
-      //     onPressed: () {
-      //       Scaffold.of(context).hideCurrentSnackBar();
-      //     }),
+    ));
+  }
+
+  snackbarMessageError(BuildContext context) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      // Scaffold.of(context).hideCurrentSnackBar();
+      // Scaffold.of(context).showSnackBar(SnackBar(
+      content: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error,
+            size: 36,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ],
+      ),
     ));
   }
 
@@ -183,44 +207,63 @@ class Shows with ChangeNotifier {
   }
 
 /////////
-  Future<bool> checkShowsOnWeb(BuildContext context) async {
-    Future<List<String>> checkLogic() async {
-      List<String> showsWithErrors = [];
 
-      //shows.forEach doesn't await
-      for (var show in shows) {
-        try {
-          final url = urlBase + '/' + show.urlSnip + '/' + show.filename;
-          final http.Response r = await http.head(Uri.parse(url));
-          final _total = r.headers["content-length"]!;
-          print(_total);
-        } catch (e) {
-          print('Error checking show ' + show.id.toString());
-          showsWithErrors.add(show.id.toString());
-        }
-      }
+  Future<List<String>> checkShows([Show? showToCheck]) async {
+    //temp list of shows to work with
+    List<Show> showsToCheck = [];
+    //Did we recieve a certain show to check?
+    //If not, check all shows.
+    //If so, just check that one.
+    showToCheck == null ? showsToCheck = shows : showsToCheck.add(showToCheck);
 
-      return showsWithErrors;
-    }
+    //here set up the list which we'll return
+    List<String> showsWithErrors = [];
 
-    // ignore: unused_element
-    Future<List<String>> checkLogicTest() async {
-      List<String> temp = [];
-      final url = "http://audio.sng.al/CBB/CBB01.mp3";
-
+    //shows.forEach doesn't await, it just runs, which messes everything up, stick with for
+    for (var show in showsToCheck) {
       try {
+        final url = urlBase + '/' + show.urlSnip + '/' + show.filename;
         final http.Response r = await http.head(Uri.parse(url));
         final _total = r.headers["content-length"]!;
-        // final _totalAsInt = double.parse(_total);
-
         print(_total);
-        temp.add('worked');
       } catch (e) {
-        print('Error checking url ' + url);
-        temp.add('error');
+        print('Error checking show ' + show.id.toString());
+        showsWithErrors.add(show.id.toString());
       }
-      return temp;
     }
+    //Now we have the problem shows in the list showsWithErrors -
+    //First, if there are errors, get an async process going
+    //sending a message to the dev
+    if (showsWithErrors.length != 0) {
+      String messageText = "Errors in show(s) ";
+      for (var showID in showsWithErrors) {
+        messageText = messageText + " " + showID;
+      }
+      sendMessage(messageText);
+    }
+
+    return showsWithErrors;
+  }
+
+  Future<bool> checkAllShowsDialog(BuildContext context) async {
+    // ignore: unused_element
+    // Future<List<String>> checkShowTest() async {
+    //   List<String> temp = [];
+    //   final url = "http://audio.sng.al/CBB/CBB01.mp3";
+
+    //   try {
+    //     final http.Response r = await http.head(Uri.parse(url));
+    //     final _total = r.headers["content-length"]!;
+    //     // final _totalAsInt = double.parse(_total);
+
+    //     print(_total);
+    //     temp.add('worked');
+    //   } catch (e) {
+    //     print('Error checking url ' + url);
+    //     temp.add('error');
+    //   }
+    //   return temp;
+    // }
 
     Widget checkResultMessage(List<String> errorList) {
       late String message;
@@ -233,6 +276,8 @@ class Shows with ChangeNotifier {
           errorListString = errorListString + " " + element;
         });
         message = errorListString;
+        //Let dev know about the errors
+        Provider.of<Shows>(context, listen: false).sendMessage(message);
       }
 
       return AlertDialog(
@@ -270,7 +315,7 @@ class Shows with ChangeNotifier {
         builder: (BuildContext context) {
           //first get the size of the download so as to pass to the dialog
           return FutureBuilder(
-              future: checkLogic(),
+              future: checkShows(),
               builder: (ctx, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -290,6 +335,27 @@ class Shows with ChangeNotifier {
     } catch (e) {
       print('had an error checking if the file was there or not');
       return false;
+    }
+  }
+
+  Future<void> sendMessage(String messageText) async {
+    final smtpServer = hotmail(emailAddress, emailPassword);
+
+    // Create our message.
+    final message = Message()
+      ..from = Address(emailAddress, 'Yoonu Njub Error Reporting')
+      ..recipients.add(recipientAddress)
+      ..subject = 'Yoonu Njub Error Report'
+      ..text = messageText;
+
+    try {
+      final sendReport = await send(message, smtpServer);
+      print('Message sent: ' + sendReport.toString());
+    } on MailerException catch (e) {
+      print('Message not sent.');
+      for (var p in e.problems) {
+        print('Problem: ${p.code}: ${p.msg}');
+      }
     }
   }
 }
