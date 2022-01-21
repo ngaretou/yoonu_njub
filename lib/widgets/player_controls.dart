@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -164,7 +165,7 @@ class ControlButtonsState extends State<ControlButtons>
           builder: (context, snapshot) {
             print('in streambuilder for ' + widget.show.filename);
 
-            final duration = snapshot.data ?? Duration.zero;
+            final Duration duration = snapshot.data ?? Duration.zero;
             return StreamBuilder<Duration>(
               stream: _player.positionStream,
               builder: (context, snapshot) {
@@ -350,12 +351,17 @@ class _SeekBarState extends State<SeekBar> {
         Positioned(
           right: 16.0,
           bottom: 0.0,
-          child: Text(
-              RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$')
-                      .firstMatch("$_remaining")
-                      ?.group(1) ??
-                  '$_remaining',
-              style: Theme.of(context).textTheme.subtitle2),
+          // child: Text('here'),
+          child: widget.duration == Duration.zero
+              //Before load, this will appear; you can choose Text(''), Text('-:--') etc
+              ? Text('')
+              //After the audio loads, there will be a duration, so show the time remaining
+              : Text(
+                  RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$')
+                          .firstMatch("$_remaining")
+                          ?.group(1) ??
+                      '$_remaining',
+                  style: Theme.of(context).textTheme.subtitle2),
         ),
       ],
     );

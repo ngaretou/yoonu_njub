@@ -214,5 +214,6 @@
     "description": "Delete previously downloaded items",
     "type": "text",
     "placeholders": {}
-  }
+  },
+  "settingsContactUsTelephone": "Woo nu"
 }

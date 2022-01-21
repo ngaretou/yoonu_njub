@@ -24,6 +24,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   //Main Settings screen construction:
   @override
   Widget build(BuildContext context) {
+    int numberOfTaps = 0;
     final userThemeName =
         Provider.of<ThemeModel>(context, listen: false).userThemeName;
     final themeProvider = Provider.of<ThemeModel>(context, listen: false);
@@ -295,6 +296,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           });
     }
 
+    // ignore: unused_element
     Widget checkShowsButton(BuildContext context) {
       return Center(
         child: ElevatedButton(
@@ -304,6 +306,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
             child: Text('Check Shows on Web')),
       );
+    }
+
+    Widget hiddenCheckShowsButton(BuildContext context) {
+      return Container(
+          height: 70,
+          // color: Colors.blue,
+          child: GestureDetector(
+            onTap: () {
+              numberOfTaps++;
+              print(numberOfTaps);
+              if (numberOfTaps == 6) {
+                print('check all shows');
+                Provider.of<Shows>(context, listen: false)
+                    .checkAllShowsDialog(context);
+                numberOfTaps = 0;
+              }
+            },
+          ));
     }
 
     //This just gives a test button for messaging troubleshooting
@@ -343,7 +363,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         downloadPermissionTitle(), downloadPermissionSetting()),
                   if (!kIsWeb) clearDownloads(),
                   //Button to check all shows for current presence online
-                  checkShowsButton(context)
+                  hiddenCheckShowsButton(context)
                 ],
               ),
             )
@@ -356,7 +376,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   settingColumn(
                       downloadPermissionTitle(), downloadPermissionSetting()),
                 if (!kIsWeb) clearDownloads(),
-                checkShowsButton(context),
+                hiddenCheckShowsButton(context)
                 // messagingButton(),
               ],
             ),

@@ -1,11 +1,9 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'deep_link.dart';
+import 'deep_link.dart'; //for WhatsApp link below
 
 class ContactOptions extends StatelessWidget {
   final Brightness? contextualBrightness;
@@ -57,10 +55,10 @@ class ContactOptions extends StatelessWidget {
     return Column(
       children: [
         drawerTitle(
-          AppLocalizations.of(context).settingsContactUsEmail,
-          Icons.email,
+          AppLocalizations.of(context).settingsContactUsTelephone,
+          Icons.phone,
           () async {
-            const url = 'mailto:equipedevmbs@gmail.com';
+            const url = 'tel:+221 777758702';
             if (await canLaunch(url)) {
               await launch(url);
             } else {
@@ -69,22 +67,35 @@ class ContactOptions extends StatelessWidget {
             Navigator.of(context).pop();
           },
         ),
+        // drawerTitle(
+        //   AppLocalizations.of(context).settingsContactUsEmail,
+        //   Icons.email,
+        //   () async {
+        //     const url = 'mailto:equipedevmbs@gmail.com';
+        //     if (await canLaunch(url)) {
+        //       await launch(url);
+        //     } else {
+        //       throw 'Could not launch $url';
+        //     }
+        //     Navigator.of(context).pop();
+        //   },
+        // ),
         drawerTitle(
           AppLocalizations.of(context).contactWhatsApp,
           FontAwesomeIcons.whatsapp,
           () async {
-            launchDeepLink('whatsapp', '221776427432');
+            launchDeepLink('whatsapp', '221777758702');
             Navigator.of(context).pop();
           },
         ),
-        drawerTitle(
-          AppLocalizations.of(context).contactFBMessenger,
-          FontAwesomeIcons.facebookMessenger,
-          () async {
-            launchDeepLink('fb', '107408064239821');
-            Navigator.of(context).pop();
-          },
-        ),
+        // drawerTitle(
+        //   AppLocalizations.of(context).contactFBMessenger,
+        //   FontAwesomeIcons.facebookMessenger,
+        //   () async {
+        //     launchDeepLink('fb', '107408064239821');
+        //     Navigator.of(context).pop();
+        //   },
+        // ),
       ],
     );
   }
