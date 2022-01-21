@@ -25,21 +25,22 @@ class ControlButtons extends StatefulWidget {
 }
 
 class ControlButtonsState extends State<ControlButtons>
-    with WidgetsBindingObserver {
+// with WidgetsBindingObserver
+{
   final _player = AudioPlayer();
   late bool _playerIsInitialized;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addObserver(this);
+    // WidgetsBinding.instance?.addObserver(this);
     _initializeSession();
     _playerIsInitialized = false;
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
+    // WidgetsBinding.instance?.removeObserver(this);
     _player.dispose();
     super.dispose();
   }
