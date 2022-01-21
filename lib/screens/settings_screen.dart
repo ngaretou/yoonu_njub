@@ -300,9 +300,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: ElevatedButton(
             onPressed: () {
               Provider.of<Shows>(context, listen: false)
-                  .checkShowsOnWeb(context);
+                  .checkAllShowsDialog(context);
             },
             child: Text('Check Shows on Web')),
+      );
+    }
+
+    //This just gives a test button for messaging troubleshooting
+    // ignore: unused_element
+    Widget messagingButton() {
+      return Center(
+        child: ElevatedButton(
+            onPressed: () {
+              Provider.of<Shows>(context, listen: false)
+                  .sendMessage('Test message');
+            },
+            child: Text('Test Messaging')),
       );
     }
 
@@ -316,6 +329,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       //If the width of the screen is greater or equal to 730 (whether or not _isPhone is true)
       //show the wide view
       body: MediaQuery.of(context).size.width >= 730
+          //tablet/web version
           ? Padding(
               padding: EdgeInsets.symmetric(horizontal: 50),
               child: ListView(
@@ -333,6 +347,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
             )
+          //phone view
           : ListView(
               children: [
                 settingColumn(themeTitle(), themeSettings()),
@@ -341,7 +356,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   settingColumn(
                       downloadPermissionTitle(), downloadPermissionSetting()),
                 if (!kIsWeb) clearDownloads(),
-                checkShowsButton(context)
+                checkShowsButton(context),
+                // messagingButton(),
               ],
             ),
       // ),
