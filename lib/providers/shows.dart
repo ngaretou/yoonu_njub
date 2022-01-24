@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:connectivity/connectivity.dart';
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
@@ -245,7 +245,7 @@ class Shows with ChangeNotifier {
     return showsWithErrors;
   }
 
-  Future<bool> checkAllShowsDialog(BuildContext context) async {
+  Future checkAllShowsDialog(BuildContext context) async {
     // ignore: unused_element
     // Future<List<String>> checkShowTest() async {
     //   List<String> temp = [];
@@ -265,11 +265,14 @@ class Shows with ChangeNotifier {
     //   return temp;
     // }
 
+    // Starting with the end - this is the result AlertDialog that gets called after the check completes.
     Widget checkResultMessage(List<String> errorList) {
       late String message;
       //if no errors
       if (errorList.length == 0) {
         message = "No errors detected";
+        //This if uncommented sends a no errors detected email
+        // sendMessage(message);
       } else {
         String errorListString = "Errors in shows: ";
         errorList.forEach((element) {
@@ -277,7 +280,7 @@ class Shows with ChangeNotifier {
         });
         message = errorListString;
         //Let dev know about the errors
-        Provider.of<Shows>(context, listen: false).sendMessage(message);
+        sendMessage(message);
       }
 
       return AlertDialog(
@@ -310,32 +313,85 @@ class Shows with ChangeNotifier {
       );
     }
 
+    startChecking() {
+      //The function that actually kicks this off - call CheckShows and then give us the
+      //result with checkResultMessage
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            //first get the size of the download so as to pass to the dialog
+            return FutureBuilder(
+                // future: checkShows(),
+                future: checkShows(),
+                builder: (ctx, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    //AbsorbPointer makes the screen nonresponsive til the future completes!
+                    return AbsorbPointer(
+                        absorbing: true,
+                        // child: Center(child: CircularProgressIndicator()));
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                                flex: 0,
+                                child: Container(
+                                    child: CircularProgressIndicator())),
+                            Container(
+                              height: 50,
+                            ),
+                            Expanded(
+                              flex: 0,
+                              child: Text(
+                                "Checking episodes on the web... ",
+                                style: Theme.of(context).textTheme.headline6,
+                              ),
+                            ),
+                          ],
+                        ));
+                  } else {
+                    return checkResultMessage(snapshot.data as List<String>);
+                  }
+                });
+          });
+    }
+
+    //This is the first thing actually run here, confirms the user wants to check
     showDialog(
         context: context,
         builder: (BuildContext context) {
           //first get the size of the download so as to pass to the dialog
-          return FutureBuilder(
-              future: checkShows(),
-              builder: (ctx, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else {
-                  return checkResultMessage(snapshot.data as List<String>);
-                }
-              });
-        }).then((responseFromDialog) async {
-      //if response is true, download. If not, nothing happens.
-      if (responseFromDialog) {
-        print(responseFromDialog);
-        //do something
-      }
-    });
-    try {
-      return true;
-    } catch (e) {
-      print('had an error checking if the file was there or not');
-      return false;
-    }
+
+          print('object');
+          return AlertDialog(
+            title: Text(
+              'Check Result',
+            ),
+            content: Text(
+              'Check availability of shows on internet?',
+            ),
+            actions: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    child: Text('OK'),
+                    onPressed: () {
+                      Navigator.pop(context, true);
+                      startChecking();
+                    },
+                  ),
+                  TextButton(
+                      child: Text('Cancel'),
+                      onPressed: () {
+                        Navigator.pop(context, false);
+                      }),
+                ],
+              ),
+            ],
+          );
+        });
   }
 
   Future<void> sendMessage(String messageText) async {

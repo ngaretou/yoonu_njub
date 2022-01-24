@@ -296,19 +296,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           });
     }
 
-    // ignore: unused_element
-    Widget checkShowsButton(BuildContext context) {
-      return Center(
-        child: ElevatedButton(
-            onPressed: () {
-              Provider.of<Shows>(context, listen: false)
-                  .checkAllShowsDialog(context);
-            },
-            child: Text('Check Shows on Web')),
-      );
-    }
-
     Widget hiddenCheckShowsButton(BuildContext context) {
+      //Having a button to verify the presence of all shows on the internet is great,
+      //but not necessarily something all should see right off. This button is 'hidden' in that it is not visible,
+      //tap 6 times and the function kicks off.
       return Container(
           height: 70,
           // color: Colors.blue,
@@ -328,16 +319,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     //This just gives a test button for messaging troubleshooting
     // ignore: unused_element
-    Widget messagingButton() {
-      return Center(
-        child: ElevatedButton(
-            onPressed: () {
-              Provider.of<Shows>(context, listen: false)
-                  .sendMessage('Test message');
-            },
-            child: Text('Test Messaging')),
-      );
-    }
+    // Widget messagingButton() {
+    //   return Center(
+    //     child: ElevatedButton(
+    //         onPressed: () {
+    //           Provider.of<Shows>(context, listen: false)
+    //               .sendMessage('Test message');
+    //         },
+    //         child: Text('Test Messaging')),
+    //   );
+    // }
 
 ///////////////////////////////
     return Scaffold(

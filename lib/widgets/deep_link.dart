@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 //This gives a centralized way of handling deep links and urls
 //For iOS, make sure the appURLSchemes are in Info.plist
 Future<void> launchDeepLink(String appToLaunch, String identifier) async {
+  print(Platform.isMacOS);
   late String url, urlPrefix, deepLink, appURLScheme, appURLSchemeCompleter;
 
   if (appToLaunch == 'youtube') {
@@ -42,7 +43,7 @@ Future<void> launchDeepLink(String appToLaunch, String identifier) async {
 
   //Now figure out what we need to do based on platform
   //If web or Android, a simple launch works well
-  if (kIsWeb || Platform.isAndroid) {
+  if (kIsWeb || Platform.isAndroid || Platform.isMacOS) {
     simpleLaunch();
   } else if (Platform.isIOS) {
     //for iOS you can specify the app to launch with
