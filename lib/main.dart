@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 
 import './providers/player_manager.dart';
 import './providers/shows.dart';
@@ -16,23 +17,28 @@ import 'screens/main_player_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/about_screen.dart';
 
-void main() {
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (ctx) => Shows(),
-        ),
-        ChangeNotifierProvider(
-          create: (ctx) => ThemeModel(),
-        ),
-        ChangeNotifierProvider(
-          create: (ctx) => PlayerManager(),
-        ),
-      ],
-      child: MyApp(),
-    ),
+Future<void> main() async {
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
+    androidNotificationChannelName: 'Audio playback',
+    androidNotificationOngoing: true,
+    androidStopForegroundOnPause: true,
   );
+
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(
+        create: (ctx) => Shows(),
+      ),
+      ChangeNotifierProvider(
+        create: (ctx) => ThemeModel(),
+      ),
+      ChangeNotifierProvider(
+        create: (ctx) => PlayerManager(),
+      ),
+    ],
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatefulWidget {

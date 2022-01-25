@@ -8,7 +8,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:preload_page_view/preload_page_view.dart';
 
 import 'download_button.dart';
-import '../widgets/player_controls.dart';
+import 'player_controls.dart';
 import '../providers/shows.dart';
 import '../providers/player_manager.dart';
 
@@ -226,7 +226,6 @@ class ShowDisplayState extends State<ShowDisplay> {
               itemBuilder: (context, i) {
                 Show show = showsProvider.shows[i];
 
-                print('assets/images/${show.image}.jpg');
                 return Column(
                   key: UniqueKey(),
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -242,8 +241,6 @@ class ShowDisplayState extends State<ShowDisplay> {
                             fit: BoxFit.cover,
                             image: AssetImage(
                               "assets/images/${show.image}.jpg",
-                              // bundle: DefaultAssetBundle.of(context)),
-                              // bundle: rootBundle
                             ),
                           ),
                         ),

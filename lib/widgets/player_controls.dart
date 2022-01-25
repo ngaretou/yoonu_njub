@@ -1,11 +1,17 @@
+import 'dart:io';
 import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
+import 'package:image/image.dart' as imageLib;
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
 import '../providers/shows.dart';
 import '../providers/player_manager.dart';
 import 'download_button.dart';
@@ -53,19 +59,24 @@ class ControlButtonsState extends State<ControlButtons>
   @override
   Widget build(BuildContext context) {
     void gracefulStopInBuild() async {
+      print('received signal to stop');
       //Gradually turn down volume
       for (var i = 10; i >= 0; i--) {
         _player.setVolume(i / 10);
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(Duration(milliseconds: 10));
       }
-      _player.pause();
+      print('stopping');
+      _player.stop();
+      print('stopped');
     }
 
     //only keep playing if it's the show we are looking at and it's actually playing
     if (Provider.of<PlayerManager>(context, listen: true).showToPlay !=
             widget.show.id &&
         _player.playing) {
-      gracefulStopInBuild();
+      print('sending signal to stop');
+      // gracefulStopInBuild();
+      _player.stop();
     }
 
     final showsProvider = Provider.of<Shows>(context, listen: false);
@@ -77,10 +88,72 @@ class ControlButtonsState extends State<ControlButtons>
 
     final urlBase = showsProvider.urlBase;
 
-    Future _loadRemoteAudio(url) async {
-      print('streaming remote audio');
-      AudioSource source = AudioSource.uri(Uri.parse(url));
-      print(source);
+    //Non-resizing version
+    // Future<Uri> getShowImage(Show show) async {
+    //   //Get notification area playback widget image
+    //   //Problem here is that you can't reference an asset image directly as a URI
+    //   //But the notification area needs it as a URI so you have to
+    //   //temporarily write the image outside the asset bundle. Yuck.
+    //   Directory directory = await getApplicationDocumentsDirectory();
+    //   //Get the image
+    //   ByteData data = await rootBundle.load("assets/images/${show.image}.jpg");
+    //   //Define where it will be written
+    //   var pathString = join(directory.path, "current.jpg");
+    //   //Set up the write & write it to the file as bytes
+    //   List<int> bytes =
+    //       data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    //   await File(pathString).writeAsBytes(bytes);
+    //   //notification area image end
+    //   // return pathString;
+    //   return Uri.file(pathString);
+    // }
+
+    //Resizing version
+    Future<Uri> getShowImage(Show show) async {
+      print('resizing image');
+      //Get notification area playback widget image
+      //Problem here is that you can't reference an asset image directly as a URI
+      //But the notification area needs it as a URI so you have to
+      //temporarily write the image outside the asset bundle. Yuck.
+      Directory directory = await getApplicationDocumentsDirectory();
+      //Get the image
+      ByteData data = await rootBundle.load("assets/images/${show.image}.jpg");
+      //Define where it will be written - nothing written yet tho
+      var pathString = join(directory.path, "current.jpg");
+      //Set up the write & write it to the file as bytes
+      // Get the ByteData into the format List<int>
+      List<int> bytes =
+          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+      //Load the bytes as an image
+      imageLib.Image? image = imageLib.decodeImage(bytes);
+      // Resize the image
+      imageLib.Image? imageSquared = imageLib.copyResizeCropSquare(image!, 400);
+      // convert the resized image back to bytes
+      bytes = await File(pathString).readAsBytes();
+      //Write the bytes to disk for use
+      new File(pathString).writeAsBytesSync(imageLib.encodeJpg(imageSquared));
+      // return pathString, which is just the address of the file we've just manipulated and saved
+      return Uri.file(pathString);
+    }
+
+    Future _loadRemoteAudio(Show show) async {
+      //Get the image URI set up
+      Uri imageURI = await getShowImage(show);
+      print('setting source');
+      //This is the audio source
+      AudioSource source = AudioSource.uri(
+        Uri.parse('$urlBase/${show.urlSnip}/${show.filename}'),
+        //The notification area setup
+        tag: MediaItem(
+            // Specify a unique ID for each media item:
+            id: show.id,
+            // Metadata to display in the notification:
+            album: "Yoonu Njub",
+            title: show.showNameRS,
+            artUri: imageURI),
+      );
+      print('past source definition and now setting the source ');
+      //Set the player source
       try {
         await _player.setAudioSource(source);
       } catch (e) {
@@ -95,15 +168,23 @@ class ControlButtonsState extends State<ControlButtons>
       }
     }
 
-    Future _loadLocalAudio(String filename) async {
+    Future _loadLocalAudio(Show show) async {
       print('loading local audio');
       final directory = await getApplicationDocumentsDirectory();
       final path = directory.path;
 
-      var myUri = Uri.parse('$path/$filename');
-      print(myUri);
-      // AudioSource source = AudioSource.uri(myUri);
-      AudioSource source = ProgressiveAudioSource(Uri.file('$path/$filename'));
+      Uri imageURI = await getShowImage(show);
+      AudioSource source = ProgressiveAudioSource(
+        Uri.file('$path/${show.filename}'),
+        tag: MediaItem(
+          // Specify a unique ID for each media item:
+          id: show.id,
+          // Metadata to display in the notification:
+          album: "Yoonu Njub",
+          title: show.showNameRS,
+          artUri: imageURI,
+        ),
+      );
       try {
         await _player.setAudioSource(source);
       } catch (e) {
@@ -127,7 +208,7 @@ class ControlButtonsState extends State<ControlButtons>
         if (await showsProvider.localAudioFileCheck(show.filename)) {
           //source is local
           print('File is downloaded');
-          _loadLocalAudio(show.filename);
+          _loadLocalAudio(show);
           return true;
         } else {
           //file is not downloaded; source is remote:
@@ -139,7 +220,7 @@ class ControlButtonsState extends State<ControlButtons>
           //Now if we're good start playing - if not then give a message
           if (connected! && showExists.length == 0) {
             //We're connected to internet and the show can be found
-            _loadRemoteAudio('$urlBase/${show.urlSnip}/${show.filename}');
+            _loadRemoteAudio(show);
             return true;
           } else if (connected && showExists.length != 0) {
             //We're connected to internet but the show can NOT be found
@@ -164,7 +245,7 @@ class ControlButtonsState extends State<ControlButtons>
         StreamBuilder<Duration?>(
           stream: _player.durationStream,
           builder: (context, snapshot) {
-            print('in streambuilder for ' + widget.show.filename);
+            // print('in streambuilder for ' + widget.show.filename);
 
             final Duration duration = snapshot.data ?? Duration.zero;
             return StreamBuilder<Duration>(
