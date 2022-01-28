@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
+import 'dart:typed_data';
+import 'package:image/image.dart' as imageLib;
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:connectivity/connectivity.dart';
 // import 'package:provider/provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
@@ -97,9 +101,82 @@ class Shows with ChangeNotifier {
 
     _lastShowViewed = await getLastShowViewed();
 
-    // temp == null ? temp = 0 : _lastShowViewed = temp;
-
+    await setUpNotificationAreaImages();
+    print('end getData');
     return true;
+  }
+
+  Future<void> setUpNotificationAreaImages() async {
+    Future<String> _getLastVersionNumber() async {
+      late String returnValue;
+      final prefs = await SharedPreferences.getInstance();
+      if (!prefs.containsKey('version')) {
+        //This will return 0, which will eventually kick off an update of the stored build number
+        returnValue = '0';
+      } else {
+        returnValue = json.decode(prefs.getString('version')!).toString();
+      }
+      return returnValue;
+    }
+
+    Future<void> _setLastVersionNumber(String currentVersionNumber) async {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonData = json.encode(currentVersionNumber);
+      prefs.setString('version', jsonData);
+    }
+
+    Future<void> _processNotificationImage(String image) async {
+      print(image);
+
+      //Get notification area playback widget image
+      //Problem here is that you can't reference an asset image directly as a URI
+      //But the notification area needs it as a URI so you have to
+      //temporarily write the image outside the asset bundle. Yuck.
+      final Directory docsDirectory = await getApplicationDocumentsDirectory();
+      final String docsDirPathString = join(docsDirectory.path, "$image.jpg");
+
+      //Get image from assets in ByteData
+      ByteData imageByteData =
+          await rootBundle.load("assets/images/$image.jpg");
+
+      //Set up the write & write it to the file as bytes:
+      // Get the ByteData into the format List<int>
+      List<int> bytes = imageByteData.buffer.asUint8List(
+          imageByteData.offsetInBytes, imageByteData.lengthInBytes);
+      //Load the bytes as an image & resize the image
+      imageLib.Image? imageSquared =
+          imageLib.copyResizeCropSquare(imageLib.decodeImage(bytes)!, 400);
+
+      //Write the bytes to disk for use
+      // print('Write the bytes to disk for use');
+      await File(docsDirPathString)
+          .writeAsBytes(imageLib.encodeJpg(imageSquared));
+    }
+    //End helper functions
+
+    //Get the current version
+    PackageInfo _packageInfo = await PackageInfo.fromPlatform();
+    String version = _packageInfo.version;
+    print('version = $version');
+    //If the build number is the same, no update to images is possible, skip and go on.
+    //If it is not, however, set up the images.
+    //production version
+    // if (version != await _getLastVersionNumber()) {
+    //testing version
+    if (version == await _getLastVersionNumber()) {
+      //Update the stored version number
+      _setLastVersionNumber(version);
+
+      //And now set up the images:
+      //First get a list of the unique values used for images
+      var seen = Set<String>();
+      shows.where((show) => seen.add(show.image)).toList();
+
+      //Then process each one
+      for (var image in seen) {
+        _processNotificationImage(image);
+      }
+    }
   }
 
   Future<void> saveLastShowViewed(lastShowViewed) async {
@@ -225,7 +302,7 @@ class Shows with ChangeNotifier {
         final url = urlBase + '/' + show.urlSnip + '/' + show.filename;
         final http.Response r = await http.head(Uri.parse(url));
         final _total = r.headers["content-length"]!;
-        print(_total);
+        print("show ${showToCheck!.filename} total size: $_total");
       } catch (e) {
         print('Error checking show ' + show.id.toString());
         showsWithErrors.add(show.id.toString());

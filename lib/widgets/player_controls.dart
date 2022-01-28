@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:math';
-import 'dart:typed_data';
-import 'package:image/image.dart' as imageLib;
-import 'package:flutter/services.dart' show rootBundle;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -58,6 +56,7 @@ class ControlButtonsState extends State<ControlButtons>
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_element
     void gracefulStopInBuild() async {
       print('received signal to stop');
       //Gradually turn down volume
@@ -71,7 +70,7 @@ class ControlButtonsState extends State<ControlButtons>
     }
 
     //only keep playing if it's the show we are looking at and it's actually playing
-    if (Provider.of<PlayerManager>(context, listen: true).showToPlay !=
+    if (Provider.of<PlayerManager>(context, listen: false).showToPlay !=
             widget.show.id &&
         _player.playing) {
       print('sending signal to stop');
@@ -88,58 +87,12 @@ class ControlButtonsState extends State<ControlButtons>
 
     final urlBase = showsProvider.urlBase;
 
-    //Non-resizing version
-    // Future<Uri> getShowImage(Show show) async {
-    //   //Get notification area playback widget image
-    //   //Problem here is that you can't reference an asset image directly as a URI
-    //   //But the notification area needs it as a URI so you have to
-    //   //temporarily write the image outside the asset bundle. Yuck.
-    //   Directory directory = await getApplicationDocumentsDirectory();
-    //   //Get the image
-    //   ByteData data = await rootBundle.load("assets/images/${show.image}.jpg");
-    //   //Define where it will be written
-    //   var pathString = join(directory.path, "current.jpg");
-    //   //Set up the write & write it to the file as bytes
-    //   List<int> bytes =
-    //       data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    //   await File(pathString).writeAsBytes(bytes);
-    //   //notification area image end
-    //   // return pathString;
-    //   return Uri.file(pathString);
-    // }
-
-    //Resizing version
-    Future<Uri> getShowImage(Show show) async {
-      print('resizing image');
-      //Get notification area playback widget image
-      //Problem here is that you can't reference an asset image directly as a URI
-      //But the notification area needs it as a URI so you have to
-      //temporarily write the image outside the asset bundle. Yuck.
-      Directory directory = await getApplicationDocumentsDirectory();
-      //Get the image
-      ByteData data = await rootBundle.load("assets/images/${show.image}.jpg");
-      //Define where it will be written - nothing written yet tho
-      var pathString = join(directory.path, "current.jpg");
-      //Set up the write & write it to the file as bytes
-      // Get the ByteData into the format List<int>
-      List<int> bytes =
-          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-      //Load the bytes as an image
-      imageLib.Image? image = imageLib.decodeImage(bytes);
-      // Resize the image
-      imageLib.Image? imageSquared = imageLib.copyResizeCropSquare(image!, 400);
-      // convert the resized image back to bytes
-      bytes = await File(pathString).readAsBytes();
-      //Write the bytes to disk for use
-      new File(pathString).writeAsBytesSync(imageLib.encodeJpg(imageSquared));
-      // return pathString, which is just the address of the file we've just manipulated and saved
-      return Uri.file(pathString);
-    }
-
     Future _loadRemoteAudio(Show show) async {
       //Get the image URI set up
-      Uri imageURI = await getShowImage(show);
-      print('setting source');
+      final Directory docsDirectory = await getApplicationDocumentsDirectory();
+      String docsDirPathString = join(docsDirectory.path, "${show.image}.jpg");
+      Uri imageURI = Uri.file(docsDirPathString);
+      print('setting audio source');
       //This is the audio source
       AudioSource source = AudioSource.uri(
         Uri.parse('$urlBase/${show.urlSnip}/${show.filename}'),
@@ -170,12 +123,14 @@ class ControlButtonsState extends State<ControlButtons>
 
     Future _loadLocalAudio(Show show) async {
       print('loading local audio');
-      final directory = await getApplicationDocumentsDirectory();
-      final path = directory.path;
+      //Get the image URI set up
+      final Directory docsDirectory = await getApplicationDocumentsDirectory();
+      String docsDirPathString = join(docsDirectory.path, "${show.image}.jpg");
+      final Uri imageURI = Uri.parse(docsDirPathString);
 
-      Uri imageURI = await getShowImage(show);
+      //Audio source init
       AudioSource source = ProgressiveAudioSource(
-        Uri.file('$path/${show.filename}'),
+        Uri.file('$docsDirectory/${show.filename}'),
         tag: MediaItem(
           // Specify a unique ID for each media item:
           id: show.id,
@@ -284,6 +239,7 @@ class ControlButtonsState extends State<ControlButtons>
               child: IconButton(
                   icon: Icon(Icons.skip_previous),
                   onPressed: () {
+                    _player.stop();
                     widget.jumpPrevNext('back');
                   }),
             ),
@@ -343,6 +299,7 @@ class ControlButtonsState extends State<ControlButtons>
               child: IconButton(
                   icon: Icon(Icons.skip_next),
                   onPressed: () {
+                    _player.stop();
                     widget.jumpPrevNext('next');
                   }),
             ),

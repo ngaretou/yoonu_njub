@@ -179,7 +179,7 @@ class _DownloadButtonState extends State<DownloadButton> {
               icon: _isDownloaded!
                   ? Icon(
                       Icons.download_sharp,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                     )
                   : Icon(
                       Icons.download_sharp,

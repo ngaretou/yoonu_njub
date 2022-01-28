@@ -38,6 +38,7 @@ class ShowDisplayState extends State<ShowDisplay> {
 
   @override
   void didChangeDependencies() {
+    print('show display didChangeDependencies');
     _pageController = PreloadPageController(
       initialPage: Provider.of<Shows>(context, listen: false).lastShowViewed,
       viewportFraction: 1.0,

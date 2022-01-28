@@ -191,9 +191,10 @@ class ThemeModel extends ChangeNotifier {
 
   //called as we're setting up and showing a circular indicator
   Future<void> initialSetupAsync(context) async {
+    print('initialSetupAsync');
     await Provider.of<Shows>(context, listen: false).getData();
     await setupTheme();
-
+    print('end initialSetupAsync');
     return;
   }
 
@@ -254,7 +255,8 @@ class ThemeModel extends ChangeNotifier {
         _downloadsApproved = false;
       }
     }
-    notifyListeners();
+    print('end of setup theme');
+    // notifyListeners();
   }
 
   void approveDownloading() async {
