@@ -50,7 +50,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   //Language code: Initialize the locale
+
   Future<void> setupLang() async {
+    print('setupLang()');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     Function setLocale =
         Provider.of<ThemeModel>(context, listen: false).setLocale;
@@ -58,13 +60,13 @@ class _MyAppState extends State<MyApp> {
     //If there is no lang pref (i.e. first run), set lang to Wolof
     if (!prefs.containsKey('userLang')) {
       // fr_CH is our Flutter 2.x stand-in for Wolof
-      setLocale('fr_CH');
+      await setLocale('fr_CH');
     } else {
       //otherwise grab the saved setting
       String savedUserLang =
           json.decode(prefs.getString('userLang')!) as String;
 
-      setLocale(savedUserLang);
+      await setLocale(savedUserLang);
     }
   }
   //end language code
@@ -80,18 +82,23 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom]);
-
+    print('MaterialApp');
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Yoonu Njub',
       home: FutureBuilder(
-        future: Provider.of<ThemeModel>(context, listen: false)
-            .initialSetupAsync(context),
-        builder: (ctx, snapshot) =>
-            snapshot.connectionState == ConnectionState.waiting
-                ? Center(child: CircularProgressIndicator())
-                : MainPlayer(),
-      ),
+          future: Provider.of<ThemeModel>(context, listen: false)
+              .initialSetupAsync(context),
+          builder: (ctx, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              print('connectionstate  waiting');
+              return Center(child: CircularProgressIndicator());
+              // return Text('data');
+            } else {
+              print('connectionstate not waiting');
+              return MainPlayer();
+            }
+          }),
       theme: Provider.of<ThemeModel>(context).currentTheme,
       routes: {
         MainPlayer.routeName: (ctx) => MainPlayer(),
@@ -115,7 +122,7 @@ class _MyAppState extends State<MyApp> {
         // So when we switch locale to fr_CH, that's Wolof.
         const Locale('fr', 'CH'),
       ],
-      locale: Provider.of<ThemeModel>(context, listen: true).userLocale,
+      locale: Provider.of<ThemeModel>(context, listen: false).userLocale,
     );
   }
 }
