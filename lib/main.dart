@@ -1,5 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
-
+import 'dart:isolate';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -18,6 +19,9 @@ import 'screens/settings_screen.dart';
 import 'screens/about_screen.dart';
 
 Future<void> main() async {
+  //This helps avoid a SharedPreferences error: https://stackoverflow.com/questions/69123934/flutter-sharedpreferences-null-check-operator-used-on-a-null-value
+  // WidgetsFlutterBinding.ensureInitialized();
+  //Initialize the audio background service that allows the notification area playback controller widget
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
     androidNotificationChannelName: 'Audio playback',
@@ -49,8 +53,13 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  //Language code: Initialize the locale
+  //For the future builder
+  late Future<int> _initialization;
+  Future<bool>? _initializeBool;
+  //To signal end of initialization process
+  bool isInitialized = false;
 
+  //Language code: Initialize the locale
   Future<void> setupLang() async {
     print('setupLang()');
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -68,38 +77,121 @@ class _MyAppState extends State<MyApp> {
 
       await setLocale(savedUserLang);
     }
+    print('end setupLang()');
+    //end language code
   }
-  //end language code
+
+  // Future<bool>? realInit() async {
+  //   List<Future> futures = <Future>[
+  //     Provider.of<ThemeModel>(context, listen: false).setupTheme(),
+  //     Provider.of<Shows>(context, listen: false).getData(),
+  //     setupLang()
+  //   ];
+
+  //   try {
+  //     await Future.wait(futures).then((value) {
+  //       return true;
+  //     });
+  //   } catch (e) {
+  //     print(e);
+  //   }
+
+  //   // await Provider.of<ThemeModel>(context, listen: false).setupTheme();
+  //   // await Provider.of<Shows>(context, listen: false).getData();
+  //   // await setupLang();
+  //   throw ('error: returning from realInit but not from completion');
+  //   // print('returning from realInit but not from completion');
+  // }
+
+  // Future<bool> callInititalization() async {
+  //   // await Future.delayed(const Duration(milliseconds: 500));
+  //   await Provider.of<ThemeModel>(context, listen: false).setupTheme();
+  //   await Provider.of<Shows>(context, listen: false).getData();
+  //   await setupLang();
+  //   print('normally all done with callInititalization');
+  //   return true;
+  // }
+  Future<int> callInititalization() async {
+    // await Future.delayed(const Duration(milliseconds: 500));
+    // try {
+    //   await realInit()!.then((value) {
+    //     return value;
+    //   });
+    // } catch (err) {
+    //   print(err.toString());
+    // }
+
+    int myInt = 0;
+    List<Future> futures = <Future>[
+      Provider.of<ThemeModel>(context, listen: false).setupTheme(),
+      Provider.of<Shows>(context, listen: false).getData(),
+      setupLang(),
+      Future.delayed(Duration(milliseconds: 1500)),
+    ];
+
+    try {
+      List returned = await Future.wait(futures);
+      return returned.length;
+    } catch (e) {
+      print(e);
+      return 0;
+    }
+
+    // if (myInt > 0) {
+    //   print('returning from callInititalization');
+    //   return true;
+    // } else {
+    //   return false;
+    // }
+
+    // return false;
+  }
 
   @override
   void initState() {
     super.initState();
-    // Call the intitialization of the locale
-    setupLang();
+    /* https://blog.devgenius.io/understanding-futurebuilder-in-flutter-491501526373
+    Now you must be wondering why we are doing this right? Can’t we directly assign _getContacts() 
+    to the FutureBuilder directly instead of introducing another variable?
+    If you go through the Flutter documentation, you will notice that the build method can get called 
+    at any time. This would include setState() or on device orientation change. What this means is that 
+    any change in device configuration or widget rebuilds would trigger your Future to fire multiple times. 
+    In order to prevent that, we make sure that the Future is obtained in the initState() and not in the build() 
+    method itself. This is something which you may notice in a lot of tutorials online where they assign the 
+    Future method directly to the FutureBuilder and it’s factually wrong.*/
+    print('before _initialization');
+
+    // _initialization = callInititalization();
+    _initialization = callInititalization();
+    print('after _initialization');
   }
 
   @override
   Widget build(BuildContext context) {
+    print('build method');
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom]);
-    print('MaterialApp');
+
+    ThemeData? theme = Provider.of<ThemeModel>(context).currentTheme;
+
     return MaterialApp(
+      // theme: theme != null ? theme : ThemeData.dark(),
+      theme: theme,
       debugShowCheckedModeBanner: false,
       title: 'Yoonu Njub',
       home: FutureBuilder(
-          future: Provider.of<ThemeModel>(context, listen: false)
-              .initialSetupAsync(context),
+          // future: _initialization,
+          future: _initialization,
+          // initialData: null,
           builder: (ctx, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              print('connectionstate  waiting');
-              return Center(child: CircularProgressIndicator());
-              // return Text('data');
-            } else {
-              print('connectionstate not waiting');
+            if (snapshot.connectionState == ConnectionState.done) {
+              print('Future returned from _initialization');
               return MainPlayer();
+            } else {
+              print('snapshot.data ${snapshot.data}');
+              return Center(child: CircularProgressIndicator());
             }
           }),
-      theme: Provider.of<ThemeModel>(context).currentTheme,
       routes: {
         MainPlayer.routeName: (ctx) => MainPlayer(),
         SettingsScreen.routeName: (ctx) => SettingsScreen(),
@@ -122,7 +214,9 @@ class _MyAppState extends State<MyApp> {
         // So when we switch locale to fr_CH, that's Wolof.
         const Locale('fr', 'CH'),
       ],
-      locale: Provider.of<ThemeModel>(context, listen: false).userLocale,
+      locale: Provider.of<ThemeModel>(context, listen: false).userLocale == null
+          ? Locale('fr', 'CH')
+          : Provider.of<ThemeModel>(context, listen: false).userLocale,
     );
   }
 }

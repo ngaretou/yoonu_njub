@@ -9,7 +9,7 @@ import 'package:image/image.dart' as imageLib;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:connectivity/connectivity.dart';
-// import 'package:provider/provider.dart';
+
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:mailer/mailer.dart';
@@ -70,7 +70,8 @@ class Shows with ChangeNotifier {
     }
   }
 
-  Future getData() async {
+  Future<void> getData() async {
+    print('start getData');
     //check if the current session still contains the shows - if so no need to rebuild
 
     if (_shows.length != 0) {
@@ -101,9 +102,8 @@ class Shows with ChangeNotifier {
 
     _lastShowViewed = await getLastShowViewed();
 
-    await setUpNotificationAreaImages();
     print('end getData');
-    return true;
+    return;
   }
 
   Future<void> setUpNotificationAreaImages() async {
@@ -126,8 +126,6 @@ class Shows with ChangeNotifier {
     }
 
     Future<void> _processNotificationImage(String image) async {
-      print(image);
-
       //Get notification area playback widget image
       //Problem here is that you can't reference an asset image directly as a URI
       //But the notification area needs it as a URI so you have to
@@ -160,10 +158,14 @@ class Shows with ChangeNotifier {
     print('version = $version');
     //If the build number is the same, no update to images is possible, skip and go on.
     //If it is not, however, set up the images.
+    String lastVersionNumber = await _getLastVersionNumber();
     //production version
-    // if (version != await _getLastVersionNumber()) {
-    //testing version
-    if (version == await _getLastVersionNumber()) {
+    if (version != lastVersionNumber) {
+      //testing version
+
+      // if (version == lastVersionNumber || version != lastVersionNumber) {
+      print('setting up notification images');
+
       //Update the stored version number
       _setLastVersionNumber(version);
 
@@ -173,10 +175,15 @@ class Shows with ChangeNotifier {
       shows.where((show) => seen.add(show.image)).toList();
 
       //Then process each one
-      for (var image in seen) {
+      // for (var image in seen) {
+      //   _processNotificationImage(image);
+      // }
+      seen.forEach((image) {
         _processNotificationImage(image);
-      }
+      });
     }
+    print('done init images');
+    return;
   }
 
   Future<void> saveLastShowViewed(lastShowViewed) async {

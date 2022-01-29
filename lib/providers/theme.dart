@@ -187,28 +187,31 @@ class ThemeModel extends ChangeNotifier {
         break;
       default:
     }
-  }
-
-  //called as we're setting up and showing a circular indicator
-  Future<void> initialSetupAsync(context) async {
-    print('initialSetupAsync');
-    await Provider.of<Shows>(context, listen: false).getData();
-    await setupTheme();
-    print('end initialSetupAsync');
     return;
   }
 
+  //called as we're setting up and showing a circular indicator
+  // Future<void> initialSetupAsync(context) async {
+  //   print('initialSetupAsync');
+  //   await Provider.of<Shows>(context, listen: false).getData();
+  //   // await setupTheme();
+  //   print('end initialSetupAsync');
+  //   return;
+  // }
+
   Future<void> setupTheme() async {
-    print('setupThemeNew');
+    print('setupTheme');
     if (currentTheme != null) {
       return;
     }
-    //get the prefs
-    final prefs = await SharedPreferences.getInstance();
-    //if there's no userTheme, it's the first time they've run the app, so give them lightTheme
 
+    //get the prefs
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    //if there's no userTheme, it's the first time they've run the app, so give them lightTheme
     if (!prefs.containsKey('userThemeName')) {
-      setLightTheme();
+      currentTheme = lightTheme;
+
+      _themeType = ThemeType.Light;
     } else {
       userThemeName = json.decode(prefs.getString('userThemeName')!) as String?;
 
@@ -257,6 +260,7 @@ class ThemeModel extends ChangeNotifier {
     }
     print('end of setup theme');
     // notifyListeners();
+    return;
   }
 
   void approveDownloading() async {
@@ -268,6 +272,7 @@ class ThemeModel extends ChangeNotifier {
     prefs.setString('_downloadsApproved', tempJSONtrue);
     print('allow downloading');
     // notifyListeners();
+    return;
   }
 
   void denyDownloading() async {
@@ -278,6 +283,7 @@ class ThemeModel extends ChangeNotifier {
     final tempJSONfalse = json.encode('false');
     prefs.setString('_downloadsApproved', tempJSONfalse);
     print('deny downloading');
+    return;
   }
 
   void setDarkTheme() {

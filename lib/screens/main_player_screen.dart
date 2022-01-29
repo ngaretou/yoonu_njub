@@ -44,6 +44,7 @@ class _MainPlayerState extends State<MainPlayer> {
       ]);
     }
     print('mainplayer screen right before return');
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Yoonu Njub"),

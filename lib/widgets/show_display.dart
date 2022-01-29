@@ -35,6 +35,7 @@ class ShowDisplayState extends State<ShowDisplay> {
 
   final ScrollController _scrollController = ScrollController();
   final ItemScrollController itemScrollController = ItemScrollController();
+  bool isInitialized = false;
 
   @override
   void didChangeDependencies() {
@@ -58,6 +59,20 @@ class ShowDisplayState extends State<ShowDisplay> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      //This takes a second so do it post frame callback, but only if not initialized
+      Future<void> runSetUpNotificationAreaImages() async {
+        Provider.of<Shows>(context, listen: false)
+            .setUpNotificationAreaImages();
+      }
+
+      if (!isInitialized) {
+        runSetUpNotificationAreaImages();
+      }
+      //mark it so it's only done once
+      isInitialized = true;
+    });
+
     //Data and preliminaries
     final showsProvider = Provider.of<Shows>(context, listen: false);
     final playerManager = Provider.of<PlayerManager>(context, listen: false);
