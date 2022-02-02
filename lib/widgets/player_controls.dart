@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
-import 'package:audio_session/audio_session.dart';
+
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 
@@ -33,63 +33,34 @@ class ControlButtons extends StatefulWidget {
 }
 
 class ControlButtonsState extends State<ControlButtons> {
-  final _player = AudioPlayer();
   late bool _playerIsInitialized;
 
   @override
   void initState() {
     super.initState();
-    _initializeSession();
     _playerIsInitialized = false;
   }
 
-  @override
-  void dispose() {
-    _player.dispose();
-    super.dispose();
-  }
-
-  Future _initializeSession() async {
-    final session = await AudioSession.instance;
-    await session.configure(AudioSessionConfiguration.speech());
-  }
+  // @override
+  // void dispose() {
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
-    // print('player_control build');
+    final playerManager = Provider.of<PlayerManager>(context, listen: false);
+    final player = playerManager.player;
 
-    void gracefulStopInBuild() async {
-      //This bit of code loads an empty playlist, which dismisses the playback notification widget
-      //Not important for Android but crucial for iOS, otherwise you have a non-functional playback widget hanging around that does confusing things.
-
-      //Gradually turn down volume
-      for (var i = 10; i >= 0; i--) {
-        _player.setVolume(i / 10);
-        await Future.delayed(Duration(milliseconds: 10));
-      }
-      _player.stop();
-
-      print('stopped');
-      // final _playlist = ConcatenatingAudioSource(children: []);
-      // // await Future.delayed(Duration(milliseconds: 2000));
-
-      // try {
-      //   print('dismissing notification widget...');
-      //   await _player.setAudioSource(_playlist);
-      // } catch (e) {
-      //   print("Error: $e");
-      // }
-    }
-
+//Pre player manager
     //only keep playing if it's the show we are looking at and it's actually playing
     //This is in the case the user has swiped rather than used the buttons
-    if (Provider.of<PlayerManager>(context, listen: true).showToPlay !=
-            widget.show.id &&
-        _player.playing) {
-      print('sending signal to stop');
-      gracefulStopInBuild();
-      // _player.stop();
-    }
+    // if (Provider.of<PlayerManager>(context, listen: true).showToPlay !=
+    //         widget.show.id &&
+    //     _player.playing) {
+    //   print('sending signal to stop');
+    //   gracefulStopInBuild();
+    //   // _player.stop();
+    // }
 
     final showsProvider = Provider.of<Shows>(context, listen: false);
 
@@ -151,7 +122,10 @@ class ControlButtonsState extends State<ControlButtons> {
 
       //Set the player source
       try {
-        await _player.setAudioSource(source);
+        print('setting player to play ${show.id}');
+        // await player.setAudioSource(source);
+        playerManager.changePlaylist(source: source);
+        return;
       } catch (e) {
         print("Unable to stream remote audio. Error message: $e");
         //If we get past the connectivitycheck above but there's a problem wiht the source url; example the site is down,
@@ -183,7 +157,9 @@ class ControlButtonsState extends State<ControlButtons> {
         ),
       );
       try {
-        await _player.setAudioSource(source);
+        // await player.setAudioSource(source);
+
+        playerManager.changePlaylist(source: source);
       } catch (e) {
         // catch load errors: 404, invalid url ...
         print("Unable to load local audio. Error message: $e");
@@ -194,18 +170,17 @@ class ControlButtonsState extends State<ControlButtons> {
       //This checks to see if the player has already been initialized.
       //If it already has, we know where our audio is coming from and can just play (see button code below).
       //But if not, check to see if we're ready to rock.
-
+      print('_playerIsInitialized $_playerIsInitialized');
       if (_playerIsInitialized) {
         // we've been here already; player is initialized, just return true to play
         return true;
       } else if (!_playerIsInitialized) {
-        _playerIsInitialized = true;
-
         //This waits for all the prelim checks to be done then gets to the next part
         if (await showsProvider.localAudioFileCheck(show.filename)) {
           //source is local
           print('File is downloaded');
-          _loadLocalAudio(show);
+          await _loadLocalAudio(show);
+          _playerIsInitialized = true;
           return true;
         } else {
           //file is not downloaded; source is remote:
@@ -218,13 +193,17 @@ class ControlButtonsState extends State<ControlButtons> {
           //Hopefully Flutter web handling of CORS will be better in the future.
           late List<String> showExists;
           !kIsWeb
+              //If not web, continue as normal
               ? showExists = await showsProvider.checkShows(show)
+              //If web, return this dummy data that indicates no error
               : showExists = [];
 
           //Now if we're good start playing - if not then give a message
           if (connected! && showExists.length == 0) {
             //We're connected to internet and the show can be found
-            _loadRemoteAudio(show);
+            await _loadRemoteAudio(show);
+            print('returning true after loadRemoteAudio');
+            _playerIsInitialized = true;
             return true;
           } else if (connected && showExists.length != 0) {
             print(connected);
@@ -250,11 +229,11 @@ class ControlButtonsState extends State<ControlButtons> {
       children: [
         //SeekBar
         StreamBuilder<Duration?>(
-          stream: _player.durationStream,
+          stream: player.durationStream,
           builder: (context, snapshot) {
             final Duration duration = snapshot.data ?? Duration.zero;
             return StreamBuilder<Duration>(
-              stream: _player.positionStream,
+              stream: player.positionStream,
               builder: (context, snapshot) {
                 var position = snapshot.data ?? Duration.zero;
                 if (position > duration) {
@@ -264,7 +243,7 @@ class ControlButtonsState extends State<ControlButtons> {
                   duration: duration,
                   position: position,
                   onChangeEnd: (newPosition) {
-                    _player.seek(newPosition);
+                    player.seek(newPosition);
                   },
                 );
               },
@@ -289,7 +268,6 @@ class ControlButtonsState extends State<ControlButtons> {
               child: IconButton(
                   icon: Icon(Icons.skip_previous),
                   onPressed: () {
-                    gracefulStopInBuild();
                     //communicating back up the widget tree here
                     widget.jumpPrevNext('back');
                   }),
@@ -298,47 +276,51 @@ class ControlButtonsState extends State<ControlButtons> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: StreamBuilder<PlayerState>(
-                stream: _player.playerStateStream,
+                stream: player.playerStateStream,
                 builder: (context, snapshot) {
                   final playerState = snapshot.data;
                   final processingState = playerState?.processingState;
                   final playing = playerState?.playing;
 
-                  if (processingState == ProcessingState.buffering ||
-                      processingState == ProcessingState.loading) {
-                    return Container(
-                      margin: EdgeInsets.all(08.0),
-                      width: 64.0,
-                      height: 64.0,
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (playing != true) {
+                  if (playing != true) {
                     return IconButton(
                       icon: Icon(Icons.play_arrow),
                       iconSize: 64.0,
                       onPressed: () {
                         _initializePlayer(urlBase, widget.show)
                             .then((shouldPlay) {
+                          // print(player);
+                          print('shouldPlay $shouldPlay');
                           if (shouldPlay) {
-                            _player.setVolume(1);
-                            _player.play();
+                            player.setVolume(1);
+                            player.play();
                           } else {
                             print('shouldPlay false');
                           }
                         });
                       },
                     );
+                  } else if (processingState == ProcessingState.buffering ||
+                      processingState == ProcessingState.loading) {
+                    // if (processingState == ProcessingState.buffering) {
+                    print('processingState is buffering or loading something');
+                    return Container(
+                      margin: EdgeInsets.all(08.0),
+                      width: 64.0,
+                      height: 64.0,
+                      child: CircularProgressIndicator(),
+                    );
                   } else if (processingState != ProcessingState.completed) {
                     return IconButton(
                       icon: Icon(Icons.pause),
                       iconSize: 64.0,
-                      onPressed: _player.pause,
+                      onPressed: player.pause,
                     );
                   } else {
                     return IconButton(
                       icon: Icon(Icons.replay),
                       iconSize: 64.0,
-                      onPressed: () => _player.seek(Duration.zero, index: 0),
+                      onPressed: () => player.seek(Duration.zero, index: 0),
                     );
                   }
                 },
@@ -350,13 +332,12 @@ class ControlButtonsState extends State<ControlButtons> {
               child: IconButton(
                   icon: Icon(Icons.skip_next),
                   onPressed: () async {
-                    gracefulStopInBuild();
                     //communicating back up the widget tree here
                     widget.jumpPrevNext('next');
                   }),
             ),
             StreamBuilder<double>(
-              stream: _player.speedStream,
+              stream: player.speedStream,
               builder: (context, snapshot) {
                 late String? speed;
                 if (snapshot.data != null) {
@@ -381,8 +362,8 @@ class ControlButtonsState extends State<ControlButtons> {
                       divisions: 10,
                       min: 0.5,
                       max: 1.5,
-                      stream: _player.speedStream,
-                      onChanged: _player.setSpeed,
+                      stream: player.speedStream,
+                      onChanged: player.setSpeed,
                     );
                   },
                 );

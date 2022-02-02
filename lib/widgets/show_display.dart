@@ -89,8 +89,9 @@ class ShowDisplayState extends State<ShowDisplay> {
         fontSize: 20);
 
     //code for prev/next buttons - this makes clicking the button equivalent to scrolling
-    //This gets fed into the player_controls widget, not used here
+
     void jumpPrevNext(String direction) {
+      //This gets fed into the player_controls widget, not used here
       direction == 'next'
           ? _pageController.nextPage(
               duration: Duration(milliseconds: 500), curve: Curves.ease)
@@ -211,16 +212,20 @@ class ShowDisplayState extends State<ShowDisplay> {
               physics: AlwaysScrollableScrollPhysics(),
               scrollDirection: Axis.horizontal,
               controller: _pageController,
-              preloadPagesCount: 1,
+              preloadPagesCount: 0,
               itemCount: showsProvider.shows.length,
               onPageChanged: (index) {
                 //Here we want the user to be able to come back to the name they were on when they
                 //return to the app, so save lastpage viewed on each page swipe.
+
                 showsProvider.saveLastShowViewed(index);
 
                 //This tells the player manager which show to stop.
                 playerManager.showToPlay =
                     (int.parse(showsProvider.shows[index].id)).toString();
+                // playerManager.gracefulStop();
+                playerManager.changePlaylist();
+                // setState(() {});
               },
               itemBuilder: (context, i) {
                 Show show = showsProvider.shows[i];
