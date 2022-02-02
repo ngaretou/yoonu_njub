@@ -59,20 +59,6 @@ class ShowDisplayState extends State<ShowDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      //This takes a second so do it post frame callback, but only if not initialized
-      Future<void> runSetUpNotificationAreaImages() async {
-        Provider.of<Shows>(context, listen: false)
-            .setUpNotificationAreaImages();
-      }
-
-      if (!isInitialized) {
-        runSetUpNotificationAreaImages();
-      }
-      //mark it so it's only done once
-      isInitialized = true;
-    });
-
     //Data and preliminaries
     final showsProvider = Provider.of<Shows>(context, listen: false);
     final playerManager = Provider.of<PlayerManager>(context, listen: false);
@@ -88,24 +74,22 @@ class ShowDisplayState extends State<ShowDisplay> {
     ui.TextDirection _ltrText = ui.TextDirection.ltr;
 
     TextStyle _asStyle = TextStyle(
-        // height: 1.3,
         color: Theme.of(context).textTheme.headline6!.color,
         fontFamily: "Harmattan",
         fontSize: 32);
 
     TextStyle _rsStyle = TextStyle(
-        // height: 1.3,
         color: Theme.of(context).textTheme.headline6!.color,
         fontFamily: "Lato",
         fontSize: 22);
 
     TextStyle showListStyle = TextStyle(
-        // height: 1.3,
         color: Theme.of(context).textTheme.headline6!.color,
         fontFamily: "Lato",
         fontSize: 20);
 
     //code for prev/next buttons - this makes clicking the button equivalent to scrolling
+    //This gets fed into the player_controls widget, not used here
     void jumpPrevNext(String direction) {
       direction == 'next'
           ? _pageController.nextPage(
@@ -129,7 +113,6 @@ class ShowDisplayState extends State<ShowDisplay> {
     }
 
     //This is the playList widget. For web, it will go side by side; for app, it will go as a drawer.
-
     Widget playList() {
       Widget playListInterior() {
         return ScrollablePositionedList.builder(

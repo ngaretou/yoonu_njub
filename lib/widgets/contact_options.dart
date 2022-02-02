@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'dart:io';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'deep_link.dart'; //for WhatsApp link below
 
@@ -54,19 +54,21 @@ class ContactOptions extends StatelessWidget {
 
     return Column(
       children: [
-        drawerTitle(
-          AppLocalizations.of(context).settingsContactUsTelephone,
-          Icons.phone,
-          () async {
-            const url = 'tel:+221 777758702';
-            if (await canLaunch(url)) {
-              await launch(url);
-            } else {
-              throw 'Could not launch $url';
-            }
-            Navigator.of(context).pop();
-          },
-        ),
+        if (!Platform.isMacOS)
+          drawerTitle(
+            AppLocalizations.of(context).settingsContactUsTelephone,
+            Icons.phone,
+            () async {
+              const url = 'tel:+221 777758702';
+              if (await canLaunch(url)) {
+                await launch(url);
+              } else {
+                throw 'Could not launch $url';
+              }
+              Navigator.of(context).pop();
+            },
+          ),
+
         // drawerTitle(
         //   AppLocalizations.of(context).settingsContactUsEmail,
         //   Icons.email,

@@ -2,15 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart';
-import 'dart:typed_data';
-import 'package:image/image.dart' as imageLib;
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:connectivity/connectivity.dart';
-
-import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
@@ -20,6 +15,11 @@ import '../providers/messaging.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
+// import 'package:package_info_plus/package_info_plus.dart';
+// import 'package:path/path.dart' as path;
+// import 'dart:typed_data';
+// import 'package:image/image.dart' as imageLib;
 
 class Show {
   final String id;
@@ -55,14 +55,14 @@ class Shows with ChangeNotifier {
     return 'https://bienvenueafricains.com/mp3/wolof/the-way-of-righteousness';
   }
 
-//reloadMainPage is necessary when the user clears downloads - it has the screen reload to check if it has a download on device or not
+  //reloadMainPage is necessary when the user clears downloads - it has the screen reload to check if it has a download on device or not
   bool _reloadMainPage = false;
 
   bool get reloadMainPage {
     return _reloadMainPage;
   }
 
-//This is called from clear downloads in settings screen
+  //This is called from clear downloads in settings screen
   void setReloadMainPage(bool value) {
     _reloadMainPage = value;
     if (value == true) {
@@ -72,8 +72,8 @@ class Shows with ChangeNotifier {
 
   Future<void> getData() async {
     print('start getData');
-    //check if the current session still contains the shows - if so no need to rebuild
 
+    //check if the current session still contains the shows - if so no need to rebuild
     if (_shows.length != 0) {
       return;
     }
@@ -106,85 +106,93 @@ class Shows with ChangeNotifier {
     return;
   }
 
-  Future<void> setUpNotificationAreaImages() async {
-    Future<String> _getLastVersionNumber() async {
-      late String returnValue;
-      final prefs = await SharedPreferences.getInstance();
-      if (!prefs.containsKey('version')) {
-        //This will return 0, which will eventually kick off an update of the stored build number
-        returnValue = '0';
-      } else {
-        returnValue = json.decode(prefs.getString('version')!).toString();
-      }
-      return returnValue;
-    }
+  // Future<void> setUpNotificationAreaImages() async {
+  //   print('setUpNotificationAreaImages');
+  //   Future<String> _getLastVersionNumber() async {
+  //     late String returnValue;
+  //     final prefs = await SharedPreferences.getInstance();
+  //     if (!prefs.containsKey('version')) {
+  //       //This will return 0, which will eventually kick off an update of the stored build number
+  //       returnValue = '0';
+  //     } else {
+  //       returnValue = json.decode(prefs.getString('version')!).toString();
+  //     }
+  //     return returnValue;
+  //   }
 
-    Future<void> _setLastVersionNumber(String currentVersionNumber) async {
-      final prefs = await SharedPreferences.getInstance();
-      final jsonData = json.encode(currentVersionNumber);
-      prefs.setString('version', jsonData);
-    }
+  //   Future<void> _setLastVersionNumber(String currentVersionNumber) async {
+  //     final prefs = await SharedPreferences.getInstance();
+  //     final jsonData = json.encode(currentVersionNumber);
+  //     prefs.setString('version', jsonData);
+  //   }
 
-    Future<void> _processNotificationImage(String image) async {
-      //Get notification area playback widget image
-      //Problem here is that you can't reference an asset image directly as a URI
-      //But the notification area needs it as a URI so you have to
-      //temporarily write the image outside the asset bundle. Yuck.
-      final Directory docsDirectory = await getApplicationDocumentsDirectory();
-      final String docsDirPathString = join(docsDirectory.path, "$image.jpg");
+  //   Future<void> _processNotificationImage(String image) async {
+  //     //Get notification area playback widget image
+  //     //Problem here is that you can't reference an asset image directly as a URI
+  //     //But the notification area needs it as a URI so you have to
+  //     //temporarily write the image outside the asset bundle. Yuck.
+  //     final Directory docsDirectory = await getApplicationDocumentsDirectory();
+  //     final String docsDirPathString =
+  //         path.join(docsDirectory.path, "$image.jpg");
 
-      //Get image from assets in ByteData
-      ByteData imageByteData =
-          await rootBundle.load("assets/images/$image.jpg");
+  //     //Get image from assets in ByteData
+  //     ByteData imageByteData =
+  //         await rootBundle.load("assets/images/$image.jpg");
 
-      //Set up the write & write it to the file as bytes:
-      // Get the ByteData into the format List<int>
-      List<int> bytes = imageByteData.buffer.asUint8List(
-          imageByteData.offsetInBytes, imageByteData.lengthInBytes);
-      //Load the bytes as an image & resize the image
-      imageLib.Image? imageSquared =
-          imageLib.copyResizeCropSquare(imageLib.decodeImage(bytes)!, 400);
+  //     //Set up the write & write it to the file as bytes:
+  //     // Get the ByteData into the format List<int>
+  //     List<int> bytes = imageByteData.buffer.asUint8List(
+  //         imageByteData.offsetInBytes, imageByteData.lengthInBytes);
+  //     //Load the bytes as an image & resize the image
+  //     imageLib.Image? imageSquared =
+  //         imageLib.copyResizeCropSquare(imageLib.decodeImage(bytes)!, 400);
 
-      //Write the bytes to disk for use
-      // print('Write the bytes to disk for use');
-      await File(docsDirPathString)
-          .writeAsBytes(imageLib.encodeJpg(imageSquared));
-    }
-    //End helper functions
+  //     //Write the bytes to disk for use
+  //     // print('Write the bytes to disk for use');
+  //     await File(docsDirPathString)
+  //         .writeAsBytes(imageLib.encodeJpg(imageSquared));
+  //   }
+  //   //End helper functions
 
-    //Get the current version
-    PackageInfo _packageInfo = await PackageInfo.fromPlatform();
-    String version = _packageInfo.version;
-    print('version = $version');
-    //If the build number is the same, no update to images is possible, skip and go on.
-    //If it is not, however, set up the images.
-    String lastVersionNumber = await _getLastVersionNumber();
-    //production version
-    if (version != lastVersionNumber) {
-      //testing version
+  //   //Get the current version
+  //   PackageInfo _packageInfo = await PackageInfo.fromPlatform();
+  //   String version = _packageInfo.version;
+  //   print('version = $version');
+  //   //If the build number is the same, no update to images is possible, skip and go on.
+  //   //If it is not, however, set up the images.
+  //   String lastVersionNumber = await _getLastVersionNumber();
 
-      // if (version == lastVersionNumber || version != lastVersionNumber) {
-      print('setting up notification images');
+  //   late bool logicalTest;
 
-      //Update the stored version number
-      _setLastVersionNumber(version);
+  //   // logicalTest = lastVersionNumber != version; //production version
+  //   logicalTest = version == lastVersionNumber ||
+  //       version != lastVersionNumber; //testing version
 
-      //And now set up the images:
-      //First get a list of the unique values used for images
-      var seen = Set<String>();
-      shows.where((show) => seen.add(show.image)).toList();
+  //   if (logicalTest) {
+  //     print('setting up notification images');
 
-      //Then process each one
-      // for (var image in seen) {
-      //   _processNotificationImage(image);
-      // }
-      seen.forEach((image) {
-        _processNotificationImage(image);
-      });
-    }
-    print('done init images');
-    return;
-  }
+  //     //Update the stored version number
+  //     _setLastVersionNumber(version);
+
+  //     //And now set up the images:
+  //     //First get a list of the unique values used for images
+  //     var seen = Set<String>();
+  //     shows.where((show) => seen.add(show.image)).toList();
+
+  //     //Then process each one
+  //     // for (var image in seen) {
+  //     //   _processNotificationImage(image);
+  //     // }
+  //     seen.forEach((image) {
+  //       _processNotificationImage(image);
+  //     });
+  //     print('done init images');
+  //   } else {
+  //     print('not initializing images');
+  //   }
+
+  //   return;
+  // }
 
   Future<void> saveLastShowViewed(lastShowViewed) async {
     _lastShowViewed = lastShowViewed;
@@ -204,7 +212,6 @@ class Shows with ChangeNotifier {
     }
   }
 
-  //Code accessible from multiple points
   Future<bool?> get connectivityCheck async {
     bool? connected;
     if (kIsWeb) {
@@ -293,8 +300,11 @@ class Shows with ChangeNotifier {
 /////////
 
   Future<List<String>> checkShows([Show? showToCheck]) async {
+    print('checkShows');
+    print(showToCheck);
     //temp list of shows to work with
     List<Show> showsToCheck = [];
+
     //Did we recieve a certain show to check?
     //If not, check all shows.
     //If so, just check that one.
@@ -303,7 +313,7 @@ class Shows with ChangeNotifier {
     //here set up the list which we'll return
     List<String> showsWithErrors = [];
 
-    //shows.forEach doesn't await, it just runs, which messes everything up, stick with for
+    //Note shows.forEach doesn't await, it just runs, which messes everything up, stick with 'for'
     for (var show in showsToCheck) {
       try {
         final url = urlBase + '/' + show.urlSnip + '/' + show.filename;
@@ -325,7 +335,7 @@ class Shows with ChangeNotifier {
       }
       sendMessage(messageText);
     }
-
+    //return the list of shows that have errors - a list length of 0 is good news
     return showsWithErrors;
   }
 

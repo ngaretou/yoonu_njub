@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -134,7 +134,17 @@ class MainDrawer extends StatelessWidget {
               Icons.share,
               () async {
                 Navigator.of(context).pop();
-                Share.share('https://sng.al/yn');
+                if (!kIsWeb) {
+                  Share.share('https://sng.al/yn');
+                } else {
+                  const url =
+                      "mailto:?subject=Yoonu Njub&body=Xoolal appli Yoonu Njub fii: https://sng.al/yn";
+                  if (await canLaunch(url)) {
+                    await launch(url);
+                  } else {
+                    throw 'Could not launch $url';
+                  }
+                }
               },
             ),
 
@@ -156,8 +166,8 @@ class MainDrawer extends StatelessWidget {
             Divider(
               thickness: 1,
             ),
-            //Buuru Ndam
 
+            //Buuru Ndam
             drawerTileWithFormatting(
               "Buuru Ndam",
               Icons.ondemand_video,

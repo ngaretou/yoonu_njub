@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
@@ -14,6 +12,7 @@ class PlayerManager with ChangeNotifier {
 
   set showToPlay(String value) {
     this._showToPlay = value;
+    print('set showToPlay');
     notifyListeners();
   }
 }

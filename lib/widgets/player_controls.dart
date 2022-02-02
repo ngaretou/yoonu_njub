@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:math';
-
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -10,6 +10,10 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
+
+import 'dart:typed_data';
+import 'package:image/image.dart' as imageLib;
+
 import '../providers/shows.dart';
 import '../providers/player_manager.dart';
 import 'download_button.dart';
@@ -28,23 +32,19 @@ class ControlButtons extends StatefulWidget {
   ControlButtonsState createState() => ControlButtonsState();
 }
 
-class ControlButtonsState extends State<ControlButtons>
-// with WidgetsBindingObserver
-{
+class ControlButtonsState extends State<ControlButtons> {
   final _player = AudioPlayer();
   late bool _playerIsInitialized;
 
   @override
   void initState() {
     super.initState();
-    // WidgetsBinding.instance?.addObserver(this);
     _initializeSession();
     _playerIsInitialized = false;
   }
 
   @override
   void dispose() {
-    // WidgetsBinding.instance?.removeObserver(this);
     _player.dispose();
     super.dispose();
   }
@@ -56,26 +56,39 @@ class ControlButtonsState extends State<ControlButtons>
 
   @override
   Widget build(BuildContext context) {
-    // ignore: unused_element
+    // print('player_control build');
+
     void gracefulStopInBuild() async {
-      print('received signal to stop');
+      //This bit of code loads an empty playlist, which dismisses the playback notification widget
+      //Not important for Android but crucial for iOS, otherwise you have a non-functional playback widget hanging around that does confusing things.
+
       //Gradually turn down volume
       for (var i = 10; i >= 0; i--) {
         _player.setVolume(i / 10);
         await Future.delayed(Duration(milliseconds: 10));
       }
-      print('stopping');
       _player.stop();
+
       print('stopped');
+      // final _playlist = ConcatenatingAudioSource(children: []);
+      // // await Future.delayed(Duration(milliseconds: 2000));
+
+      // try {
+      //   print('dismissing notification widget...');
+      //   await _player.setAudioSource(_playlist);
+      // } catch (e) {
+      //   print("Error: $e");
+      // }
     }
 
     //only keep playing if it's the show we are looking at and it's actually playing
-    if (Provider.of<PlayerManager>(context, listen: false).showToPlay !=
+    //This is in the case the user has swiped rather than used the buttons
+    if (Provider.of<PlayerManager>(context, listen: true).showToPlay !=
             widget.show.id &&
         _player.playing) {
       print('sending signal to stop');
-      // gracefulStopInBuild();
-      _player.stop();
+      gracefulStopInBuild();
+      // _player.stop();
     }
 
     final showsProvider = Provider.of<Shows>(context, listen: false);
@@ -87,11 +100,40 @@ class ControlButtonsState extends State<ControlButtons>
 
     final urlBase = showsProvider.urlBase;
 
+    Future<Uri> _getImageURI(String image) async {
+      final Directory docsDirectory = await getApplicationDocumentsDirectory();
+      String docsDirPathString = join(docsDirectory.path, "$image.jpg");
+
+      //Set notification area playback widget image
+      //Problem here is that you can't reference an asset image directly as a URI
+      //But the notification area needs it as a URI so you have to
+      //temporarily write the image outside the asset bundle. Yuck.
+
+      //Get image from assets in ByteData
+      ByteData imageByteData =
+          await rootBundle.load("assets/images/$image.jpg");
+
+      //Set up the write & write it to the file as bytes:
+      // Get the ByteData into the format List<int>
+      List<int> bytes = imageByteData.buffer.asUint8List(
+          imageByteData.offsetInBytes, imageByteData.lengthInBytes);
+      //Load the bytes as an image & resize the image
+      imageLib.Image? imageSquared =
+          imageLib.copyResizeCropSquare(imageLib.decodeImage(bytes)!, 400);
+
+      //Write the bytes to disk for use
+      // print('Write the bytes to disk for use');
+      await File(docsDirPathString)
+          .writeAsBytes(imageLib.encodeJpg(imageSquared));
+
+      return Uri.file(docsDirPathString);
+    }
+
     Future _loadRemoteAudio(Show show) async {
       //Get the image URI set up
-      final Directory docsDirectory = await getApplicationDocumentsDirectory();
-      String docsDirPathString = join(docsDirectory.path, "${show.image}.jpg");
-      Uri imageURI = Uri.file(docsDirPathString);
+      Uri? imageURI;
+      //If web, the notification area code does not work, so
+      kIsWeb ? imageURI = null : imageURI = await _getImageURI(show.image);
       print('setting audio source');
       //This is the audio source
       AudioSource source = AudioSource.uri(
@@ -100,17 +142,17 @@ class ControlButtonsState extends State<ControlButtons>
         tag: MediaItem(
             // Specify a unique ID for each media item:
             id: show.id,
+
             // Metadata to display in the notification:
             album: "Yoonu Njub",
             title: show.showNameRS,
             artUri: imageURI),
       );
-      print('past source definition and now setting the source ');
+
       //Set the player source
       try {
         await _player.setAudioSource(source);
       } catch (e) {
-        // catch load errors: 404, invalid url ...
         print("Unable to stream remote audio. Error message: $e");
         //If we get past the connectivitycheck above but there's a problem wiht the source url; example the site is down,
         //we can get an error. If that happens, show the snackbar but also refresh the page using the below code
@@ -124,16 +166,16 @@ class ControlButtonsState extends State<ControlButtons>
     Future _loadLocalAudio(Show show) async {
       print('loading local audio');
       //Get the image URI set up
-      final Directory docsDirectory = await getApplicationDocumentsDirectory();
-      String docsDirPathString = join(docsDirectory.path, "${show.image}.jpg");
-      final Uri imageURI = Uri.parse(docsDirPathString);
+      Uri? imageURI = await _getImageURI(show.image);
 
       //Audio source init
+      final Directory docsDirectory = await getApplicationDocumentsDirectory();
       AudioSource source = ProgressiveAudioSource(
-        Uri.file('$docsDirectory/${show.filename}'),
+        Uri.file('${docsDirectory.path}/${show.filename}'),
         tag: MediaItem(
           // Specify a unique ID for each media item:
           id: show.id,
+
           // Metadata to display in the notification:
           album: "Yoonu Njub",
           title: show.showNameRS,
@@ -169,8 +211,15 @@ class ControlButtonsState extends State<ControlButtons>
           //file is not downloaded; source is remote:
           //check if connected:
           bool? connected = await showsProvider.connectivityCheck;
-          //check if file exists
-          List<String> showExists = await showsProvider.checkShows(show);
+
+          //check if file exists; this does not work on web app because of CORS
+          //https://stackoverflow.com/questions/65630743/how-to-solve-flutter-web-api-cors-error-only-with-dart-code,
+          //so check if connected, but not if the file is there.
+          //Hopefully Flutter web handling of CORS will be better in the future.
+          late List<String> showExists;
+          !kIsWeb
+              ? showExists = await showsProvider.checkShows(show)
+              : showExists = [];
 
           //Now if we're good start playing - if not then give a message
           if (connected! && showExists.length == 0) {
@@ -178,7 +227,10 @@ class ControlButtonsState extends State<ControlButtons>
             _loadRemoteAudio(show);
             return true;
           } else if (connected && showExists.length != 0) {
+            print(connected);
+            print(showExists.length);
             //We're connected to internet but the show can NOT be found
+            //Note showExists returns the list of shows that have *errors* - a list length of 0 is good news
             _playerIsInitialized = false;
             showsProvider.snackbarMessageError(context);
             return false;
@@ -200,8 +252,6 @@ class ControlButtonsState extends State<ControlButtons>
         StreamBuilder<Duration?>(
           stream: _player.durationStream,
           builder: (context, snapshot) {
-            // print('in streambuilder for ' + widget.show.filename);
-
             final Duration duration = snapshot.data ?? Duration.zero;
             return StreamBuilder<Duration>(
               stream: _player.positionStream,
@@ -239,7 +289,8 @@ class ControlButtonsState extends State<ControlButtons>
               child: IconButton(
                   icon: Icon(Icons.skip_previous),
                   onPressed: () {
-                    _player.stop();
+                    gracefulStopInBuild();
+                    //communicating back up the widget tree here
                     widget.jumpPrevNext('back');
                   }),
             ),
@@ -298,8 +349,9 @@ class ControlButtonsState extends State<ControlButtons>
               padding: const EdgeInsets.only(right: 5),
               child: IconButton(
                   icon: Icon(Icons.skip_next),
-                  onPressed: () {
-                    _player.stop();
+                  onPressed: () async {
+                    gracefulStopInBuild();
+                    //communicating back up the widget tree here
                     widget.jumpPrevNext('next');
                   }),
             ),

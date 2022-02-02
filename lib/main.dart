@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:isolate';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -19,13 +18,11 @@ import 'screens/settings_screen.dart';
 import 'screens/about_screen.dart';
 
 Future<void> main() async {
-  //This helps avoid a SharedPreferences error: https://stackoverflow.com/questions/69123934/flutter-sharedpreferences-null-check-operator-used-on-a-null-value
-  // WidgetsFlutterBinding.ensureInitialized();
   //Initialize the audio background service that allows the notification area playback controller widget
   await JustAudioBackground.init(
-    androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
+    androidNotificationChannelId: 'org.yoonunjub.channel.audio',
     androidNotificationChannelName: 'Audio playback',
-    androidNotificationOngoing: true,
+    androidNotificationOngoing: false,
     androidStopForegroundOnPause: true,
   );
 
@@ -53,11 +50,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  //For the future builder
-  late Future<int> _initialization;
-  Future<bool>? _initializeBool;
-  //To signal end of initialization process
-  bool isInitialized = false;
+  //A Future for the future builder
+  late Future<void> _initialization;
 
   //Language code: Initialize the locale
   Future<void> setupLang() async {
@@ -81,72 +75,6 @@ class _MyAppState extends State<MyApp> {
     //end language code
   }
 
-  // Future<bool>? realInit() async {
-  //   List<Future> futures = <Future>[
-  //     Provider.of<ThemeModel>(context, listen: false).setupTheme(),
-  //     Provider.of<Shows>(context, listen: false).getData(),
-  //     setupLang()
-  //   ];
-
-  //   try {
-  //     await Future.wait(futures).then((value) {
-  //       return true;
-  //     });
-  //   } catch (e) {
-  //     print(e);
-  //   }
-
-  //   // await Provider.of<ThemeModel>(context, listen: false).setupTheme();
-  //   // await Provider.of<Shows>(context, listen: false).getData();
-  //   // await setupLang();
-  //   throw ('error: returning from realInit but not from completion');
-  //   // print('returning from realInit but not from completion');
-  // }
-
-  // Future<bool> callInititalization() async {
-  //   // await Future.delayed(const Duration(milliseconds: 500));
-  //   await Provider.of<ThemeModel>(context, listen: false).setupTheme();
-  //   await Provider.of<Shows>(context, listen: false).getData();
-  //   await setupLang();
-  //   print('normally all done with callInititalization');
-  //   return true;
-  // }
-  Future<int> callInititalization() async {
-    // await Future.delayed(const Duration(milliseconds: 500));
-    // try {
-    //   await realInit()!.then((value) {
-    //     return value;
-    //   });
-    // } catch (err) {
-    //   print(err.toString());
-    // }
-
-    int myInt = 0;
-    List<Future> futures = <Future>[
-      Provider.of<ThemeModel>(context, listen: false).setupTheme(),
-      Provider.of<Shows>(context, listen: false).getData(),
-      setupLang(),
-      Future.delayed(Duration(milliseconds: 1500)),
-    ];
-
-    try {
-      List returned = await Future.wait(futures);
-      return returned.length;
-    } catch (e) {
-      print(e);
-      return 0;
-    }
-
-    // if (myInt > 0) {
-    //   print('returning from callInititalization');
-    //   return true;
-    // } else {
-    //   return false;
-    // }
-
-    // return false;
-  }
-
   @override
   void initState() {
     super.initState();
@@ -160,29 +88,29 @@ class _MyAppState extends State<MyApp> {
     method itself. This is something which you may notice in a lot of tutorials online where they assign the 
     Future method directly to the FutureBuilder and it’s factually wrong.*/
     print('before _initialization');
-
-    // _initialization = callInititalization();
     _initialization = callInititalization();
     print('after _initialization');
   }
 
+  Future<void> callInititalization() async {
+    await Provider.of<ThemeModel>(context, listen: false).setupTheme();
+    await Provider.of<Shows>(context, listen: false).getData();
+    await setupLang();
+    //This gives the flutter UI a second to complete these above initialization processes
+    //These should wait and this be unnecessary but the build happens before all these inits finish,
+    //so this is a hack that helps
+    await Future.delayed(Duration(milliseconds: 1000));
+    return;
+  }
+
   @override
   Widget build(BuildContext context) {
-    print('build method');
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom]);
-
-    ThemeData? theme = Provider.of<ThemeModel>(context).currentTheme;
-
     return MaterialApp(
-      // theme: theme != null ? theme : ThemeData.dark(),
-      theme: theme,
+      theme: Provider.of<ThemeModel>(context).currentTheme,
       debugShowCheckedModeBanner: false,
       title: 'Yoonu Njub',
       home: FutureBuilder(
-          // future: _initialization,
           future: _initialization,
-          // initialData: null,
           builder: (ctx, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               print('Future returned from _initialization');

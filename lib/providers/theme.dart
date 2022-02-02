@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:provider/provider.dart';
-import '../providers/shows.dart';
+// import 'package:provider/provider.dart';
+// import '../providers/shows.dart';
 
 // ThemeData darkTheme = ThemeData.dark().copyWith(
 //     primaryColor: Color(0xff1f655d),
@@ -209,25 +209,20 @@ class ThemeModel extends ChangeNotifier {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     //if there's no userTheme, it's the first time they've run the app, so give them lightTheme
     if (!prefs.containsKey('userThemeName')) {
-      currentTheme = lightTheme;
-
-      _themeType = ThemeType.Light;
+      setLightTheme(refresh: false);
     } else {
       userThemeName = json.decode(prefs.getString('userThemeName')!) as String?;
 
       switch (userThemeName) {
         case 'darkTheme':
           {
-            currentTheme = darkTheme;
-
-            _themeType = ThemeType.Dark;
+            setDarkTheme(refresh: false);
             break;
           }
 
         case 'lightTheme':
           {
-            currentTheme = lightTheme;
-            _themeType = ThemeType.Light;
+            setDarkTheme(refresh: false);
             break;
           }
         case 'blueTheme':
@@ -259,7 +254,7 @@ class ThemeModel extends ChangeNotifier {
       }
     }
     print('end of setup theme');
-    // notifyListeners();
+    notifyListeners();
     return;
   }
 
@@ -286,22 +281,26 @@ class ThemeModel extends ChangeNotifier {
     return;
   }
 
-  void setDarkTheme() {
+  void setDarkTheme({bool? refresh}) {
     currentTheme = darkTheme;
     _themeType = ThemeType.Dark;
     //get the theme name as a string for storage
     userThemeName = 'darkTheme';
     //send it for storage
     saveThemeToDisk(userThemeName);
-    notifyListeners();
+    if (refresh == true || refresh == null) {
+      notifyListeners();
+    }
   }
 
-  void setLightTheme() {
+  void setLightTheme({bool? refresh}) {
     currentTheme = lightTheme;
     _themeType = ThemeType.Light;
     userThemeName = 'lightTheme';
     saveThemeToDisk(userThemeName);
-    notifyListeners();
+    if (refresh == true || refresh == null) {
+      notifyListeners();
+    }
   }
 
   void setTealTheme() {
