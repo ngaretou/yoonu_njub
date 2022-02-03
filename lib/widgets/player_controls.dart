@@ -124,7 +124,7 @@ class ControlButtonsState extends State<ControlButtons> {
       try {
         print('setting player to play ${show.id}');
         // await player.setAudioSource(source);
-        playerManager.changePlaylist(source: source);
+        await playerManager.changePlaylist(source: source);
         return;
       } catch (e) {
         print("Unable to stream remote audio. Error message: $e");
@@ -159,7 +159,7 @@ class ControlButtonsState extends State<ControlButtons> {
       try {
         // await player.setAudioSource(source);
 
-        playerManager.changePlaylist(source: source);
+        await playerManager.changePlaylist(source: source);
       } catch (e) {
         // catch load errors: 404, invalid url ...
         print("Unable to load local audio. Error message: $e");
@@ -179,7 +179,7 @@ class ControlButtonsState extends State<ControlButtons> {
         if (await showsProvider.localAudioFileCheck(show.filename)) {
           //source is local
           print('File is downloaded');
-          await _loadLocalAudio(show);
+          _loadLocalAudio(show);
           _playerIsInitialized = true;
           return true;
         } else {
@@ -191,18 +191,26 @@ class ControlButtonsState extends State<ControlButtons> {
           //https://stackoverflow.com/questions/65630743/how-to-solve-flutter-web-api-cors-error-only-with-dart-code,
           //so check if connected, but not if the file is there.
           //Hopefully Flutter web handling of CORS will be better in the future.
-          late List<String> showExists;
-          !kIsWeb
-              //If not web, continue as normal
-              ? showExists = await showsProvider.checkShows(show)
-              //If web, return this dummy data that indicates no error
-              : showExists = [];
 
+          // List<String> showExists = [];
+          // !kIsWeb
+          //     //If not web, continue as normal
+          //     ? showExists = await showsProvider.checkShows(show)
+          //     //If web, return this dummy data that indicates no error
+          //     : showExists = [];
+          List<String> showExists = await showsProvider.checkShows(show);
+          print(showExists.length);
           //Now if we're good start playing - if not then give a message
           if (connected! && showExists.length == 0) {
             //We're connected to internet and the show can be found
+            // await _loadRemoteAudio(show).then((value) {
+            //   if (value == true) {
+            //     print('returning true after loadRemoteAudio');
+            //     _playerIsInitialized = true;
+            //     return true;
+            //   }
+            // });
             await _loadRemoteAudio(show);
-            print('returning true after loadRemoteAudio');
             _playerIsInitialized = true;
             return true;
           } else if (connected && showExists.length != 0) {
@@ -245,16 +253,16 @@ class ControlButtonsState extends State<ControlButtons> {
                   onChangeEnd: (newPosition) {
                     player.seek(newPosition);
                   },
+                  playerIsInitialized: _playerIsInitialized,
                 );
               },
             );
           },
         ),
+
         //This row is the control buttons.
         Row(
-          // mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-
           children: [
             !kIsWeb
                 ? Container(
@@ -286,18 +294,17 @@ class ControlButtonsState extends State<ControlButtons> {
                     return IconButton(
                       icon: Icon(Icons.play_arrow),
                       iconSize: 64.0,
-                      onPressed: () {
-                        _initializePlayer(urlBase, widget.show)
-                            .then((shouldPlay) {
-                          // print(player);
-                          print('shouldPlay $shouldPlay');
-                          if (shouldPlay) {
-                            player.setVolume(1);
-                            player.play();
-                          } else {
-                            print('shouldPlay false');
-                          }
-                        });
+                      onPressed: () async {
+                        bool shouldPlay =
+                            await _initializePlayer(urlBase, widget.show);
+                        // print(player);
+                        print('shouldPlay $shouldPlay');
+                        if (shouldPlay) {
+                          player.setVolume(1);
+                          player.play();
+                        } else {
+                          print('shouldPlay false');
+                        }
                       },
                     );
                   } else if (processingState == ProcessingState.buffering ||
@@ -381,13 +388,14 @@ class SeekBar extends StatefulWidget {
   final Duration position;
   final ValueChanged<Duration>? onChanged;
   final ValueChanged<Duration>? onChangeEnd;
+  final bool playerIsInitialized;
 
-  SeekBar({
-    required this.duration,
-    required this.position,
-    this.onChanged,
-    this.onChangeEnd,
-  });
+  SeekBar(
+      {required this.duration,
+      required this.position,
+      this.onChanged,
+      this.onChangeEnd,
+      required this.playerIsInitialized});
 
   @override
   _SeekBarState createState() => _SeekBarState();
@@ -423,8 +431,8 @@ class _SeekBarState extends State<SeekBar> {
         Positioned(
           right: 16.0,
           bottom: 0.0,
-          // child: Text('here'),
-          child: widget.duration == Duration.zero
+          // If the player is not yet initialized....
+          child: !widget.playerIsInitialized
               //Before load, this will appear; you can choose Text(''), Text('-:--') etc
               ? Text('')
               //After the audio loads, there will be a duration, so show the time remaining

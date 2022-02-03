@@ -217,15 +217,12 @@ class ShowDisplayState extends State<ShowDisplay> {
               onPageChanged: (index) {
                 //Here we want the user to be able to come back to the name they were on when they
                 //return to the app, so save lastpage viewed on each page swipe.
-
+                playerManager.changePlaylist();
                 showsProvider.saveLastShowViewed(index);
 
                 //This tells the player manager which show to stop.
                 playerManager.showToPlay =
                     (int.parse(showsProvider.shows[index].id)).toString();
-                // playerManager.gracefulStop();
-                playerManager.changePlaylist();
-                // setState(() {});
               },
               itemBuilder: (context, i) {
                 Show show = showsProvider.shows[i];
