@@ -1,22 +1,23 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:math';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:just_audio/just_audio.dart';
-import 'package:just_audio_background/just_audio_background.dart';
-
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart';
-
 import 'dart:typed_data';
 import 'package:image/image.dart' as imageLib;
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+
+import 'package:provider/provider.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
 
 import '../providers/shows.dart';
 import '../providers/player_manager.dart';
 import 'download_button.dart';
+
+enum ManualPlayerState { Uninitialized, Initializing, Initialized }
 
 class ControlButtons extends StatefulWidget {
   final Show show;
@@ -33,34 +34,21 @@ class ControlButtons extends StatefulWidget {
 }
 
 class ControlButtonsState extends State<ControlButtons> {
-  late bool _playerIsInitialized;
+  late ManualPlayerState manualPlayerStatus;
 
   @override
   void initState() {
     super.initState();
-    _playerIsInitialized = false;
-  }
 
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  // }
+    manualPlayerStatus = ManualPlayerState.Uninitialized;
+  }
 
   @override
   Widget build(BuildContext context) {
+    print('player_controls build');
+
     final playerManager = Provider.of<PlayerManager>(context, listen: false);
     final player = playerManager.player;
-
-//Pre player manager
-    //only keep playing if it's the show we are looking at and it's actually playing
-    //This is in the case the user has swiped rather than used the buttons
-    // if (Provider.of<PlayerManager>(context, listen: true).showToPlay !=
-    //         widget.show.id &&
-    //     _player.playing) {
-    //   print('sending signal to stop');
-    //   gracefulStopInBuild();
-    //   // _player.stop();
-    // }
 
     final showsProvider = Provider.of<Shows>(context, listen: false);
 
@@ -72,13 +60,13 @@ class ControlButtonsState extends State<ControlButtons> {
     final urlBase = showsProvider.urlBase;
 
     Future<Uri> _getImageURI(String image) async {
+      /*Set notification area playback widget image:
+      Problem here is that you can't reference an asset image directly as a URI
+      But the notification area needs it as a URI so you have to
+      temporarily write the image outside the asset bundle. Yuck.*/
+
       final Directory docsDirectory = await getApplicationDocumentsDirectory();
       String docsDirPathString = join(docsDirectory.path, "$image.jpg");
-
-      //Set notification area playback widget image
-      //Problem here is that you can't reference an asset image directly as a URI
-      //But the notification area needs it as a URI so you have to
-      //temporarily write the image outside the asset bundle. Yuck.
 
       //Get image from assets in ByteData
       ByteData imageByteData =
@@ -88,12 +76,12 @@ class ControlButtonsState extends State<ControlButtons> {
       // Get the ByteData into the format List<int>
       List<int> bytes = imageByteData.buffer.asUint8List(
           imageByteData.offsetInBytes, imageByteData.lengthInBytes);
+
       //Load the bytes as an image & resize the image
       imageLib.Image? imageSquared =
           imageLib.copyResizeCropSquare(imageLib.decodeImage(bytes)!, 400);
 
       //Write the bytes to disk for use
-      // print('Write the bytes to disk for use');
       await File(docsDirPathString)
           .writeAsBytes(imageLib.encodeJpg(imageSquared));
 
@@ -105,7 +93,7 @@ class ControlButtonsState extends State<ControlButtons> {
       Uri? imageURI;
       //If web, the notification area code does not work, so
       kIsWeb ? imageURI = null : imageURI = await _getImageURI(show.image);
-      print('setting audio source');
+
       //This is the audio source
       AudioSource source = AudioSource.uri(
         Uri.parse('$urlBase/${show.urlSnip}/${show.filename}'),
@@ -113,7 +101,6 @@ class ControlButtonsState extends State<ControlButtons> {
         tag: MediaItem(
             // Specify a unique ID for each media item:
             id: show.id,
-
             // Metadata to display in the notification:
             album: "Yoonu Njub",
             title: show.showNameRS,
@@ -122,8 +109,6 @@ class ControlButtonsState extends State<ControlButtons> {
 
       //Set the player source
       try {
-        print('setting player to play ${show.id}');
-        // await player.setAudioSource(source);
         await playerManager.changePlaylist(source: source);
         return;
       } catch (e) {
@@ -142,14 +127,13 @@ class ControlButtonsState extends State<ControlButtons> {
       //Get the image URI set up
       Uri? imageURI = await _getImageURI(show.image);
 
-      //Audio source init
+      //Audio source initialization
       final Directory docsDirectory = await getApplicationDocumentsDirectory();
       AudioSource source = ProgressiveAudioSource(
         Uri.file('${docsDirectory.path}/${show.filename}'),
         tag: MediaItem(
           // Specify a unique ID for each media item:
           id: show.id,
-
           // Metadata to display in the notification:
           album: "Yoonu Njub",
           title: show.showNameRS,
@@ -157,8 +141,6 @@ class ControlButtonsState extends State<ControlButtons> {
         ),
       );
       try {
-        // await player.setAudioSource(source);
-
         await playerManager.changePlaylist(source: source);
       } catch (e) {
         // catch load errors: 404, invalid url ...
@@ -170,17 +152,17 @@ class ControlButtonsState extends State<ControlButtons> {
       //This checks to see if the player has already been initialized.
       //If it already has, we know where our audio is coming from and can just play (see button code below).
       //But if not, check to see if we're ready to rock.
-      print('_playerIsInitialized $_playerIsInitialized');
-      if (_playerIsInitialized) {
+      if (manualPlayerStatus == ManualPlayerState.Initialized) {
         // we've been here already; player is initialized, just return true to play
         return true;
-      } else if (!_playerIsInitialized) {
+      } else if (manualPlayerStatus == ManualPlayerState.Uninitialized) {
+        manualPlayerStatus = ManualPlayerState.Initializing;
         //This waits for all the prelim checks to be done then gets to the next part
         if (await showsProvider.localAudioFileCheck(show.filename)) {
           //source is local
           print('File is downloaded');
-          _loadLocalAudio(show);
-          _playerIsInitialized = true;
+          await _loadLocalAudio(show);
+          manualPlayerStatus = ManualPlayerState.Initialized;
           return true;
         } else {
           //file is not downloaded; source is remote:
@@ -189,48 +171,53 @@ class ControlButtonsState extends State<ControlButtons> {
 
           //check if file exists; this does not work on web app because of CORS
           //https://stackoverflow.com/questions/65630743/how-to-solve-flutter-web-api-cors-error-only-with-dart-code,
-          //so check if connected, but not if the file is there.
-          //Hopefully Flutter web handling of CORS will be better in the future.
+          //so check if connected, but not if the file is reachable on the internet at this point.
+          //Hopefully Flutter web handling of CORS will be better in the future or I will find another solution for a good check here.
 
-          // List<String> showExists = [];
-          // !kIsWeb
-          //     //If not web, continue as normal
-          //     ? showExists = await showsProvider.checkShows(show)
-          //     //If web, return this dummy data that indicates no error
-          //     : showExists = [];
-          List<String> showExists = await showsProvider.checkShows(show);
-          print(showExists.length);
+          List<String> showExists = [];
+          !kIsWeb
+              //If not web, continue as normal
+              ? showExists = await showsProvider.checkShows(show)
+              //If web, return this dummy data that indicates no error
+              : showExists = [];
+
           //Now if we're good start playing - if not then give a message
           if (connected! && showExists.length == 0) {
             //We're connected to internet and the show can be found
-            // await _loadRemoteAudio(show).then((value) {
-            //   if (value == true) {
-            //     print('returning true after loadRemoteAudio');
-            //     _playerIsInitialized = true;
-            //     return true;
-            //   }
-            // });
             await _loadRemoteAudio(show);
-            _playerIsInitialized = true;
+            manualPlayerStatus = ManualPlayerState.Initialized;
             return true;
           } else if (connected && showExists.length != 0) {
-            print(connected);
-            print(showExists.length);
             //We're connected to internet but the show can NOT be found
             //Note showExists returns the list of shows that have *errors* - a list length of 0 is good news
-            _playerIsInitialized = false;
+            manualPlayerStatus = ManualPlayerState.Uninitialized;
             showsProvider.snackbarMessageError(context);
             return false;
           } else {
             //Do this if file is not downloaded and we're not connected
             //The player is not initialized because there's nothing to play;
             //if you get here there's no local file and no internet connection.
-            _playerIsInitialized = false;
+            manualPlayerStatus = ManualPlayerState.Uninitialized;
             showsProvider.snackbarMessageNoInternet(context);
             return false;
           }
         }
       }
+    }
+
+    Widget playButton() {
+      return IconButton(
+        icon: Icon(Icons.play_arrow),
+        iconSize: 64.0,
+        onPressed: () async {
+          bool shouldPlay = await _initializePlayer(urlBase, widget.show);
+
+          if (shouldPlay) {
+            player.setVolume(1);
+            player.play();
+          }
+        },
+      );
     }
 
     return Column(
@@ -253,7 +240,10 @@ class ControlButtonsState extends State<ControlButtons> {
                   onChangeEnd: (newPosition) {
                     player.seek(newPosition);
                   },
-                  playerIsInitialized: _playerIsInitialized,
+                  playerIsInitialized:
+                      manualPlayerStatus == ManualPlayerState.Uninitialized
+                          ? false
+                          : true,
                 );
               },
             );
@@ -290,33 +280,22 @@ class ControlButtonsState extends State<ControlButtons> {
                   final processingState = playerState?.processingState;
                   final playing = playerState?.playing;
 
-                  if (playing != true) {
-                    return IconButton(
-                      icon: Icon(Icons.play_arrow),
-                      iconSize: 64.0,
-                      onPressed: () async {
-                        bool shouldPlay =
-                            await _initializePlayer(urlBase, widget.show);
-                        // print(player);
-                        print('shouldPlay $shouldPlay');
-                        if (shouldPlay) {
-                          player.setVolume(1);
-                          player.play();
-                        } else {
-                          print('shouldPlay false');
-                        }
-                      },
-                    );
-                  } else if (processingState == ProcessingState.buffering ||
-                      processingState == ProcessingState.loading) {
-                    // if (processingState == ProcessingState.buffering) {
-                    print('processingState is buffering or loading something');
+                  /*original version of the if stmt here. With the player manager code 
+                  in changePlaylist to dismiss the notification and building screens on 
+                  either side of the main player, it gets a bit confused so doing a 
+                  manual status for now. */
+                  // if (processingState == ProcessingState.buffering ||
+                  //     (processingState == ProcessingState.loading)) {
+
+                  if (manualPlayerStatus == ManualPlayerState.Initializing) {
                     return Container(
                       margin: EdgeInsets.all(08.0),
                       width: 64.0,
                       height: 64.0,
                       child: CircularProgressIndicator(),
                     );
+                  } else if (playing != true) {
+                    return playButton();
                   } else if (processingState != ProcessingState.completed) {
                     return IconButton(
                       icon: Icon(Icons.pause),

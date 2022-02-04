@@ -16,11 +16,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-// import 'package:package_info_plus/package_info_plus.dart';
-// import 'package:path/path.dart' as path;
-// import 'dart:typed_data';
-// import 'package:image/image.dart' as imageLib;
-
 class Show {
   final String id;
   final String showNameRS;

@@ -43,7 +43,6 @@ class _MainPlayerState extends State<MainPlayer> {
         DeviceOrientation.landscapeRight
       ]);
     }
-    print('mainplayer screen right before return');
 
     return Scaffold(
       appBar: AppBar(
@@ -75,8 +74,6 @@ class _MainPlayerState extends State<MainPlayer> {
                     title: Text(
                       AppLocalizations.of(context).settingsContactUs,
                     ),
-                    // content:
-                    //     Text(AppLocalizations.of(context).settingsContactUs),
                     children: [ContactOptions()],
                   );
                 },
