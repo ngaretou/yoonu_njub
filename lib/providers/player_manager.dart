@@ -29,7 +29,6 @@ class PlayerManager with ChangeNotifier {
 
   set showToPlay(String value) {
     this._showToPlay = value;
-    // print('set showToPlay $value');
     notifyListeners();
   }
 
@@ -45,25 +44,23 @@ class PlayerManager with ChangeNotifier {
   // }
 
   Future<void> changePlaylist({AudioSource? source}) async {
-    print('changePlaylist');
     await player.stop();
-    // player = AudioPlayer();
+
     //If we got here by initializing the play button
     if (source != null) {
       playlist = ConcatenatingAudioSource(children: [source]);
 
       await player.setAudioSource(playlist, preload: true);
+
       //If we got here by page turn; no arguments (source == null)
     } else if (source == null) {
-      //This bit of code loads an empty playlist, which dismisses the playback notification widget
-      //Not important for Android but crucial for iOS,
-      //otherwise you have a non-functional playback widget hanging around that does confusing things.
-
+      /*This bit of code loads an empty playlist, which dismisses the playback notification widget
+      Not important for Android but crucial for iOS,
+      otherwise you have a non-functional playback widget hanging around that does confusing things.*/
       playlist = ConcatenatingAudioSource(children: []); //working
       //This works to dismiss the notification widget with clear and then preload: true
       await player.setAudioSource(playlist, preload: true); //working
       player.stop();
-      // await player.dispose();
     }
 
     return;
