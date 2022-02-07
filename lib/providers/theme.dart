@@ -2,112 +2,27 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:provider/provider.dart';
-// import '../providers/shows.dart';
 
-// ThemeData darkTheme = ThemeData.dark().copyWith(
-//     primaryColor: Color(0xff1f655d),
-//     accentColor: Color(0xff40bf7a),
-//     floatingActionButtonTheme: FloatingActionButtonThemeData(
-//         foregroundColor: Colors.white, backgroundColor: Colors.teal),
-//     iconTheme: IconThemeData(color: Colors.white70),
-//     textTheme: TextTheme(
-//         headline6:
-//             TextStyle(color: Colors.white70, fontFamily: 'Lato', fontSize: 20),
-//         subtitle2: TextStyle(color: Colors.white),
-//         subtitle1: TextStyle(color: Colors.white),
-//         bodyText2: TextStyle(color: Colors.white)),
-//     appBarTheme: AppBarTheme(
-//       elevation: 0,
-//       color: ThemeData.dark().scaffoldBackgroundColor,
-//       textTheme: TextTheme(
-//         headline6:
-//             TextStyle(color: Colors.white, fontFamily: "Lato", fontSize: 20),
-//       ),
-//       iconTheme: IconThemeData(color: Colors.white),
-//     ),
-//     buttonTheme: ButtonThemeData(
-//       minWidth: 80,
-//     ));
-
-// ThemeData lightTheme = ThemeData.light().copyWith(
-//     primaryColor: Color(0xfff5f5f5),
-//     accentColor: Color(0xff40bf7a),
-//     cardColor: Colors.grey[200],
-//     scaffoldBackgroundColor: Colors.white,
-//     floatingActionButtonTheme: FloatingActionButtonThemeData(
-//         // foregroundColor: Colors.white, backgroundColor: Colors.black54),
-//         foregroundColor: Colors.white,
-//         backgroundColor: Colors.teal),
-//     iconTheme: IconThemeData(color: Colors.black54),
-//     textTheme: TextTheme(
-//       headline6: TextStyle(color: Colors.black54, fontFamily: 'Lato'),
-//       subtitle2: TextStyle(color: Colors.black54),
-//       subtitle1: TextStyle(color: Colors.black54),
-//       bodyText2: TextStyle(color: Colors.black87),
-//     ),
-//     appBarTheme: AppBarTheme(
-//         elevation: 0,
-//         iconTheme: IconThemeData(color: Colors.black54),
-//         textTheme: TextTheme(
-//           headline6: TextStyle(
-//               color: Colors.black54, fontFamily: "Lato", fontSize: 20),
-//         ),
-//         //     subtitle2: TextStyle(color: Colors.white),
-//         //     subtitle1: TextStyle(color: Colors.white)),
-//         color: Colors.grey[100],
-//         actionsIconTheme: IconThemeData(color: Colors.black54)),
-//     buttonTheme: ButtonThemeData(minWidth: 80));
-
-// ThemeData blueTheme = ThemeData.light().copyWith(
-//     primaryColor: Colors.blueGrey,
-//     accentColor: Colors.blueAccent,
-//     backgroundColor: Colors.blue,
-//     scaffoldBackgroundColor: Colors.blue,
-//     floatingActionButtonTheme: FloatingActionButtonThemeData(
-//         foregroundColor: Colors.white, backgroundColor: Colors.blue[700]),
-//     iconTheme: IconThemeData(color: Colors.white),
-//     textTheme: TextTheme(
-//         headline6: TextStyle(color: Colors.white, fontFamily: 'Lato'),
-//         subtitle2: TextStyle(color: Colors.white),
-//         subtitle1: TextStyle(color: Colors.white),
-//         bodyText2: TextStyle(color: Colors.white)),
-//     appBarTheme: AppBarTheme(
-//         color: Colors.blueAccent,
-//         actionsIconTheme: IconThemeData(color: Colors.white)),
-//     buttonTheme: ButtonThemeData(minWidth: 80),
-//     dialogTheme: DialogTheme(
-//         contentTextStyle: TextStyle(color: Colors.black54),
-//         titleTextStyle: TextStyle(
-//             color: Colors.black54, fontFamily: 'Lato', fontSize: 20)));
-
-// ThemeData tealTheme = ThemeData.light().copyWith(
-//     primaryColor: Colors.tealAccent,
-//     accentColor: Color(0xff40bf7a),
-//     backgroundColor: Colors.teal,
-//     scaffoldBackgroundColor: Colors.teal,
-//     floatingActionButtonTheme: FloatingActionButtonThemeData(
-//         foregroundColor: Colors.white, backgroundColor: Colors.teal[800]),
-//     textTheme: TextTheme(
-//       headline6: TextStyle(color: Colors.black54, fontFamily: 'Lato'),
-//       subtitle2: TextStyle(color: Colors.black54),
-//       subtitle1: TextStyle(color: Colors.black54),
-//       bodyText2: TextStyle(color: Colors.black87),
-//     ),
-//     appBarTheme: AppBarTheme(
-//         color: Color(0xff1f655d),
-//         actionsIconTheme: IconThemeData(color: Colors.white)),
-//     buttonTheme: ButtonThemeData(
-//       minWidth: 80,
-//     ));
+//New Material 3 versions
+// final lightTheme = ThemeData(colorSchemeSeed: Colors.teal);
+// final darkTheme = ThemeData(colorSchemeSeed: Colors.teal, brightness: Brightness.dark, ...);
 
 // Primary is all of the raised text and buttons: Button color,
 //text of OK/Cancel buttons, highlights in calendar picker.
 //Secondary ends up being only the color of holidays
 ThemeData darkTheme = ThemeData(
   fontFamily: 'Lato',
-  colorScheme: ColorScheme.dark()
-      .copyWith(primary: Colors.teal[300], secondary: Colors.teal[850]),
+  primarySwatch: Colors.teal,
+  colorScheme: ColorScheme.dark().copyWith(
+    primary: Colors.teal[300],
+    secondary: Colors.teal[800],
+  ),
+  checkboxTheme:
+      CheckboxThemeData(checkColor: MaterialStateProperty.all(Colors.black87)),
+  chipTheme: ChipThemeData(
+    selectedColor: Colors.teal[800],
+    backgroundColor: Colors.teal[400],
+  ),
   appBarTheme: AppBarTheme(
       backgroundColor: Colors.teal[800],
       iconTheme: IconThemeData(color: Colors.white),
@@ -119,34 +34,7 @@ ThemeData lightTheme = ThemeData(
   fontFamily: 'Lato',
   primarySwatch: Colors.teal,
   colorScheme: ColorScheme.light()
-      .copyWith(primary: Colors.teal[300], secondary: Colors.teal[100]),
-  appBarTheme: AppBarTheme(
-      backgroundColor: Colors.teal[800],
-      iconTheme: IconThemeData(color: Colors.white),
-      titleTextStyle: ThemeData.dark().appBarTheme.titleTextStyle),
-  // buttonTheme: ButtonThemeData(buttonColor: Colors.teal),
-);
-
-ThemeData blueTheme = ThemeData(
-  fontFamily: 'Lato',
-  primarySwatch: Colors.blue,
-  backgroundColor: Colors.teal,
-  colorScheme: ColorScheme.light()
-      .copyWith(primary: Colors.blue, secondary: Colors.blue[100]),
-  scaffoldBackgroundColor: Colors.blue[50],
-  appBarTheme: AppBarTheme(
-      backgroundColor: Colors.blue[800],
-      iconTheme: IconThemeData(color: Colors.white),
-      titleTextStyle: ThemeData.dark().appBarTheme.titleTextStyle),
-  // buttonTheme: ButtonThemeData(buttonColor: Colors.blue),
-);
-
-ThemeData tealTheme = ThemeData(
-  fontFamily: 'Lato',
-  primarySwatch: Colors.teal,
-  colorScheme: ColorScheme.light()
-      .copyWith(primary: Colors.teal, secondary: Colors.teal[100]),
-  scaffoldBackgroundColor: Colors.teal[50],
+      .copyWith(primary: Colors.teal[400], secondary: Colors.teal[300]),
   appBarTheme: AppBarTheme(
       backgroundColor: Colors.teal[800],
       iconTheme: IconThemeData(color: Colors.white),
@@ -155,7 +43,8 @@ ThemeData tealTheme = ThemeData(
 );
 
 //////////////////////
-enum ThemeType { Light, Blue, Teal, Dark }
+enum ThemeType { Light, Dark }
+enum ThemeColor { Color, Color2 }
 
 class ThemeModel extends ChangeNotifier {
   Future<SharedPreferences> prefs = SharedPreferences.getInstance();
@@ -190,15 +79,6 @@ class ThemeModel extends ChangeNotifier {
     return;
   }
 
-  //called as we're setting up and showing a circular indicator
-  // Future<void> initialSetupAsync(context) async {
-  //   print('initialSetupAsync');
-  //   await Provider.of<Shows>(context, listen: false).getData();
-  //   // await setupTheme();
-  //   print('end initialSetupAsync');
-  //   return;
-  // }
-
   Future<void> setupTheme() async {
     print('setupTheme');
     if (currentTheme != null) {
@@ -223,18 +103,6 @@ class ThemeModel extends ChangeNotifier {
         case 'lightTheme':
           {
             setDarkTheme(refresh: false);
-            break;
-          }
-        case 'blueTheme':
-          {
-            currentTheme = blueTheme;
-            _themeType = ThemeType.Blue;
-            break;
-          }
-        case 'tealTheme':
-          {
-            currentTheme = tealTheme;
-            _themeType = ThemeType.Teal;
             break;
           }
       }
@@ -301,22 +169,6 @@ class ThemeModel extends ChangeNotifier {
     if (refresh == true || refresh == null) {
       notifyListeners();
     }
-  }
-
-  void setTealTheme() {
-    currentTheme = tealTheme;
-    _themeType = ThemeType.Teal;
-    userThemeName = 'tealTheme';
-    saveThemeToDisk(userThemeName);
-    notifyListeners();
-  }
-
-  void setBlueTheme() {
-    currentTheme = blueTheme;
-    _themeType = ThemeType.Blue;
-    userThemeName = 'blueTheme';
-    saveThemeToDisk(userThemeName);
-    notifyListeners();
   }
 
   Future<void> saveThemeToDisk(userThemeName) async {

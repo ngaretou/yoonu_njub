@@ -208,6 +208,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
         Checkbox(
+          activeColor: Theme.of(context).buttonTheme.colorScheme?.primary,
           value: approved,
           onChanged: (response) {
             if (response!) {
@@ -257,9 +258,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               return snapshot.data != '0.00'
                   ? Padding(
                       padding: EdgeInsets.only(left: 20, right: 10),
-                      child: GestureDetector(
+                      child: ElevatedButton(
                         child: Container(
-                            color: Theme.of(context).cardColor,
                             padding: EdgeInsets.all(10),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
@@ -270,18 +270,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                                 Expanded(
                                   child: Text(
-                                      AppLocalizations.of(context)
-                                              .deleteDownloads +
-                                          ' (' +
-                                          snapshot.data.toString() +
-                                          ' Mb)',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .subtitle1),
+                                    AppLocalizations.of(context)
+                                            .deleteDownloads +
+                                        ' (' +
+                                        snapshot.data.toString() +
+                                        ' Mb)',
+                                    // style: Theme.of(context)
+                                    //     .textTheme
+                                    //     .headline6
+                                  ),
                                 ),
                               ],
                             )),
-                        onTap: () {
+                        onPressed: () {
                           _deleteAllDownloads();
                           Provider.of<Shows>(context, listen: false)
                               .setReloadMainPage(true);

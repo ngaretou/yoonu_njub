@@ -60,7 +60,7 @@ class _MainPlayerState extends State<MainPlayer> {
                   //then switch back to false without setState for the next time.
                   //The future is necessary because otherwise flutter is *too* fast - if you don't wait it
                   //switches before it can build and you don't get the popup!
-                  await new Future.delayed(const Duration(seconds: 5))
+                  await new Future.delayed(const Duration(milliseconds: 500))
                       .then((value) => _showPlaylist = false);
                 }),
           IconButton(

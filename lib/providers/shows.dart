@@ -234,8 +234,6 @@ class Shows with ChangeNotifier {
   snackbarMessageNoInternet(BuildContext context) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      // Scaffold.of(context).hideCurrentSnackBar();
-      // Scaffold.of(context).showSnackBar(SnackBar(
       content: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -252,8 +250,6 @@ class Shows with ChangeNotifier {
   snackbarMessageError(BuildContext context) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      // Scaffold.of(context).hideCurrentSnackBar();
-      // Scaffold.of(context).showSnackBar(SnackBar(
       content: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -282,8 +278,6 @@ class Shows with ChangeNotifier {
 
         return true;
       } else {
-        // print('The file seems to not be there');
-
         return false;
       }
     } catch (e) {
@@ -292,11 +286,12 @@ class Shows with ChangeNotifier {
     }
   }
 
-/////////
+////////////////////////
+//Begin show verification
 
   Future<List<String>> checkShows([Show? showToCheck]) async {
     print('checkShows');
-    print(showToCheck);
+
     //temp list of shows to work with
     List<Show> showsToCheck = [];
 
@@ -314,9 +309,10 @@ class Shows with ChangeNotifier {
         final url = urlBase + '/' + show.urlSnip + '/' + show.filename;
         final http.Response r = await http.head(Uri.parse(url));
         final _total = r.headers["content-length"]!;
-        print("show ${showToCheck!.filename} total size: $_total");
+        print("show ${show.id} total size: $_total");
       } catch (e) {
         print('Error checking show ' + show.id.toString());
+        print(e);
         showsWithErrors.add(show.id.toString());
       }
     }
@@ -426,16 +422,16 @@ class Shows with ChangeNotifier {
                                 flex: 0,
                                 child: Container(
                                     child: CircularProgressIndicator())),
-                            Container(
-                              height: 50,
-                            ),
-                            Expanded(
-                              flex: 0,
-                              child: Text(
-                                "Checking episodes on the web... ",
-                                style: Theme.of(context).textTheme.headline6,
-                              ),
-                            ),
+                            // Container(
+                            //   height: 50,
+                            // ),
+                            // Expanded(
+                            //   flex: 0,
+                            //   child: Text(
+                            //     "Checking episodes on the web... ",
+                            //     style: Theme.of(context).textTheme.headline6,
+                            //   ),
+                            // ),
                           ],
                         ));
                   } else {
@@ -503,4 +499,6 @@ class Shows with ChangeNotifier {
       }
     }
   }
+
+  //End show verification
 }

@@ -20,5 +20,5 @@ Other:
 - New notification area playback controls for iOS and Android
 - New error catching and reporting on 'audio not found' errors for streaming and download functions
 - Check all shows and report errors function (tap below content on settings screen six times)
-- New contact us options
+- Updated 'contact us' options
 - HTML collapsible docs for About and Licensing pages
