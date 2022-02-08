@@ -107,8 +107,10 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData? _currentTheme = Provider.of<ThemeModel>(context).currentTheme;
+
     return MaterialApp(
-      theme: Provider.of<ThemeModel>(context).currentTheme,
+      theme: _currentTheme == null ? ThemeData.light() : _currentTheme,
       debugShowCheckedModeBanner: false,
       title: 'Yoonu Njub',
       home: FutureBuilder(

@@ -215,7 +215,7 @@
     "type": "text",
     "placeholders": {}
   },
-  "settingsContactUsTelephone": "Call us",
+  "settingsContactUsTelephone": "Telephone",
   "@settingsContactUsTelephone": {
     "description": "Call on the telephone with a tel: link",
     "type": "text",

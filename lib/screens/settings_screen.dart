@@ -25,11 +25,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     int numberOfTaps = 0;
-    final userThemeName =
-        Provider.of<ThemeModel>(context, listen: false).userThemeName;
     final themeProvider = Provider.of<ThemeModel>(context, listen: false);
-    Locale userLocale =
-        Provider.of<ThemeModel>(context, listen: false).userLocale!;
+    final ThemeComponents? _userTheme = themeProvider.userTheme;
+    final Locale userLocale = themeProvider.userLocale!;
 
     //Widgets
     //Main template for all setting titles
@@ -45,7 +43,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Icon(
                       icon,
                       size: 27,
-                      color: Theme.of(context).textTheme.headline6!.color,
                     ),
                     SizedBox(width: 25),
                     Text(title, style: Theme.of(context).textTheme.headline6),
@@ -61,7 +58,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           title,
-          VerticalDivider(width: 10, color: Colors.white),
+          VerticalDivider(
+            width: 10,
+          ),
           Expanded(
             child: setting,
           )
@@ -94,11 +93,62 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     Widget themeSettings() {
+      List<Color> themeColors = [
+        // Colors.red,
+        // Colors.deepOrange,
+        // Colors.amber,
+        // Colors.lightGreen,
+        Colors.green,
+        Colors.teal,
+        Colors.cyan,
+        Colors.blue,
+        // Colors.indigo,
+        // Colors.deepPurple,
+        // Colors.blueGrey,
+        // Colors.brown,
+        // Colors.grey
+      ];
+
+      List<DropdownMenuItem<String>> menuItems = [];
+
+      for (var color in themeColors) {
+        menuItems.add(DropdownMenuItem(
+            child: Material(
+              shape: CircleBorder(side: BorderSide.none),
+              elevation: 3,
+              child: Container(
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                margin: EdgeInsets.all(0),
+                width: 36,
+              ),
+            ),
+            value: color.value.toString()));
+      }
+
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
+          DropdownButton(
+              itemHeight: 48,
+              underline: SizedBox(),
+              value: _userTheme!.color.value.toString(),
+              items: menuItems,
+              onChanged: (response) {
+                int _colorValue = int.parse(response.toString());
+
+                Color color = Color(_colorValue).withOpacity(1);
+
+                ThemeComponents _themeToSet = ThemeComponents(
+                    brightness: _userTheme.brightness, color: color);
+
+                themeProvider.setTheme(_themeToSet);
+              }),
+          Container(
+              height: 45,
+              width: 1,
+              color: Theme.of(context).colorScheme.outline),
           ElevatedButton(
-            child: userThemeName == 'lightTheme'
+            child: _userTheme.brightness == Brightness.light
                 ? Icon(
                     Icons.check,
                     color: Colors.black,
@@ -110,11 +160,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               shape: CircleBorder(),
             ),
             onPressed: () {
-              themeProvider.setLightTheme();
+              ThemeComponents _themeToSet = ThemeComponents(
+                  brightness: Brightness.light, color: _userTheme.color);
+
+              themeProvider.setTheme(_themeToSet);
             },
           ),
           ElevatedButton(
-            child: userThemeName == 'darkTheme'
+            child: _userTheme.brightness == Brightness.dark
                 ? Icon(
                     Icons.check,
                     color: Colors.white,
@@ -126,7 +179,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               shape: CircleBorder(),
             ),
             onPressed: () {
-              themeProvider.setDarkTheme();
+              ThemeComponents _themeToSet = ThemeComponents(
+                  brightness: Brightness.dark, color: _userTheme.color);
+
+              themeProvider.setTheme(_themeToSet);
             },
           ),
         ],
@@ -148,8 +204,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   "Wolof",
                   style: Theme.of(context).textTheme.subtitle1,
                 ),
-                // backgroundColor: Theme.of(context).primaryColor,
-
                 onSelected: (bool selected) {
                   themeProvider.setLocale('fr_CH');
                 },
@@ -157,13 +211,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ChoiceChip(
                 padding: EdgeInsets.symmetric(horizontal: 10),
                 selected: userLocale.toString() == 'fr' ? true : false,
-
                 label: Text(
                   "Français",
                   style: Theme.of(context).textTheme.subtitle1,
                 ),
-                // backgroundColor: Theme.of(context).primaryColor,
-                // selectedColor: Theme.of(context).accentColor,
                 onSelected: (bool selected) {
                   themeProvider.setLocale('fr');
                   print(AppLocalizations.of(context).addHolidays);
@@ -171,14 +222,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               ChoiceChip(
                 padding: EdgeInsets.symmetric(horizontal: 10),
-
                 selected: userLocale.toString() == 'en' ? true : false,
                 label: Text(
                   "English",
                   style: Theme.of(context).textTheme.subtitle1,
                 ),
-                // backgroundColor: Theme.of(context).primaryColor,
-                // selectedColor: Theme.of(context).accentColor,
                 onSelected: (bool selected) {
                   themeProvider.setLocale('en');
                 },
@@ -196,6 +244,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     Widget downloadPermissionSetting() {
       bool approved = themeProvider.downloadsApproved!;
+      print(Theme.of(context).primaryColor);
 
       return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
         SizedBox(
@@ -208,7 +257,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
         Checkbox(
-          activeColor: Theme.of(context).buttonTheme.colorScheme?.primary,
+          activeColor: Theme.of(context).colorScheme.primary,
+          checkColor: Theme.of(context).brightness == Brightness.dark
+              ? Colors.black87
+              : Colors.white,
           value: approved,
           onChanged: (response) {
             if (response!) {
@@ -303,7 +355,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       //tap 6 times and the function kicks off.
       return Container(
           height: 70,
-          // color: Colors.blue,
           child: GestureDetector(
             onTap: () {
               numberOfTaps++;

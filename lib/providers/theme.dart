@@ -3,57 +3,24 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-//New Material 3 versions
-// final lightTheme = ThemeData(colorSchemeSeed: Colors.teal);
-// final darkTheme = ThemeData(colorSchemeSeed: Colors.teal, brightness: Brightness.dark, ...);
+//New Material 3 version
 
-// Primary is all of the raised text and buttons: Button color,
-//text of OK/Cancel buttons, highlights in calendar picker.
-//Secondary ends up being only the color of holidays
-ThemeData darkTheme = ThemeData(
-  fontFamily: 'Lato',
-  primarySwatch: Colors.teal,
-  colorScheme: ColorScheme.dark().copyWith(
-    primary: Colors.teal[300],
-    secondary: Colors.teal[800],
-  ),
-  checkboxTheme:
-      CheckboxThemeData(checkColor: MaterialStateProperty.all(Colors.black87)),
-  chipTheme: ChipThemeData(
-    selectedColor: Colors.teal[800],
-    backgroundColor: Colors.teal[400],
-  ),
-  appBarTheme: AppBarTheme(
-      backgroundColor: Colors.teal[800],
-      iconTheme: IconThemeData(color: Colors.white),
-      titleTextStyle: ThemeData.dark().appBarTheme.titleTextStyle),
-  // buttonTheme: ButtonThemeData(buttonColor: Colors.teal),
-);
+class ThemeComponents {
+  Brightness brightness;
+  Color color;
 
-ThemeData lightTheme = ThemeData(
-  fontFamily: 'Lato',
-  primarySwatch: Colors.teal,
-  colorScheme: ColorScheme.light()
-      .copyWith(primary: Colors.teal[400], secondary: Colors.teal[300]),
-  appBarTheme: AppBarTheme(
-      backgroundColor: Colors.teal[800],
-      iconTheme: IconThemeData(color: Colors.white),
-      titleTextStyle: ThemeData.dark().appBarTheme.titleTextStyle),
-  // buttonTheme: ButtonThemeData(buttonColor: Colors.teal),
-);
-
-//////////////////////
-enum ThemeType { Light, Dark }
-enum ThemeColor { Color, Color2 }
+  ThemeComponents({
+    required this.brightness,
+    required this.color,
+  });
+}
 
 class ThemeModel extends ChangeNotifier {
   Future<SharedPreferences> prefs = SharedPreferences.getInstance();
-  // ignore: unused_field
-  ThemeType? /*late*/ _themeType;
-  String? /*late*/ userThemeName;
-  ThemeData? /*late*/ currentTheme;
-  Locale? /*late*/ userLocale;
-  bool? /*late*/ _downloadsApproved;
+  ThemeComponents? userTheme;
+  ThemeData? currentTheme;
+  Locale? userLocale;
+  late bool _downloadsApproved;
 
   bool? get downloadsApproved {
     return _downloadsApproved;
@@ -81,32 +48,40 @@ class ThemeModel extends ChangeNotifier {
 
   Future<void> setupTheme() async {
     print('setupTheme');
-    if (currentTheme != null) {
-      return;
-    }
 
     //get the prefs
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    //if there's no userTheme, it's the first time they've run the app, so give them lightTheme
-    if (!prefs.containsKey('userThemeName')) {
-      setLightTheme(refresh: false);
-    } else {
-      userThemeName = json.decode(prefs.getString('userThemeName')!) as String?;
 
-      switch (userThemeName) {
-        case 'darkTheme':
+    //if there's no userTheme, it's the first time they've run the app, so give them lightTheme with teal
+    if (!prefs.containsKey('userTheme')) {
+      ThemeComponents _defaultTheme =
+          ThemeComponents(brightness: Brightness.light, color: Colors.teal);
+      setTheme(_defaultTheme, refresh: false);
+    } else {
+      final List<String>? _savedTheme = prefs.getStringList('userTheme');
+      late Brightness _brightness;
+      switch (_savedTheme?[0]) {
+        case "Brightness.light":
           {
-            setDarkTheme(refresh: false);
+            _brightness = Brightness.light;
             break;
           }
 
-        case 'lightTheme':
+        case "Brightness.dark":
           {
-            setDarkTheme(refresh: false);
+            _brightness = Brightness.dark;
             break;
           }
       }
+      int _colorValue = int.parse(_savedTheme![1]);
+
+      Color color = Color(_colorValue).withOpacity(1);
+
+      ThemeComponents _componentsToSet =
+          ThemeComponents(brightness: _brightness, color: color);
+      setTheme(_componentsToSet, refresh: false);
     }
+
     //initializing the ask to download setting
     if (!prefs.containsKey('_downloadsApproved')) {
       _downloadsApproved = false;
@@ -124,6 +99,30 @@ class ThemeModel extends ChangeNotifier {
     print('end of setup theme');
     notifyListeners();
     return;
+  }
+
+  void setTheme(ThemeComponents theme, {bool? refresh}) {
+    //Set incoming theme
+    userTheme = theme;
+    currentTheme = ThemeData(
+        brightness: theme.brightness,
+        colorSchemeSeed: theme.color,
+        fontFamily: 'Lato');
+    //send it for storage
+    saveThemeToDisk(theme);
+    if (refresh == true || refresh == null) {
+      notifyListeners();
+    }
+  }
+
+  Future<void> saveThemeToDisk(ThemeComponents theme) async {
+    //get prefs from disk
+    final prefs = await SharedPreferences.getInstance();
+    //save _themeName to disk
+    // final _userTheme = json.encode(theme);
+
+    await prefs.setStringList('userTheme',
+        <String>[theme.brightness.toString(), theme.color.value.toString()]);
   }
 
   void approveDownloading() async {
@@ -149,33 +148,26 @@ class ThemeModel extends ChangeNotifier {
     return;
   }
 
-  void setDarkTheme({bool? refresh}) {
-    currentTheme = darkTheme;
-    _themeType = ThemeType.Dark;
-    //get the theme name as a string for storage
-    userThemeName = 'darkTheme';
-    //send it for storage
-    saveThemeToDisk(userThemeName);
-    if (refresh == true || refresh == null) {
-      notifyListeners();
-    }
-  }
+  // void setDarkTheme({bool? refresh}) {
+  //   currentTheme = darkTheme;
+  //   _themeType = ThemeType.Dark;
+  //   //get the theme name as a string for storage
+  //   userThemeName = 'darkTheme';
+  //   //send it for storage
+  //   saveThemeToDisk(userThemeName);
+  //   if (refresh == true || refresh == null) {
+  //     notifyListeners();
+  //   }
+  // }
 
-  void setLightTheme({bool? refresh}) {
-    currentTheme = lightTheme;
-    _themeType = ThemeType.Light;
-    userThemeName = 'lightTheme';
-    saveThemeToDisk(userThemeName);
-    if (refresh == true || refresh == null) {
-      notifyListeners();
-    }
-  }
+  // void setLightTheme({bool? refresh}) {
+  //   currentTheme = lightTheme;
+  //   _themeType = ThemeType.Light;
+  //   userThemeName = 'lightTheme';
+  //   saveThemeToDisk(userThemeName);
+  //   if (refresh == true || refresh == null) {
+  //     notifyListeners();
+  //   }
+  // }
 
-  Future<void> saveThemeToDisk(userThemeName) async {
-    //get prefs from disk
-    final prefs = await SharedPreferences.getInstance();
-    //save _themeName to disk
-    final _userThemeName = json.encode(userThemeName);
-    prefs.setString('userThemeName', _userThemeName);
-  }
 }

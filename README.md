@@ -22,3 +22,4 @@ Other:
 - Check all shows and report errors function (tap below content on settings screen six times)
 - Updated 'contact us' options
 - HTML collapsible docs for About and Licensing pages
+- Material 3 theming

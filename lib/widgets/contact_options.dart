@@ -6,23 +6,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'deep_link.dart'; //for WhatsApp link below
 
 class ContactOptions extends StatelessWidget {
-  final Brightness? contextualBrightness;
-  ContactOptions([this.contextualBrightness]);
-
   @override
   Widget build(BuildContext context) {
-    late Color? foregroundColor;
-
-    if (contextualBrightness == null) {
-      foregroundColor = Theme.of(context).textTheme.headline6!.color;
-    } else {
-      if (contextualBrightness == Brightness.dark) {
-        foregroundColor = ThemeData.dark().textTheme.headline6!.color;
-      } else {
-        foregroundColor = ThemeData.light().textTheme.headline6!.color;
-      }
-    }
-
     Widget drawerTitle(String title, IconData icon, Function tapHandler) {
       return InkWell(
         onTap: tapHandler as void Function()?,
@@ -33,20 +18,18 @@ class ContactOptions extends StatelessWidget {
                 child: Row(
                   children: [
                     icon.toString().startsWith("FontAwesomeIcons")
-                        ? FaIcon(icon, size: 27, color: foregroundColor)
+                        ? FaIcon(
+                            icon,
+                            size: 27,
+                          )
                         : Icon(
                             icon,
                             size: 27,
-                            color: foregroundColor,
                           ),
                     SizedBox(width: 25),
                     Expanded(
-                      child: Text(title,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline6!
-                              .copyWith(color: foregroundColor)),
-                    ),
+                        child: Text(title,
+                            style: Theme.of(context).textTheme.headline6!)),
                   ],
                 ))),
       );
@@ -59,7 +42,7 @@ class ContactOptions extends StatelessWidget {
             AppLocalizations.of(context).settingsContactUsTelephone,
             Icons.phone,
             () async {
-              const url = 'tel:+221 777758702';
+              const url = 'tel:221777758702';
               if (await canLaunch(url)) {
                 await launch(url);
               } else {

@@ -15,8 +15,8 @@ import 'deep_link.dart';
 class MainDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    TextStyle drawerEntryStyle = Theme.of(context).textTheme.headline6!;
-    TextStyle whiteHeadline6 = drawerEntryStyle.copyWith(color: Colors.white);
+    // TextStyle drawerEntryStyle = Theme.of(context).textTheme.headline6!;
+    // TextStyle whiteHeadline6 = drawerEntryStyle.copyWith(color: Colors.white);
 
     // TextStyle drawerEntryStyle = Theme.of(context)
     //     .appBarTheme
@@ -33,18 +33,24 @@ class MainDrawer extends StatelessWidget {
                 child: Row(
                   children: [
                     icon.toString().startsWith("FontAwesomeIcons")
-                        ? FaIcon(icon,
+                        ? FaIcon(
+                            icon,
                             size: 27,
-                            color:
-                                Theme.of(context).appBarTheme.iconTheme!.color)
+
+                            // color:
+                            //     Theme.of(context).appBarTheme.iconTheme!.color
+                          )
                         : Icon(
                             icon,
                             size: 27,
-                            color:
-                                Theme.of(context).appBarTheme.iconTheme!.color,
+                            // color:
+                            //     Theme.of(context).appBarTheme.iconTheme!.color,
                           ),
                     SizedBox(width: 25),
-                    Text(title, style: whiteHeadline6),
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
                   ],
                 ))),
       );
@@ -60,26 +66,28 @@ class MainDrawer extends StatelessWidget {
                 child: Row(
                   children: [
                     icon.toString().startsWith("FontAwesomeIcons")
-                        ? FaIcon(icon,
+                        ? FaIcon(
+                            icon,
                             size: 27,
-                            color:
-                                Theme.of(context).appBarTheme.iconTheme!.color)
+                            // color:
+                            //     Theme.of(context).appBarTheme.iconTheme!.color
+                          )
                         : Icon(
                             icon,
                             size: 27,
-                            color:
-                                Theme.of(context).appBarTheme.iconTheme!.color,
+                            // color:
+                            //     Theme.of(context).appBarTheme.iconTheme!.color,
                           ),
                     SizedBox(width: 25),
-                    Text(title,
-                        // style:
-                        //     (Theme.of(context).appBarTheme.titleTextStyle) /*!*/
-                        //         .copyWith(fontStyle: FontStyle.italic)),
-                        // style:
-                        //     (Theme.of(context).appBarTheme.titleTextStyle) /*!*/
-                        // ),
-                        style: whiteHeadline6.copyWith(
-                            fontStyle: FontStyle.italic)),
+                    Text(
+                      title, style: Theme.of(context).textTheme.headline6,
+                      // style:
+                      //     (Theme.of(context).appBarTheme.titleTextStyle) /*!*/
+                      //         .copyWith(fontStyle: FontStyle.italic)),
+                      // style:
+                      //     (Theme.of(context).appBarTheme.titleTextStyle) /*!*/
+                      // ),
+                    ),
                     // )
                   ],
                 ))),
@@ -104,14 +112,11 @@ class MainDrawer extends StatelessWidget {
                         FaIcon(
                           FontAwesomeIcons.road,
                           size: 27,
-                          color: Theme.of(context).appBarTheme.iconTheme!.color,
+                          // color: Theme.of(context).appBarTheme.iconTheme!.color,
                         ),
                         SizedBox(width: 25),
                         Text("Yoonu Njub",
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline5!
-                                .copyWith(color: Colors.white))
+                            style: Theme.of(context).textTheme.headline5)
                       ],
                     ))),
             Divider(
@@ -125,9 +130,9 @@ class MainDrawer extends StatelessWidget {
               },
             ),
 
-            Divider(
-              thickness: 1,
-            ),
+            // Divider(
+            //   thickness: 1,
+            // ),
 
             drawerTitle(
               AppLocalizations.of(context).shareAppLink,
@@ -148,9 +153,9 @@ class MainDrawer extends StatelessWidget {
               },
             ),
 
-            Divider(
-              thickness: 1,
-            ),
+            // Divider(
+            //   thickness: 1,
+            // ),
             drawerTitle(
               AppLocalizations.of(context).moreApps,
               Icons.apps,
@@ -163,9 +168,9 @@ class MainDrawer extends StatelessWidget {
                 }
               },
             ),
-            Divider(
-              thickness: 1,
-            ),
+            // Divider(
+            //   thickness: 1,
+            // ),
 
             //Buuru Ndam
             drawerTileWithFormatting(
@@ -177,7 +182,7 @@ class MainDrawer extends StatelessWidget {
             ),
             //Contact Us section
             Divider(
-              thickness: 2,
+              thickness: 1,
             ),
 
             Container(
@@ -186,17 +191,19 @@ class MainDrawer extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     child: Row(
                       children: [
-                        Text(AppLocalizations.of(context).settingsContactUs,
-                            style: whiteHeadline6.copyWith(fontSize: 24)),
+                        Text(
+                          AppLocalizations.of(context).settingsContactUs,
+                          style: Theme.of(context).textTheme.headline6,
+                        ),
                       ],
                     ))),
 
             // drawerTitle(
             //     AppLocalizations.of(context).settingsContactUs, null, null),
-            ContactOptions(Brightness.dark),
+            ContactOptions(),
 
             Divider(
-              thickness: 2,
+              thickness: 1,
             ),
             drawerTitle(
               AppLocalizations.of(context).settingsAbout,
