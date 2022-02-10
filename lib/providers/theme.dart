@@ -47,6 +47,8 @@ class ThemeModel extends ChangeNotifier {
   }
 
   Future<void> setupTheme() async {
+    ThemeComponents _defaultTheme =
+        ThemeComponents(brightness: Brightness.light, color: Colors.teal);
     print('setupTheme');
 
     //get the prefs
@@ -54,32 +56,36 @@ class ThemeModel extends ChangeNotifier {
 
     //if there's no userTheme, it's the first time they've run the app, so give them lightTheme with teal
     if (!prefs.containsKey('userTheme')) {
-      ThemeComponents _defaultTheme =
-          ThemeComponents(brightness: Brightness.light, color: Colors.teal);
       setTheme(_defaultTheme, refresh: false);
     } else {
       final List<String>? _savedTheme = prefs.getStringList('userTheme');
       late Brightness _brightness;
-      switch (_savedTheme?[0]) {
-        case "Brightness.light":
-          {
-            _brightness = Brightness.light;
-            break;
-          }
+      //Try this out - if there's a version problem where the variable doesn't fit,
+      //the default theme is used
+      try {
+        switch (_savedTheme?[0]) {
+          case "Brightness.light":
+            {
+              _brightness = Brightness.light;
+              break;
+            }
 
-        case "Brightness.dark":
-          {
-            _brightness = Brightness.dark;
-            break;
-          }
+          case "Brightness.dark":
+            {
+              _brightness = Brightness.dark;
+              break;
+            }
+        }
+        int _colorValue = int.parse(_savedTheme![1]);
+
+        Color color = Color(_colorValue).withOpacity(1);
+
+        ThemeComponents _componentsToSet =
+            ThemeComponents(brightness: _brightness, color: color);
+        setTheme(_componentsToSet, refresh: false);
+      } catch (e) {
+        setTheme(_defaultTheme, refresh: false);
       }
-      int _colorValue = int.parse(_savedTheme![1]);
-
-      Color color = Color(_colorValue).withOpacity(1);
-
-      ThemeComponents _componentsToSet =
-          ThemeComponents(brightness: _brightness, color: color);
-      setTheme(_componentsToSet, refresh: false);
     }
 
     //initializing the ask to download setting

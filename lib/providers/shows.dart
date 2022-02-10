@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:connectivity/connectivity.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
@@ -189,7 +189,7 @@ class Shows with ChangeNotifier {
   //   return;
   // }
 
-  Future<void> saveLastShowViewed(lastShowViewed) async {
+  Future<void> saveLastShowViewed(int lastShowViewed) async {
     _lastShowViewed = lastShowViewed;
     final prefs = await SharedPreferences.getInstance();
     final jsonData = json.encode(lastShowViewed.toString());

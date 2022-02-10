@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
@@ -54,13 +53,16 @@ class PlayerManager with ChangeNotifier {
 
       //If we got here by page turn; no arguments (source == null)
     } else if (source == null) {
-      /*This bit of code loads an empty playlist, which dismisses the playback notification widget
-      Not important for Android but crucial for iOS,
-      otherwise you have a non-functional playback widget hanging around that does confusing things.*/
-      playlist = ConcatenatingAudioSource(children: []); //working
-      //This works to dismiss the notification widget with clear and then preload: true
-      await player.setAudioSource(playlist, preload: true); //working
-      player.stop();
+      if (!kIsWeb) {
+        /*This bit of code loads an empty playlist, which dismisses the playback notification widget
+        Not important for Android but crucial for iOS,
+        otherwise you have a non-functional playback widget hanging around that does confusing things.
+        This does mess up on the web version, so only do this if we're not on web*/
+        playlist = ConcatenatingAudioSource(children: []); //working
+        //This works to dismiss the notification widget with clear and then preload: true
+        await player.setAudioSource(playlist, preload: true); //working
+        player.stop();
+      }
     }
 
     return;

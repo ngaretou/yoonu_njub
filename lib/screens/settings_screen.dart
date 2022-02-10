@@ -115,7 +115,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         menuItems.add(DropdownMenuItem(
             child: Material(
               shape: CircleBorder(side: BorderSide.none),
-              elevation: 3,
+              elevation: 2,
               child: Container(
                 decoration: BoxDecoration(color: color, shape: BoxShape.circle),
                 margin: EdgeInsets.all(0),

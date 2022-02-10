@@ -214,7 +214,8 @@ class ShowDisplayState extends State<ShowDisplay> {
               controller: _pageController,
               preloadPagesCount: 1,
               itemCount: showsProvider.shows.length,
-              onPageChanged: (index) {
+              onPageChanged: (int index) {
+                print(index);
                 //Here we want the user to be able to come back to the name they were on when they
                 //return to the app, so save lastpage viewed on each page swipe.
                 showsProvider.saveLastShowViewed(index);
@@ -294,7 +295,8 @@ class ShowDisplayState extends State<ShowDisplay> {
                       borderRadius: BorderRadius.only(
                           topRight: Radius.circular(15),
                           topLeft: Radius.circular(15)),
-                      color: Theme.of(context).cardColor),
+                      color: Theme.of(context).colorScheme.surfaceVariant),
+                  // color: Theme.of(context).colorScheme.outline),
                   child: Center(
                     child: Icon(
                       Icons.arrow_drop_up,

@@ -7,7 +7,7 @@ import Foundation
 
 import audio_service
 import audio_session
-import connectivity_macos
+import connectivity_plus_macos
 import firebase_analytics
 import firebase_core
 import just_audio
