@@ -406,7 +406,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         downloadPermissionTitle(), downloadPermissionSetting()),
                   if (!kIsWeb) clearDownloads(),
                   //Button to check all shows for current presence online
-                  hiddenCheckShowsButton(context)
+                  if (!kIsWeb) hiddenCheckShowsButton(context)
                 ],
               ),
             )
@@ -415,11 +415,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 settingColumn(themeTitle(), themeSettings()),
                 settingColumn(languageTitle(), languageSetting()),
+                //A few things here that we do not need or that do not work correctly on web version:
                 if (!kIsWeb)
                   settingColumn(
                       downloadPermissionTitle(), downloadPermissionSetting()),
                 if (!kIsWeb) clearDownloads(),
-                hiddenCheckShowsButton(context)
+                if (!kIsWeb) hiddenCheckShowsButton(context)
                 // messagingButton(),
               ],
             ),
