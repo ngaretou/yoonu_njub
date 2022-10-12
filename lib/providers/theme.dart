@@ -103,7 +103,6 @@ class ThemeModel extends ChangeNotifier {
       }
     }
     print('end of setup theme');
-    notifyListeners();
     return;
   }
 

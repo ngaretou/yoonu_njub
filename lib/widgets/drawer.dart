@@ -144,8 +144,8 @@ class MainDrawer extends StatelessWidget {
                 } else {
                   const url =
                       "mailto:?subject=Yoonu Njub&body=Xoolal appli Yoonu Njub fii: https://sng.al/yn";
-                  if (await canLaunch(url)) {
-                    await launch(url);
+                  if (await canLaunchUrl(Uri.parse(url))) {
+                    await launchUrl(Uri.parse(url));
                   } else {
                     throw 'Could not launch $url';
                   }
@@ -161,8 +161,8 @@ class MainDrawer extends StatelessWidget {
               Icons.apps,
               () async {
                 const url = 'https://sng.al/app';
-                if (await canLaunch(url)) {
-                  await launch(url);
+                if (await canLaunchUrl(Uri.parse(url))) {
+                  await launchUrl(Uri.parse(url));
                 } else {
                   throw 'Could not launch $url';
                 }

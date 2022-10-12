@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
-
 import 'package:url_launcher/url_launcher.dart';
 
 //This gives a centralized way of handling deep links and urls
@@ -33,8 +32,8 @@ Future<void> launchDeepLink(String appToLaunch, String identifier) async {
 
   //Plain vanilla url launch
   simpleLaunch() async {
-    if (await canLaunch(url)) {
-      await launch(url);
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
     } else {
       throw 'Could not launch $url';
     }
@@ -48,15 +47,15 @@ Future<void> launchDeepLink(String appToLaunch, String identifier) async {
     //for iOS you can specify the app to launch with
     //For Android the best way of handling it is to ask the user it seems - I may be wrong about this
     //but in any case
-    var appInstalled = await canLaunch(appURLScheme);
+    var appInstalled = await canLaunchUrl(Uri.parse(appURLScheme));
 
     if (appInstalled) {
       //forceSafariVC is false to get it to open in the installed app
-      await launch(deepLink, forceSafariVC: false);
+      await launchUrl(Uri.parse(deepLink));
     } else {
       //Launch the regular url in the Safari View Controller, which comes as a
       //layover on top of the app rather than zooming in and out of the app
-      await launch(url, forceSafariVC: true);
+      await launchUrl(Uri.parse(url));
     }
   } else {
     //none of the above three - eventual desktop version

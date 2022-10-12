@@ -197,7 +197,7 @@ class ShowDisplayState extends State<ShowDisplay> {
     }
 
     //this shows when you reload it from the AppBar button
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.showPlaylist == true) {
         _popUpShowList();
       }

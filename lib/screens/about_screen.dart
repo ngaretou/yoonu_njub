@@ -29,8 +29,8 @@ class AboutScreen extends StatelessWidget {
                 onLinkTap: (String? url, RenderContext context,
                     Map<String, String> attributes, element) async {
                   if (url != null) {
-                    await canLaunch(url)
-                        ? await launch(url)
+                    await canLaunchUrl(Uri.parse(url))
+                        ? await launchUrl(Uri.parse(url))
                         : throw 'Could not launch $url';
                   }
                 }),

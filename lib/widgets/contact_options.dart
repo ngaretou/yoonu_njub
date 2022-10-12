@@ -42,8 +42,8 @@ class ContactOptions extends StatelessWidget {
           Icons.phone,
           () async {
             const url = 'tel:221777758702';
-            if (await canLaunch(url)) {
-              await launch(url);
+            if (await canLaunchUrl(Uri.parse(url))) {
+              await launchUrl(Uri.parse(url));
             } else {
               throw 'Could not launch $url';
             }
@@ -56,8 +56,8 @@ class ContactOptions extends StatelessWidget {
         //   Icons.email,
         //   () async {
         //     const url = 'mailto:equipedevmbs@gmail.com';
-        //     if (await canLaunch(url)) {
-        //       await launch(url);
+        //     if (await canLaunchUrl(Uri.parse(url))) {
+        //       await launchUrl(Uri.parse(url));
         //     } else {
         //       throw 'Could not launch $url';
         //     }
