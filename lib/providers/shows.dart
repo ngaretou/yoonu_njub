@@ -93,6 +93,8 @@ class Shows with ChangeNotifier {
       );
     });
 
+    
+
     _shows = loadedShowData;
 
     _lastShowViewed = await getLastShowViewed();
@@ -429,7 +431,7 @@ class Shows with ChangeNotifier {
                             //   flex: 0,
                             //   child: Text(
                             //     "Checking episodes on the web... ",
-                            //     style: Theme.of(context).textTheme.headline6,
+                            //     style: Theme.of(context).textTheme.titleLarge,
                             //   ),
                             // ),
                           ],
@@ -447,7 +449,6 @@ class Shows with ChangeNotifier {
         builder: (BuildContext context) {
           //first get the size of the download so as to pass to the dialog
 
-          print('object');
           return AlertDialog(
             title: Text(
               'Check Result',

@@ -6,11 +6,17 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:preload_page_view/preload_page_view.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import 'download_button.dart';
 import 'player_controls.dart';
 import '../providers/shows.dart';
 import '../providers/player_manager.dart';
+
+//For calling the child method from the parent - follow the childController text through this and player_controls.dart
+class ChildController {
+  void Function(String) childMethod = (String input) {};
+}
 
 //To adapt to new Flutter 2.8 behavior that does not allow mice to drag - which is our desired behavior here
 class MyCustomScrollBehavior extends ScrollBehavior {
@@ -35,7 +41,10 @@ class ShowDisplayState extends State<ShowDisplay> {
 
   final ScrollController _scrollController = ScrollController();
   final ItemScrollController itemScrollController = ItemScrollController();
+  final ChildController childController = ChildController();
   bool isInitialized = false;
+  ValueNotifier<double> rewValueNotifier = ValueNotifier(0);
+  ValueNotifier<double> ffValueNotifier = ValueNotifier(0);
 
   @override
   void didChangeDependencies() {
@@ -59,6 +68,9 @@ class ShowDisplayState extends State<ShowDisplay> {
 
   @override
   Widget build(BuildContext context) {
+    //https://github.com/gskinner/flutter_animate#testing-animations
+    Animate.restartOnHotReload = true;
+
     //Data and preliminaries
     final showsProvider = Provider.of<Shows>(context, listen: false);
     final playerManager = Provider.of<PlayerManager>(context, listen: false);
@@ -74,24 +86,24 @@ class ShowDisplayState extends State<ShowDisplay> {
     ui.TextDirection _ltrText = ui.TextDirection.ltr;
 
     TextStyle _asStyle = TextStyle(
-        color: Theme.of(context).textTheme.headline6!.color,
+        color: Theme.of(context).textTheme.titleLarge!.color,
         fontFamily: "Harmattan",
         fontSize: 32);
 
     TextStyle _rsStyle = TextStyle(
-        color: Theme.of(context).textTheme.headline6!.color,
+        color: Theme.of(context).textTheme.titleLarge!.color,
         fontFamily: "Lato",
         fontSize: 22);
 
     TextStyle showListStyle = TextStyle(
-        color: Theme.of(context).textTheme.headline6!.color,
+        color: Theme.of(context).textTheme.titleLarge!.color,
         fontFamily: "Lato",
         fontSize: 20);
 
     //code for prev/next buttons - this makes clicking the button equivalent to scrolling
 
     void jumpPrevNext(String direction) {
-      //This gets fed into the player_controls widget, not used here
+      //This gets fed into the player_controls widget
       direction == 'next'
           ? _pageController.nextPage(
               duration: Duration(milliseconds: 500), curve: Curves.ease)
@@ -172,6 +184,57 @@ class ShowDisplayState extends State<ShowDisplay> {
       return webScrollable(playListInterior());
     }
 
+    //Widget for the transparent panel left and right that ff and rew 10 seconds
+    Widget animatedSeekPanel(String direction) {
+      late ValueNotifier<double> valueNotifier;
+      late IconData directionIcon;
+
+      if (direction == 'ff') {
+        valueNotifier = ffValueNotifier;
+        directionIcon = Icons.fast_forward;
+      } else if (direction == 'rew') {
+        valueNotifier = rewValueNotifier;
+        directionIcon = Icons.fast_rewind;
+      }
+
+      return GestureDetector(
+        onDoubleTap: () {
+          if (valueNotifier.value == 1) {
+            valueNotifier.value = 0;
+          } else {
+            valueNotifier.value = 1;
+          }
+          childController.childMethod(direction);
+        },
+        child: RepaintBoundary(
+          child: Container(
+            child: Icon(
+              directionIcon,
+              size: 75,
+            ),
+            width: mediaQuery.width / 2,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                colors: [
+                  const ui.Color.fromARGB(76, 255, 255, 255),
+                  Colors.transparent,
+                ],
+                center: Alignment.center,
+                radius: 2,
+              ),
+            ),
+          )
+              .animate(
+                adapter: ValueNotifierAdapter(valueNotifier, animated: true),
+              )
+              .fadeIn()
+              .then()
+              .fadeOut(),
+        ),
+      );
+    }
+
     // The function that shows the bottom playlist drawer, playList()
     void _popUpShowList() {
       print('showing playlist');
@@ -235,17 +298,32 @@ class ShowDisplayState extends State<ShowDisplay> {
                     //Show image
                     Expanded(
                       flex: 1,
-                      child: Container(
-                        width: mediaQuery.width,
-                        decoration: BoxDecoration(
-                          color: Colors.black54,
-                          image: DecorationImage(
-                            fit: BoxFit.cover,
-                            image: AssetImage(
-                              "assets/images/${show.image}.jpg",
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: mediaQuery.width,
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: AssetImage(
+                                  "assets/images/${show.image}.jpg",
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+
+                          //the left and right sides of the invisible double tap ff and rewind areas
+                          Material(
+                            type: MaterialType.transparency,
+                            child: Row(
+                              children: [
+                                animatedSeekPanel('rew'),
+                                animatedSeekPanel('ff'),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     SizedBox(
@@ -271,9 +349,11 @@ class ShowDisplayState extends State<ShowDisplay> {
                     ),
 
                     ControlButtons(
-                        key: ValueKey(show.filename),
-                        show: show,
-                        jumpPrevNext: jumpPrevNext),
+                      key: ValueKey(show.filename),
+                      show: show,
+                      jumpPrevNext: jumpPrevNext,
+                      childController: childController,
+                    ),
                     SizedBox(
                       height: 50,
                     )

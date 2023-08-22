@@ -45,7 +45,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       size: 27,
                     ),
                     SizedBox(width: 25),
-                    Text(title, style: Theme.of(context).textTheme.headline6),
+                    Text(title, style: Theme.of(context).textTheme.titleLarge),
                   ],
                 ))),
       );
@@ -202,7 +202,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 selected: userLocale.toString() == 'fr_CH' ? true : false,
                 label: Text(
                   "Wolof",
-                  style: Theme.of(context).textTheme.subtitle1,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 onSelected: (bool selected) {
                   themeProvider.setLocale('fr_CH');
@@ -213,7 +213,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 selected: userLocale.toString() == 'fr' ? true : false,
                 label: Text(
                   "Français",
-                  style: Theme.of(context).textTheme.subtitle1,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 onSelected: (bool selected) {
                   themeProvider.setLocale('fr');
@@ -225,7 +225,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 selected: userLocale.toString() == 'en' ? true : false,
                 label: Text(
                   "English",
-                  style: Theme.of(context).textTheme.subtitle1,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 onSelected: (bool selected) {
                   themeProvider.setLocale('en');
@@ -253,7 +253,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Expanded(
           child: Text(
             AppLocalizations.of(context).approveDownloads,
-            style: Theme.of(context).textTheme.subtitle1,
+            style: Theme.of(context).textTheme.titleMedium,
           ),
         ),
         Checkbox(
@@ -329,7 +329,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         ' Mb)',
                                     // style: Theme.of(context)
                                     //     .textTheme
-                                    //     .headline6
+                                    //     .titleLarge
                                   ),
                                 ),
                               ],

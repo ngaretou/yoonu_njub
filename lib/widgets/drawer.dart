@@ -15,8 +15,8 @@ import 'deep_link.dart';
 class MainDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // TextStyle drawerEntryStyle = Theme.of(context).textTheme.headline6!;
-    // TextStyle whiteHeadline6 = drawerEntryStyle.copyWith(color: Colors.white);
+    // TextStyle drawerEntryStyle = Theme.of(context).textTheme.titleLarge!;
+    // TextStyle whitetitleLarge = drawerEntryStyle.copyWith(color: Colors.white);
 
     // TextStyle drawerEntryStyle = Theme.of(context)
     //     .appBarTheme
@@ -49,7 +49,7 @@ class MainDrawer extends StatelessWidget {
                     SizedBox(width: 25),
                     Text(
                       title,
-                      style: Theme.of(context).textTheme.headline6,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ],
                 ))),
@@ -80,7 +80,7 @@ class MainDrawer extends StatelessWidget {
                           ),
                     SizedBox(width: 25),
                     Text(
-                      title, style: Theme.of(context).textTheme.headline6,
+                      title, style: Theme.of(context).textTheme.titleLarge,
                       // style:
                       //     (Theme.of(context).appBarTheme.titleTextStyle) /*!*/
                       //         .copyWith(fontStyle: FontStyle.italic)),
@@ -96,124 +96,119 @@ class MainDrawer extends StatelessWidget {
 
     return Drawer(
       elevation: 5.0,
-      child: Container(
-        width: MediaQuery.of(context).size.width * .8,
-        //The color of the Drawer
-        color: Theme.of(context).appBarTheme.backgroundColor,
-        child: ListView(
-          children: [
-            //Main title
-            Container(
-                child: Padding(
-                    padding: EdgeInsets.only(
-                        top: 30, bottom: 20, left: 20, right: 20),
-                    child: Row(
-                      children: [
-                        FaIcon(
-                          FontAwesomeIcons.road,
-                          size: 27,
-                          // color: Theme.of(context).appBarTheme.iconTheme!.color,
-                        ),
-                        SizedBox(width: 25),
-                        Text("Yoonu Njub",
-                            style: Theme.of(context).textTheme.headline5)
-                      ],
-                    ))),
-            Divider(
-              thickness: 3,
-            ),
-            drawerTitle(
-              AppLocalizations.of(context).settingsTitle,
-              Icons.settings,
-              () {
-                Navigator.of(context).popAndPushNamed(SettingsScreen.routeName);
-              },
-            ),
+      child: ListView(
+        children: [
+          //Main title
+          Container(
+              child: Padding(
+                  padding:
+                      EdgeInsets.only(top: 30, bottom: 20, left: 20, right: 20),
+                  child: Row(
+                    children: [
+                      FaIcon(
+                        FontAwesomeIcons.road,
+                        size: 27,
+                        // color: Theme.of(context).appBarTheme.iconTheme!.color,
+                      ),
+                      SizedBox(width: 25),
+                      Text("Yoonu Njub",
+                          style: Theme.of(context).textTheme.titleLarge)
+                    ],
+                  ))),
+          Divider(
+            thickness: 3,
+          ),
+          drawerTitle(
+            AppLocalizations.of(context).settingsTitle,
+            Icons.settings,
+            () {
+              Navigator.of(context).popAndPushNamed(SettingsScreen.routeName);
+            },
+          ),
 
-            // Divider(
-            //   thickness: 1,
-            // ),
+          // Divider(
+          //   thickness: 1,
+          // ),
 
-            drawerTitle(
-              AppLocalizations.of(context).shareAppLink,
-              Icons.share,
-              () async {
-                Navigator.of(context).pop();
-                if (!kIsWeb) {
-                  Share.share('https://sng.al/yn');
-                } else {
-                  const url =
-                      "mailto:?subject=Yoonu Njub&body=Xoolal appli Yoonu Njub fii: https://sng.al/yn";
-                  if (await canLaunchUrl(Uri.parse(url))) {
-                    await launchUrl(Uri.parse(url));
-                  } else {
-                    throw 'Could not launch $url';
-                  }
-                }
-              },
-            ),
-
-            // Divider(
-            //   thickness: 1,
-            // ),
-            drawerTitle(
-              AppLocalizations.of(context).moreApps,
-              Icons.apps,
-              () async {
-                const url = 'https://sng.al/app';
+          drawerTitle(
+            AppLocalizations.of(context).shareAppLink,
+            Icons.share,
+            () async {
+              Navigator.of(context).pop();
+              if (!kIsWeb) {
+                Share.share('https://sng.al/yn');
+              } else {
+                const url =
+                    "mailto:?subject=Yoonu Njub&body=Xoolal appli Yoonu Njub fii: https://sng.al/yn";
                 if (await canLaunchUrl(Uri.parse(url))) {
                   await launchUrl(Uri.parse(url));
                 } else {
                   throw 'Could not launch $url';
                 }
-              },
-            ),
-            // Divider(
-            //   thickness: 1,
-            // ),
+              }
+            },
+          ),
 
-            //Buuru Ndam
-            drawerTileWithFormatting(
-              "Buuru Ndam",
-              Icons.ondemand_video,
-              () async {
-                launchDeepLink('youtube', '99McEuAtRkk');
-              },
-            ),
-            //Contact Us section
-            Divider(
-              thickness: 1,
-            ),
+          // Divider(
+          //   thickness: 1,
+          // ),
+          drawerTitle(
+            AppLocalizations.of(context).moreApps,
+            Icons.apps,
+            () async {
+              const url = 'https://sng.al/app';
+              if (await canLaunchUrl(Uri.parse(url))) {
+                await launchUrl(Uri.parse(url));
+              } else {
+                throw 'Could not launch $url';
+              }
+            },
+          ),
+          // Divider(
+          //   thickness: 1,
+          // ),
 
-            Container(
-                width: 300,
-                child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    child: Row(
-                      children: [
-                        Text(
-                          AppLocalizations.of(context).settingsContactUs,
-                          style: Theme.of(context).textTheme.headline6,
-                        ),
-                      ],
-                    ))),
+          //Buuru Ndam
+          drawerTileWithFormatting(
+            "Buuru Ndam",
+            Icons.ondemand_video,
+            () async {
+              launchDeepLink('youtube', '99McEuAtRkk');
+            },
+          ),
+          //Contact Us section
+          Divider(
+            thickness: 1,
+          ),
 
-            // drawerTitle(
-            //     AppLocalizations.of(context).settingsContactUs, null, null),
-            ContactOptions(),
+          Container(
+              width: 300,
+              child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Row(
+                    children: [
+                      Text(
+                        AppLocalizations.of(context).settingsContactUs,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ],
+                  ))),
 
-            Divider(
-              thickness: 1,
-            ),
-            drawerTitle(
-              AppLocalizations.of(context).settingsAbout,
-              Icons.info,
-              () {
-                Navigator.of(context).popAndPushNamed(AboutScreen.routeName);
-              },
-            ),
-          ],
-        ),
+          // drawerTitle(
+          //     AppLocalizations.of(context).settingsContactUs, null, null),
+          ContactOptions(),
+
+          Divider(
+            thickness: 1,
+          ),
+          drawerTitle(
+            AppLocalizations.of(context).settingsAbout,
+            Icons.info,
+            () {
+              Navigator.of(context).popAndPushNamed(AboutScreen.routeName);
+            },
+          ),
+        ],
       ),
     );
   }

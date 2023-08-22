@@ -190,7 +190,7 @@
     "description": "More apps",
     "type": "text",
     "placeholders": {}
-  }, 
+  },
   "downloadTitle": "Yebbi dégtal yi",
   "@downloadTitle": {
     "description": "Download dialog title",
@@ -208,12 +208,18 @@
     "description": "Download automatically from now on",
     "type": "text",
     "placeholders": {}
-  }, 
+  },
   "deleteDownloads": "Faral kàrtu dégtal yi",
   "@deleteDownloads": {
     "description": "Delete previously downloaded items",
     "type": "text",
     "placeholders": {}
   },
-  "settingsContactUsTelephone": "Telefon"
+  "settingsContactUsTelephone": "Telefon",
+  "adjustSpeed": "Gaawaayu njàng mi",
+  "@adjustSpeed": {
+    "description": "adjust speed of playback",
+    "type": "text",
+    "placeholders": {}
+  }
 }

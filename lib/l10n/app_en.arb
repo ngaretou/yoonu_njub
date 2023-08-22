@@ -220,5 +220,11 @@
     "description": "Call on the telephone with a tel: link",
     "type": "text",
     "placeholders": {}
+  },
+  "adjustSpeed": "Adjust Speed",
+  "@adjustSpeed": {
+    "description": "adjust speed of playback",
+    "type": "text",
+    "placeholders": {}
   }
 }

@@ -6,6 +6,7 @@ import 'package:image/image.dart' as imageLib;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:provider/provider.dart';
 import 'package:just_audio/just_audio.dart';
@@ -15,40 +16,74 @@ import 'package:path/path.dart';
 
 import '../providers/shows.dart';
 import '../providers/player_manager.dart';
+import 'show_display.dart';
 import 'download_button.dart';
 
 enum ManualPlayerState { Uninitialized, Initializing, Initialized }
 
 class ControlButtons extends StatefulWidget {
   final Show show;
-  final Function jumpPrevNext;
+  final Function jumpPrevNext; //parent method will be called from this childdd
+  final ChildController childController; //child method called via this
 
-  ControlButtons({
-    Key? key,
-    required this.show,
-    required this.jumpPrevNext,
-  }) : super(key: key);
+  ControlButtons(
+      {Key? key,
+      required this.show,
+      required this.jumpPrevNext,
+      required this.childController})
+      : super(key: key);
 
   @override
-  ControlButtonsState createState() => ControlButtonsState();
+  ControlButtonsState createState() => ControlButtonsState(childController);
 }
 
 class ControlButtonsState extends State<ControlButtons> {
+  ControlButtonsState(ChildController childController) {
+    childController.childMethod = ffOrRew;
+  }
+
   late ManualPlayerState manualPlayerStatus;
+
+  late PlayerManager playerManager;
+  late AudioPlayer player = playerManager.player;
 
   @override
   void initState() {
     super.initState();
-
     manualPlayerStatus = ManualPlayerState.Uninitialized;
+  }
+
+  void ffOrRew(String input) {
+    print('called child method from parent $input');
+    if (input == 'rew') {
+      //check to make sure we're landing in the duration
+      int newPosition = player.position.inSeconds - 10;
+
+      if (newPosition > 0) {
+        player.seek(Duration(seconds: player.position.inSeconds - 10));
+      }
+    } else if (input == 'ff') {
+      //check to make sure we're landing in the duration
+
+      if (player.duration != null) {
+        int newPosition = player.position.inSeconds + 10;
+
+        if (newPosition < player.duration!.inSeconds) {
+          player.seek(Duration(seconds: player.position.inSeconds + 10));
+        } else {
+          //jump to next show
+          widget.jumpPrevNext('next');
+        }
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     print('player_controls build');
 
-    final playerManager = Provider.of<PlayerManager>(context, listen: false);
-    final player = playerManager.player;
+    playerManager = Provider.of<PlayerManager>(context, listen: false);
+    player = playerManager.player;
 
     final showsProvider = Provider.of<Shows>(context, listen: false);
 
@@ -74,12 +109,12 @@ class ControlButtonsState extends State<ControlButtons> {
 
       //Set up the write & write it to the file as bytes:
       // Get the ByteData into the format List<int>
-      List<int> bytes = imageByteData.buffer.asUint8List(
+      Uint8List bytes = imageByteData.buffer.asUint8List(
           imageByteData.offsetInBytes, imageByteData.lengthInBytes);
 
       //Load the bytes as an image & resize the image
-      imageLib.Image? imageSquared =
-          imageLib.copyResizeCropSquare(imageLib.decodeImage(bytes)!, 400);
+      imageLib.Image? imageSquared = imageLib
+          .copyResizeCropSquare(imageLib.decodeImage(bytes)!, size: 400);
 
       //Write the bytes to disk for use
       await File(docsDirPathString)
@@ -207,7 +242,10 @@ class ControlButtonsState extends State<ControlButtons> {
 
     Widget playButton() {
       return IconButton(
-        icon: Icon(Icons.play_arrow),
+        icon: Icon(
+          Icons.play_arrow,
+          
+        ),
         iconSize: 64.0,
         onPressed: () async {
           bool shouldPlay = await _initializePlayer(urlBase, widget.show);
@@ -271,6 +309,13 @@ class ControlButtonsState extends State<ControlButtons> {
                   }),
             ),
 
+            //back 10 seconds button
+            Padding(
+              padding: const EdgeInsets.only(left: 5),
+              child: IconButton(
+                  icon: Icon(Icons.replay_10), onPressed: () => ffOrRew('rew')),
+            ),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: StreamBuilder<PlayerState>(
@@ -312,6 +357,14 @@ class ControlButtonsState extends State<ControlButtons> {
                 },
               ),
             ),
+
+            //forward 10 seconds button
+            Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: IconButton(
+                  icon: Icon(Icons.forward_10), onPressed: () => ffOrRew('ff')),
+            ),
+
             //Next button
             Padding(
               padding: const EdgeInsets.only(right: 5),
@@ -338,13 +391,13 @@ class ControlButtonsState extends State<ControlButtons> {
                     child: Text("${speed}x",
                         style: Theme.of(context)
                             .textTheme
-                            .subtitle2!
+                            .titleSmall!
                             .copyWith(fontWeight: FontWeight.bold)),
                   ),
                   onTap: () {
                     _showSliderDialog(
                       context: context,
-                      title: "Adjust speed",
+                      title: AppLocalizations.of(context).adjustSpeed,
                       divisions: 10,
                       min: 0.5,
                       max: 1.5,
@@ -420,7 +473,7 @@ class _SeekBarState extends State<SeekBar> {
                           .firstMatch("$_remaining")
                           ?.group(1) ??
                       '$_remaining',
-                  style: Theme.of(context).textTheme.subtitle2),
+                  style: Theme.of(context).textTheme.titleSmall),
         ),
       ],
     );

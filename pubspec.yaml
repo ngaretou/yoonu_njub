@@ -21,7 +21,7 @@ version: 1.1.1+20
 # 19: macos
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.12.0-0 <3.0.0"
 
 dependencies:
   flutter:
@@ -29,29 +29,30 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   provider: ^6.0.2
-  intl: ^0.17.0
+  intl: ^0.18.0
   shared_preferences: ^2.0.12
   url_launcher: ^6.0.18
   font_awesome_flutter: ^10.2.1
-  firebase_core: ^1.11.0
-  firebase_analytics: ^9.0.5
+  firebase_core: ^2.15.1
+  firebase_analytics: ^10.4.5
   just_audio: ^0.9.18
   audio_session: ^0.1.6+1
   path_provider: ^2.0.8
   scrollable_positioned_list: ^0.3.5
-  preload_page_view: ^0.1.6
-  http: ^0.13.4
-  mailer: ^5.0.2
+  preload_page_view: ^0.2.0
+  http: ^1.1.0
+  mailer: ^6.0.1
   flutter_html: ^3.0.0-alpha.6
   just_audio_background: ^0.0.1-beta.3
-  package_info_plus: ^2.0.0
-  share_plus: ^5.0.0
-  connectivity_plus: ^2.3.9
+  package_info_plus: ^4.1.0
+  share_plus: ^7.1.0
+  connectivity_plus: ^4.0.2
+  flutter_animate: ^4.2.0+1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.10.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter_icons:
   android: true

@@ -190,7 +190,7 @@
     "description": "More apps",
     "type": "text",
     "placeholders": {}
-  },  
+  },
   "downloadTitle": "Télécharger",
   "@downloadTitle": {
     "description": "Download dialog title",
@@ -208,12 +208,18 @@
     "description": "Download automatically from now on",
     "type": "text",
     "placeholders": {}
-  },  "deleteDownloads": "Supprimer les fichiers téléchargés",
+  },
+  "deleteDownloads": "Supprimer les fichiers téléchargés",
   "@deleteDownloads": {
     "description": "Delete previously downloaded items",
     "type": "text",
     "placeholders": {}
   },
-  "settingsContactUsTelephone": "Téléphone"
-
+  "settingsContactUsTelephone": "Téléphone",
+  "adjustSpeed": "Vitesse de lecture",
+  "@adjustSpeed": {
+    "description": "adjust speed of playback",
+    "type": "text",
+    "placeholders": {}
+  }
 }
