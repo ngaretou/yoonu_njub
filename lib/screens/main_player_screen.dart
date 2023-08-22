@@ -45,43 +45,46 @@ class _MainPlayerState extends State<MainPlayer> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Yoonu Njub"),
-        actions: [
-          if (_isPhone || mediaQuery.width < 600)
-            IconButton(
-                icon: Icon(Icons.playlist_play),
-                onPressed: () async {
-                  //when triggered rebuild the page so the popup is shown
+      floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.menu),
+          onPressed: () => Scaffold.of(context).openDrawer()),
+      // appBar: AppBar(
+      //   title: Text("Yoonu Njub"),
+      //   actions: [
+      //     if (_isPhone || mediaQuery.width < 600)
+      //       IconButton(
+      //           icon: Icon(Icons.playlist_play),
+      //           onPressed: () async {
+      //             //when triggered rebuild the page so the popup is shown
 
-                  setState(() {
-                    _showPlaylist = true;
-                  });
-                  //then switch back to false without setState for the next time.
-                  //The future is necessary because otherwise flutter is *too* fast - if you don't wait it
-                  //switches before it can build and you don't get the popup!
-                  await new Future.delayed(const Duration(milliseconds: 500))
-                      .then((value) => _showPlaylist = false);
-                }),
-          IconButton(
-            icon: Icon(Icons.help_outline),
-            onPressed: () {
-              //open the contact us possibilities
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return SimpleDialog(
-                    title: Text(
-                      AppLocalizations.of(context).settingsContactUs,
-                    ),
-                    children: [ContactOptions()],
-                  );
-                },
-              );
-            },
-          ),
-        ],
-      ),
+      //             setState(() {
+      //               _showPlaylist = true;
+      //             });
+      //             //then switch back to false without setState for the next time.
+      //             //The future is necessary because otherwise flutter is *too* fast - if you don't wait it
+      //             //switches before it can build and you don't get the popup!
+      //             await new Future.delayed(const Duration(milliseconds: 500))
+      //                 .then((value) => _showPlaylist = false);
+      //           }),
+      //     IconButton(
+      //       icon: Icon(Icons.help_outline),
+      //       onPressed: () {
+      //         //open the contact us possibilities
+      //         showDialog(
+      //           context: context,
+      //           builder: (BuildContext context) {
+      //             return SimpleDialog(
+      //               title: Text(
+      //                 AppLocalizations.of(context).settingsContactUs,
+      //               ),
+      //               children: [ContactOptions()],
+      //             );
+      //           },
+      //         );
+      //       },
+      //     ),
+      //   ],
+      // ),
       drawer: MainDrawer(),
       body: ShowDisplay(_showPlaylist),
     );

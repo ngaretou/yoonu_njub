@@ -361,31 +361,31 @@ class ShowDisplayState extends State<ShowDisplay> {
                 );
               }),
           //Bottom wide button with small arrow up
-          if (_isPhone || mediaQuery.width < 600)
-            Positioned(
-              bottom: 0,
-              child: GestureDetector(
-                onTap: () {
-                  _popUpShowList();
-                },
-                child: Container(
-                  width: mediaQuery.width,
-                  padding: EdgeInsets.symmetric(horizontal: 0, vertical: 1),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(15),
-                          topLeft: Radius.circular(15)),
-                      color: Theme.of(context).colorScheme.surfaceVariant),
-                  // color: Theme.of(context).colorScheme.outline),
-                  child: Center(
-                    child: Icon(
-                      Icons.arrow_drop_up,
-                      size: 40,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+          // if (_isPhone || mediaQuery.width < 600)
+          //   Positioned(
+          //     bottom: 0,
+          //     child: GestureDetector(
+          //       onTap: () {
+          //         _popUpShowList();
+          //       },
+          //       child: Container(
+          //         width: mediaQuery.width,
+          //         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 1),
+          //         decoration: BoxDecoration(
+          //             borderRadius: BorderRadius.only(
+          //                 topRight: Radius.circular(15),
+          //                 topLeft: Radius.circular(15)),
+          //             color: Theme.of(context).colorScheme.surfaceVariant),
+          //         // color: Theme.of(context).colorScheme.outline),
+          //         child: Center(
+          //           child: Icon(
+          //             Icons.arrow_drop_up,
+          //             size: 40,
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //   ),
         ]);
       }
 
