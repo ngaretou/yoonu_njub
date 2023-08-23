@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 import '../widgets/drawer.dart';
 import '../widgets/show_display.dart';
-import '../widgets/contact_options.dart';
+
 
 class MainPlayer extends StatefulWidget {
   static const routeName = 'main-player-screen';
@@ -45,46 +45,26 @@ class _MainPlayerState extends State<MainPlayer> {
     }
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.menu),
-          onPressed: () => Scaffold.of(context).openDrawer()),
-      // appBar: AppBar(
-      //   title: Text("Yoonu Njub"),
-      //   actions: [
-      //     if (_isPhone || mediaQuery.width < 600)
-      //       IconButton(
-      //           icon: Icon(Icons.playlist_play),
-      //           onPressed: () async {
-      //             //when triggered rebuild the page so the popup is shown
-
-      //             setState(() {
-      //               _showPlaylist = true;
-      //             });
-      //             //then switch back to false without setState for the next time.
-      //             //The future is necessary because otherwise flutter is *too* fast - if you don't wait it
-      //             //switches before it can build and you don't get the popup!
-      //             await new Future.delayed(const Duration(milliseconds: 500))
-      //                 .then((value) => _showPlaylist = false);
-      //           }),
-      //     IconButton(
-      //       icon: Icon(Icons.help_outline),
-      //       onPressed: () {
-      //         //open the contact us possibilities
-      //         showDialog(
-      //           context: context,
-      //           builder: (BuildContext context) {
-      //             return SimpleDialog(
-      //               title: Text(
-      //                 AppLocalizations.of(context).settingsContactUs,
-      //               ),
-      //               children: [ContactOptions()],
-      //             );
-      //           },
-      //         );
-      //       },
+      extendBodyBehindAppBar: true,
+      // floatingActionButton: FloatingActionButton(
+      //   child: Icon(Icons.menu),
+      //   onPressed: () => Scaffold.of(context).openDrawer(),
+      //   mini: true,
+      //   shape: RoundedRectangleBorder(
+      //     borderRadius: BorderRadius.all(
+      //       Radius.circular(10),
       //     ),
-      //   ],
+      //   ),
       // ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
+      // appBar: AppBar(
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      // ),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       drawer: MainDrawer(),
       body: ShowDisplay(_showPlaylist),
     );

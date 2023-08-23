@@ -156,7 +156,6 @@ class _DownloadButtonState extends State<DownloadButton> {
               //We should have covered our bases here but
               shows.snackbarMessageNoInternet(context);
             } // end of else
-
           }
         } catch (e) {
           print('had an error checking if the file was there or not');
@@ -251,10 +250,10 @@ class _DownloadConfirmationState extends State<DownloadConfirmation> {
 
     return AlertDialog(
       title: Text(
-        AppLocalizations.of(context).downloadTitle,
+        AppLocalizations.of(context)!.downloadTitle,
       ),
       content: Text(
-        AppLocalizations.of(context).downloadMessage +
+        AppLocalizations.of(context)!.downloadMessage +
             widget.downloadSize! +
             ' Mb?',
       ),
@@ -265,7 +264,7 @@ class _DownloadConfirmationState extends State<DownloadConfirmation> {
             Container(
               width: 300,
               child: CheckboxListTile(
-                title: Text(AppLocalizations.of(context).approveDownloads),
+                title: Text(AppLocalizations.of(context)!.approveDownloads),
                 value: approved,
                 onChanged: (response) {
                   if (response!) {
@@ -284,12 +283,12 @@ class _DownloadConfirmationState extends State<DownloadConfirmation> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                    child: Text(AppLocalizations.of(context).settingsOK),
+                    child: Text(AppLocalizations.of(context)!.settingsOK),
                     onPressed: () {
                       Navigator.pop(context, true);
                     }),
                 TextButton(
-                    child: Text(AppLocalizations.of(context).cancel),
+                    child: Text(AppLocalizations.of(context)!.cancel),
                     onPressed: () {
                       Navigator.pop(context, false);
                     }),

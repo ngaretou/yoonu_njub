@@ -38,7 +38,7 @@ class ContactOptions extends StatelessWidget {
     return Column(
       children: [
         drawerTitle(
-          AppLocalizations.of(context).settingsContactUsTelephone,
+          AppLocalizations.of(context)!.settingsContactUsTelephone,
           Icons.phone,
           () async {
             const url = 'tel:221777758702';
@@ -52,7 +52,7 @@ class ContactOptions extends StatelessWidget {
         ),
 
         // drawerTitle(
-        //   AppLocalizations.of(context).settingsContactUsEmail,
+        //   AppLocalizations.of(context)!.settingsContactUsEmail,
         //   Icons.email,
         //   () async {
         //     const url = 'mailto:equipedevmbs@gmail.com';
@@ -65,7 +65,7 @@ class ContactOptions extends StatelessWidget {
         //   },
         // ),
         drawerTitle(
-          AppLocalizations.of(context).contactWhatsApp,
+          AppLocalizations.of(context)!.contactWhatsApp,
           FontAwesomeIcons.whatsapp,
           () async {
             launchDeepLink('whatsapp', '221777758702');
@@ -73,7 +73,7 @@ class ContactOptions extends StatelessWidget {
           },
         ),
         // drawerTitle(
-        //   AppLocalizations.of(context).contactFBMessenger,
+        //   AppLocalizations.of(context)!.contactFBMessenger,
         //   FontAwesomeIcons.facebookMessenger,
         //   () async {
         //     launchDeepLink('fb', '107408064239821');

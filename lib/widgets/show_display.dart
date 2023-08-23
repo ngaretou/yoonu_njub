@@ -80,7 +80,7 @@ class ShowDisplayState extends State<ShowDisplay> {
     //Android biggest phone I can find is is 480 x 853 = 1333
     //For tablets the smallest I can find is 768 x 1024
     final bool _isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
-
+    final int wideVersionBreakPoint = 700;
     //Text Styles
     ui.TextDirection _rtlText = ui.TextDirection.rtl;
     ui.TextDirection _ltrText = ui.TextDirection.ltr;
@@ -140,7 +140,7 @@ class ShowDisplayState extends State<ShowDisplay> {
                   child: InkWell(
                     onTap: () {
                       //If not on the web version, pop the modal bottom sheet - if web, no need
-                      if (_isPhone || mediaQuery.width < 600)
+                      if (_isPhone || mediaQuery.width < wideVersionBreakPoint)
                         Navigator.pop(context);
                       _pageController.jumpToPage(
                         i,
@@ -188,49 +188,63 @@ class ShowDisplayState extends State<ShowDisplay> {
     Widget animatedSeekPanel(String direction) {
       late ValueNotifier<double> valueNotifier;
       late IconData directionIcon;
+      late MouseCursor cursor;
 
       if (direction == 'ff') {
         valueNotifier = ffValueNotifier;
         directionIcon = Icons.fast_forward;
+        cursor = SystemMouseCursors.resizeRight;
       } else if (direction == 'rew') {
         valueNotifier = rewValueNotifier;
         directionIcon = Icons.fast_rewind;
+        cursor = SystemMouseCursors.resizeLeft;
       }
 
-      return GestureDetector(
-        onDoubleTap: () {
-          if (valueNotifier.value == 1) {
-            valueNotifier.value = 0;
-          } else {
-            valueNotifier.value = 1;
-          }
-          childController.childMethod(direction);
-        },
-        child: RepaintBoundary(
-          child: Container(
-            child: Icon(
-              directionIcon,
-              size: 75,
-            ),
-            width: mediaQuery.width / 2,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                colors: [
-                  const ui.Color.fromARGB(76, 255, 255, 255),
-                  Colors.transparent,
-                ],
-                center: Alignment.center,
-                radius: 2,
-              ),
-            ),
-          )
-              .animate(
-                adapter: ValueNotifierAdapter(valueNotifier, animated: true),
+      void triggerSeek() {
+        if (valueNotifier.value == 1) {
+          valueNotifier.value = 0;
+        } else {
+          valueNotifier.value = 1;
+        }
+        childController.childMethod(direction);
+      }
+
+      return Expanded(
+        child: MouseRegion(
+          cursor: cursor,
+          child: GestureDetector(
+            //Makes more sense for web to ff on single click
+            onTap: kIsWeb ? triggerSeek : () {},
+            //But for mobile to dbl click
+            onDoubleTap: !kIsWeb ? triggerSeek : () {},
+            child: RepaintBoundary(
+              child: Container(
+                child: Icon(
+                  directionIcon,
+                  size: 75,
+                ),
+                // width: mediaQuery.width / 2,
+                height: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    colors: [
+                      const ui.Color.fromARGB(76, 255, 255, 255),
+                      Colors.transparent,
+                    ],
+                    center: Alignment.center,
+                    radius: 2,
+                  ),
+                ),
               )
-              .fadeIn()
-              .then()
-              .fadeOut(),
+                  .animate(
+                    adapter:
+                        ValueNotifierAdapter(valueNotifier, animated: true),
+                  )
+                  .fadeIn()
+                  .then()
+                  .fadeOut(),
+            ),
+          ),
         ),
       );
     }
@@ -301,7 +315,7 @@ class ShowDisplayState extends State<ShowDisplay> {
                       child: Stack(
                         children: [
                           Container(
-                            width: mediaQuery.width,
+                            // width: mediaQuery.width,
                             decoration: BoxDecoration(
                               color: Colors.black54,
                               image: DecorationImage(
@@ -352,16 +366,18 @@ class ShowDisplayState extends State<ShowDisplay> {
                       key: ValueKey(show.filename),
                       show: show,
                       jumpPrevNext: jumpPrevNext,
+                      showPlayList: _popUpShowList,
                       childController: childController,
+                      wideVersionBreakPoint: wideVersionBreakPoint,
                     ),
                     SizedBox(
                       height: 50,
-                    )
+                    ),
                   ],
                 );
               }),
           //Bottom wide button with small arrow up
-          // if (_isPhone || mediaQuery.width < 600)
+          // if (_isPhone || mediaQuery.width < wideVersionBreakPoint)
           //   Positioned(
           //     bottom: 0,
           //     child: GestureDetector(
@@ -407,15 +423,15 @@ class ShowDisplayState extends State<ShowDisplay> {
     Widget wideVersion() {
       return Row(
         children: [
-          Container(width: mediaQuery.width * .6, child: playerStack()),
-          Container(width: mediaQuery.width * .4, child: playList()),
+          Container(width: mediaQuery.width * .7, child: playerStack()),
+          Container(width: mediaQuery.width * .3, child: playList()),
         ],
       );
     }
 
     //Now figure out which version to use and build it
 
-    if (_isPhone || mediaQuery.width < 600) {
+    if (_isPhone || mediaQuery.width <= wideVersionBreakPoint) {
       return phoneVersion();
     } else {
       return wideVersion();

@@ -119,7 +119,7 @@ class MainDrawer extends StatelessWidget {
             thickness: 3,
           ),
           drawerTitle(
-            AppLocalizations.of(context).settingsTitle,
+            AppLocalizations.of(context)!.settingsTitle,
             Icons.settings,
             () {
               Navigator.of(context).popAndPushNamed(SettingsScreen.routeName);
@@ -131,7 +131,7 @@ class MainDrawer extends StatelessWidget {
           // ),
 
           drawerTitle(
-            AppLocalizations.of(context).shareAppLink,
+            AppLocalizations.of(context)!.shareAppLink,
             Icons.share,
             () async {
               Navigator.of(context).pop();
@@ -153,7 +153,7 @@ class MainDrawer extends StatelessWidget {
           //   thickness: 1,
           // ),
           drawerTitle(
-            AppLocalizations.of(context).moreApps,
+            AppLocalizations.of(context)!.moreApps,
             Icons.apps,
             () async {
               const url = 'https://sng.al/app';
@@ -188,21 +188,21 @@ class MainDrawer extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        AppLocalizations.of(context).settingsContactUs,
+                        AppLocalizations.of(context)!.settingsContactUs,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ],
                   ))),
 
           // drawerTitle(
-          //     AppLocalizations.of(context).settingsContactUs, null, null),
+          //     AppLocalizations.of(context)!.settingsContactUs, null, null),
           ContactOptions(),
 
           Divider(
             thickness: 1,
           ),
           drawerTitle(
-            AppLocalizations.of(context).settingsAbout,
+            AppLocalizations.of(context)!.settingsAbout,
             Icons.info,
             () {
               Navigator.of(context).popAndPushNamed(AboutScreen.routeName);

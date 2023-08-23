@@ -83,13 +83,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     //Now individual implementations of it
     Widget themeTitle() {
-      return settingTitle(AppLocalizations.of(context).settingsTheme,
+      return settingTitle(AppLocalizations.of(context)!.settingsTheme,
           Icons.settings_brightness, null);
     }
 
     Widget languageTitle() {
-      return settingTitle(
-          AppLocalizations.of(context).settingsLanguage, Icons.translate, null);
+      return settingTitle(AppLocalizations.of(context)!.settingsLanguage,
+          Icons.translate, null);
     }
 
     Widget themeSettings() {
@@ -217,7 +217,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 onSelected: (bool selected) {
                   themeProvider.setLocale('fr');
-                  print(AppLocalizations.of(context).addHolidays);
+                  print(AppLocalizations.of(context)!.addHolidays);
                 },
               ),
               ChoiceChip(
@@ -238,7 +238,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     Widget downloadPermissionTitle() {
-      return settingTitle(AppLocalizations.of(context).downloadTitle,
+      return settingTitle(AppLocalizations.of(context)!.downloadTitle,
           Icons.download_sharp, null);
     }
 
@@ -252,7 +252,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         Expanded(
           child: Text(
-            AppLocalizations.of(context).approveDownloads,
+            AppLocalizations.of(context)!.approveDownloads,
             style: Theme.of(context).textTheme.titleMedium,
           ),
         ),
@@ -322,7 +322,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                                 Expanded(
                                   child: Text(
-                                    AppLocalizations.of(context)
+                                    AppLocalizations.of(context)!
                                             .deleteDownloads +
                                         ' (' +
                                         snapshot.data.toString() +
@@ -386,7 +386,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          AppLocalizations.of(context).settingsTitle,
+          AppLocalizations.of(context)!.settingsTitle,
         ),
       ),
       //If the width of the screen is greater or equal to 730 (whether or not _isPhone is true)

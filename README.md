@@ -8,7 +8,7 @@ Web version at http://yoonunjub.sng.al
 
 ### 1.2
 
-- Fast-forward and rewind via buttons & double click left or right side of image 
+- Fast-forward and rewind via buttons & double tap left or right side of image 
 - Revised player controls
 - Correction of translation strings
 - Update to Flutter 3 & Android and iOS current SDK versions

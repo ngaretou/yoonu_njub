@@ -18,19 +18,24 @@ import '../providers/shows.dart';
 import '../providers/player_manager.dart';
 import 'show_display.dart';
 import 'download_button.dart';
+// import '../widgets/contact_options.dart';
 
 enum ManualPlayerState { Uninitialized, Initializing, Initialized }
 
 class ControlButtons extends StatefulWidget {
   final Show show;
-  final Function jumpPrevNext; //parent method will be called from this childdd
+  final Function jumpPrevNext; //parent method will be called from this child
+  final Function showPlayList; //parent method will be called from this child
   final ChildController childController; //child method called via this
+  final int wideVersionBreakPoint; 
 
   ControlButtons(
       {Key? key,
       required this.show,
       required this.jumpPrevNext,
-      required this.childController})
+      required this.showPlayList,
+      required this.childController, 
+      required this.wideVersionBreakPoint})
       : super(key: key);
 
   @override
@@ -85,6 +90,16 @@ class ControlButtonsState extends State<ControlButtons> {
     playerManager = Provider.of<PlayerManager>(context, listen: false);
     player = playerManager.player;
 
+    final mediaQuery = MediaQuery.of(context).size;
+    //Smallest iPhone is UIKit 320 x 480 = 800.
+    //Biggest (12 pro max) is 428 x 926 = 1354.
+    //Android biggest phone I can find is is 480 x 853 = 1333
+    //For tablets the smallest I can find is 768 x 1024
+    final bool _isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
+
+    final bool showPlaylist = _isPhone || mediaQuery.width < widget.wideVersionBreakPoint;
+
+    final mainRowIconSize = 36.0;
     final showsProvider = Provider.of<Shows>(context, listen: false);
 
     //This is to refresh the main view after downloads are clear
@@ -243,8 +258,7 @@ class ControlButtonsState extends State<ControlButtons> {
     Widget playButton() {
       return IconButton(
         icon: Icon(
-          Icons.play_arrow,
-          
+          Icons.play_arrow_rounded,
         ),
         iconSize: 64.0,
         onPressed: () async {
@@ -292,17 +306,14 @@ class ControlButtonsState extends State<ControlButtons> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            !kIsWeb
-                ? Container(
-                    width: 40,
-                    child: DownloadButton(widget.show),
-                  )
-                : SizedBox(width: 40, height: 10),
             //Previous button
             Padding(
               padding: const EdgeInsets.only(left: 5),
               child: IconButton(
-                  icon: Icon(Icons.skip_previous),
+                  icon: Icon(
+                    Icons.skip_previous_rounded,
+                    size: mainRowIconSize,
+                  ),
                   onPressed: () {
                     //communicating back up the widget tree here
                     widget.jumpPrevNext('back');
@@ -313,9 +324,14 @@ class ControlButtonsState extends State<ControlButtons> {
             Padding(
               padding: const EdgeInsets.only(left: 5),
               child: IconButton(
-                  icon: Icon(Icons.replay_10), onPressed: () => ffOrRew('rew')),
+                  icon: Icon(
+                    Icons.replay_10,
+                    size: mainRowIconSize,
+                  ),
+                  onPressed: () => ffOrRew('rew')),
             ),
 
+            // Play button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: StreamBuilder<PlayerState>(
@@ -362,19 +378,48 @@ class ControlButtonsState extends State<ControlButtons> {
             Padding(
               padding: const EdgeInsets.only(right: 5),
               child: IconButton(
-                  icon: Icon(Icons.forward_10), onPressed: () => ffOrRew('ff')),
+                  icon: Icon(
+                    Icons.forward_10,
+                    size: mainRowIconSize,
+                  ),
+                  onPressed: () => ffOrRew('ff')),
             ),
 
             //Next button
             Padding(
               padding: const EdgeInsets.only(right: 5),
               child: IconButton(
-                  icon: Icon(Icons.skip_next),
+                  icon: Icon(
+                    Icons.skip_next_rounded,
+                    size: mainRowIconSize,
+                  ),
                   onPressed: () async {
                     //communicating back up the widget tree here
                     widget.jumpPrevNext('next');
                   }),
             ),
+          ],
+        ),
+        //Second row of control buttons
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            //download button
+            !kIsWeb
+                ? Container(
+                    width: 40,
+                    child: DownloadButton(widget.show),
+                  )
+                : SizedBox(width: 40, height: 10),
+
+            //show playlist button
+            showPlaylist
+                ? IconButton(
+                    onPressed: () => widget.showPlayList(),
+                    icon: Icon(Icons.playlist_play),
+                  )
+                : SizedBox(width: 40, height: 10), //playback speed button
+
             StreamBuilder<double>(
               stream: player.speedStream,
               builder: (context, snapshot) {
@@ -385,31 +430,51 @@ class ControlButtonsState extends State<ControlButtons> {
                   speed = '1.0';
                 }
 
-                return GestureDetector(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text("${speed}x",
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall!
-                            .copyWith(fontWeight: FontWeight.bold)),
+                return MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text("${speed}x",
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall!
+                              .copyWith(fontWeight: FontWeight.bold)),
+                    ),
+                    onTap: () {
+                      _showSliderDialog(
+                        context: context,
+                        title: AppLocalizations.of(context)!.adjustSpeed,
+                        divisions: 10,
+                        min: 0.5,
+                        max: 1.5,
+                        stream: player.speedStream,
+                        onChanged: player.setSpeed,
+                      );
+                    },
                   ),
-                  onTap: () {
-                    _showSliderDialog(
-                      context: context,
-                      title: AppLocalizations.of(context).adjustSpeed,
-                      divisions: 10,
-                      min: 0.5,
-                      max: 1.5,
-                      stream: player.speedStream,
-                      onChanged: player.setSpeed,
-                    );
-                  },
                 );
               },
             ),
+            // IconButton(
+            //   icon: Icon(Icons.help_outline),
+            //   onPressed: () {
+            //     //open the contact us possibilities
+            //     showDialog(
+            //       context: context,
+            //       builder: (BuildContext context) {
+            //         return SimpleDialog(
+            //           title: Text(
+            //             AppLocalizations.of(context)!.settingsContactUs,
+            //           ),
+            //           children: [ContactOptions()],
+            //         );
+            //       },
+            //     );
+            //   },
+            // ),
           ],
-        ),
+        )
       ],
     );
   }
