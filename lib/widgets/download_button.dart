@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -46,6 +47,7 @@ class _DownloadButtonState extends State<DownloadButton> {
     //Here we listen to the stream an monitor it so we nkow how much has been downloaded, which allows us to calculate the percentage done
     //https://medium.com/flutter-community/how-to-show-download-progress-in-a-flutter-app-8810e294acbd
     _response.stream.listen((value) {
+      if (!mounted) return;
       setState(() {
         _bytes.addAll(value);
         _received += value.length;
@@ -55,6 +57,7 @@ class _DownloadButtonState extends State<DownloadButton> {
       final file = File("$path/${show.filename}");
       await file.writeAsBytes(_bytes);
       print('download done');
+      if (!mounted) return;
       setState(() {
         _isDownloading = false;
         _isDownloaded = true;

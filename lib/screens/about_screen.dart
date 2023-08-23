@@ -48,33 +48,41 @@ class AboutScreen extends StatelessWidget {
         child: ListView(
           // physics: ClampingScrollPhysics(),
           children: [
-            ExpansionTile(
-              tilePadding: EdgeInsets.only(left: 8),
-              title: Text('Yoonu Njub',
-                  style: Theme.of(context).textTheme.titleLarge),
-              initiallyExpanded: true,
+            Row(
               children: [
-                htmlSection("assets/html/about.html"),
+                Container(
+                  // child: Image.asset('assets/icons/icon.png'),
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage("assets/icons/icon.png"),
+                    ),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(50)),
+                  ),
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                Text('Yoonu Njub',
+                    style: Theme.of(context).textTheme.titleLarge),
               ],
             ),
-            ExpansionTile(
-              tilePadding: EdgeInsets.only(left: 8),
-              title: Text('Remerciements',
-                  style: Theme.of(context).textTheme.titleLarge),
-              initiallyExpanded: false,
-              children: [
-                htmlSection("assets/html/thanks.html"),
-              ],
-            ),
-            ExpansionTile(
-              tilePadding: EdgeInsets.only(left: 8),
-              title: Text('Licences',
-                  style: Theme.of(context).textTheme.titleLarge),
-              initiallyExpanded: false,
-              children: [
-                htmlSection("assets/html/licenses.html"),
-              ],
-            ),
+            htmlSection("assets/html/about.html"),
+            // ExpansionTile(
+            //   tilePadding: EdgeInsets.only(left: 8),
+            //   title: Text('Yoonu Njub',
+            //       style: Theme.of(context).textTheme.titleLarge),
+            //   initiallyExpanded: true,
+            //   children: [
+
+            //   ],
+            // ),
+            Divider(),
+            Text('Remerciements',
+                style: Theme.of(context).textTheme.titleLarge),
+            htmlSection("assets/html/thanks.html"),
           ],
         ),
       ),

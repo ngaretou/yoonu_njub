@@ -93,8 +93,6 @@ class Shows with ChangeNotifier {
       );
     });
 
-    
-
     _shows = loadedShowData;
 
     _lastShowViewed = await getLastShowViewed();
@@ -309,8 +307,9 @@ class Shows with ChangeNotifier {
     for (var show in showsToCheck) {
       try {
         final url = urlBase + '/' + show.urlSnip + '/' + show.filename;
-        final http.Response r = await http.head(Uri.parse(url));
-        final _total = r.headers["content-length"]!;
+        print(url);
+         http.Response r = await http.head(Uri.parse(url));
+        final _total = r.headers["content-length"];
         print("show ${show.id} total size: $_total");
       } catch (e) {
         print('Error checking show ' + show.id.toString());
