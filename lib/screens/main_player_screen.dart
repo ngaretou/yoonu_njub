@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-
-
 import '../widgets/drawer.dart';
 import '../widgets/show_display.dart';
-
 
 class MainPlayer extends StatefulWidget {
   static const routeName = 'main-player-screen';
@@ -62,6 +59,9 @@ class _MainPlayerState extends State<MainPlayer> {
       //   elevation: 0,
       // ),
       appBar: AppBar(
+        systemOverlayStyle: Theme.of(context).brightness == Brightness.light
+            ? SystemUiOverlayStyle.dark
+            : SystemUiOverlayStyle.light,
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
