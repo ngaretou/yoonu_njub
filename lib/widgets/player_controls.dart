@@ -27,14 +27,14 @@ class ControlButtons extends StatefulWidget {
   final Function jumpPrevNext; //parent method will be called from this child
   final Function showPlayList; //parent method will be called from this child
   final ChildController childController; //child method called via this
-  final int wideVersionBreakPoint; 
+  final int wideVersionBreakPoint;
 
-  ControlButtons(
+  const ControlButtons(
       {Key? key,
       required this.show,
       required this.jumpPrevNext,
       required this.showPlayList,
-      required this.childController, 
+      required this.childController,
       required this.wideVersionBreakPoint})
       : super(key: key);
 
@@ -97,7 +97,8 @@ class ControlButtonsState extends State<ControlButtons> {
     //For tablets the smallest I can find is 768 x 1024
     final bool _isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
 
-    final bool showPlaylist = _isPhone || mediaQuery.width < widget.wideVersionBreakPoint;
+    final bool showPlaylist =
+        _isPhone || mediaQuery.width < widget.wideVersionBreakPoint;
 
     final mainRowIconSize = 36.0;
     final showsProvider = Provider.of<Shows>(context, listen: false);
@@ -412,13 +413,20 @@ class ControlButtonsState extends State<ControlButtons> {
                   )
                 : SizedBox(width: 40, height: 10),
 
-            //show playlist button
             showPlaylist
-                ? IconButton(
-                    onPressed: () => widget.showPlayList(),
-                    icon: Icon(Icons.playlist_play),
-                  )
+                ? GestureDetector(
+                    child: Icon(Icons.playlist_play),
+                    onTap: () => widget.showPlayList(),
+                    onVerticalDragStart: (_) => widget.showPlayList())
                 : SizedBox(width: 40, height: 10), //playback speed button
+
+            //show playlist button
+            // showPlaylist
+            //     ? IconButton(
+            // onPressed: () => widget.showPlayList(),
+            //         icon: Icon(Icons.playlist_play),
+            //       )
+            //     : SizedBox(width: 40, height: 10), //playback speed button
 
             StreamBuilder<double>(
               stream: player.speedStream,
