@@ -5,7 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:yoonu_njub/l10n/app_localizations.dart'; // the new Flutter 3.x localization method
 
 import '../screens/settings_screen.dart';
 import '../screens/about_screen.dart';

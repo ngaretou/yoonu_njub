@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:yoonu_njub/l10n/app_localizations.dart'; // the new Flutter 3.x localization method
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutScreen extends StatelessWidget {

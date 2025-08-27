@@ -6,7 +6,7 @@ import 'package:image/image.dart' as imageLib;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:yoonu_njub/l10n/app_localizations.dart'; // the new Flutter 3.x localization method
 
 import 'package:provider/provider.dart';
 import 'package:just_audio/just_audio.dart';

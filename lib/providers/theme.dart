@@ -46,6 +46,21 @@ class ThemeModel extends ChangeNotifier {
     return;
   }
 
+  String colorToString(Color color) {
+    return [
+      (color.a * 255).round(),
+      (color.r * 255).round(),
+      (color.g * 255).round(),
+      (color.b * 255).round()
+    ].join(',');
+  }
+
+  Color colorFromString(String string) {
+    List<String> vals = string.split(',');
+    List<int> argblist = List.generate(vals.length, (i) => int.parse(vals[i]));
+    return Color.fromARGB(argblist[0], argblist[1], argblist[2], argblist[3]);
+  }
+
   Future<void> setupTheme() async {
     ThemeComponents _defaultTheme =
         ThemeComponents(brightness: Brightness.light, color: Colors.teal);
@@ -78,7 +93,7 @@ class ThemeModel extends ChangeNotifier {
         }
         int _colorValue = int.parse(_savedTheme![1]);
 
-        Color color = Color(_colorValue).withOpacity(1);
+        Color color = Color(_colorValue);
 
         ThemeComponents _componentsToSet =
             ThemeComponents(brightness: _brightness, color: color);
@@ -127,7 +142,7 @@ class ThemeModel extends ChangeNotifier {
     // final _userTheme = json.encode(theme);
 
     await prefs.setStringList('userTheme',
-        <String>[theme.brightness.toString(), theme.color.value.toString()]);
+        <String>[theme.brightness.toString(), colorToString(theme.color)]);
   }
 
   void approveDownloading() async {
@@ -174,5 +189,20 @@ class ThemeModel extends ChangeNotifier {
   //     notifyListeners();
   //   }
   // }
+}
 
+
+String colorToString(Color color) {
+  return [
+    (color.a * 255).round(),
+    (color.r * 255).round(),
+    (color.g * 255).round(),
+    (color.b * 255).round()
+  ].join(',');
+}
+
+Color colorFromString(String string) {
+  List<String> vals = string.split(',');
+  List<int> argblist = List.generate(vals.length, (i) => int.parse(vals[i]));
+  return Color.fromARGB(argblist[0], argblist[1], argblist[2], argblist[3]);
 }

@@ -32,3 +32,11 @@ Other:
 - Updated 'contact us' options
 - HTML collapsible docs for About and Licensing pages
 - Material 3 theming
+
+
+### 1.2
+- UI revision
+
+### 1.2.1
+- Updating to Android 15/API 35
+- Released this version to Android only, not iOS or web

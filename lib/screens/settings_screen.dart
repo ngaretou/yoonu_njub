@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:path_provider/path_provider.dart';
 
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:yoonu_njub/l10n/app_localizations.dart'; // the new Flutter 3.x localization method
 import '../providers/theme.dart';
 import '../providers/shows.dart';
 
@@ -97,14 +97,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         // Colors.red,
         // Colors.deepOrange,
         // Colors.amber,
-        // Colors.lightGreen,
+        Colors.lightGreen,
         Colors.green,
         Colors.teal,
         Colors.cyan,
         Colors.blue,
-        // Colors.indigo,
-        // Colors.deepPurple,
-        // Colors.blueGrey,
+        Colors.indigo,
+        Colors.deepPurple,
+        Colors.blueGrey,
         // Colors.brown,
         // Colors.grey
       ];
@@ -122,7 +122,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 width: 36,
               ),
             ),
-            value: color.value.toString()));
+            value: colorToString(color)));
       }
 
       return Row(
@@ -131,12 +131,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           DropdownButton(
               itemHeight: 48,
               underline: SizedBox(),
-              value: _userTheme!.color.value.toString(),
+              value: colorToString(_userTheme!.color),
               items: menuItems,
               onChanged: (response) {
                 int _colorValue = int.parse(response.toString());
 
-                Color color = Color(_colorValue).withOpacity(1);
+                Color color = Color(_colorValue);
 
                 ThemeComponents _themeToSet = ThemeComponents(
                     brightness: _userTheme.brightness, color: color);
