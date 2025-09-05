@@ -185,6 +185,18 @@
     "type": "text",
     "placeholders": {}
   },
+  "shareLink": "Partager lien",
+  "@shareLink": {
+    "description": "Share link generic text",
+    "type": "text",
+    "placeholders": {}
+  },
+  "copyLink": "Copier le lien",
+  "@copyLink": {
+    "description": "Copy link generic text",
+    "type": "text",
+    "placeholders": {}
+  },
   "moreApps": "D'autres applis",
   "@moreApps": {
     "description": "More apps",

@@ -282,6 +282,18 @@ abstract class AppLocalizations {
   /// **'Share app'**
   String get shareAppLink;
 
+  /// Share link generic text
+  ///
+  /// In en, this message translates to:
+  /// **'Share link'**
+  String get shareLink;
+
+  /// Copy link generic text
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get copyLink;
+
   /// More apps
   ///
   /// In en, this message translates to:

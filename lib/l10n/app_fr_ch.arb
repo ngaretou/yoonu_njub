@@ -185,6 +185,18 @@
     "type": "text",
     "placeholders": {}
   },
+  "shareLink": "Séddoo lëkkalekaay",
+  "@shareLink": {
+    "description": "Share link generic text",
+    "type": "text",
+    "placeholders": {}
+  },
+  "copyLink": "Kopie lëkkalekaay",
+  "@copyLink": {
+    "description": "Copy link generic text",
+    "type": "text",
+    "placeholders": {}
+  },
   "moreApps": "Yeneen appli",
   "@moreApps": {
     "description": "More apps",

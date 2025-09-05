@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -56,16 +55,16 @@ class _DownloadButtonState extends State<DownloadButton> {
     }, onDone: () async {
       final file = File("$path/${show.filename}");
       await file.writeAsBytes(_bytes);
-      print('download done');
+      debugPrint('download done');
       if (!mounted) return;
       setState(() {
         _isDownloading = false;
         _isDownloaded = true;
       });
     }, onError: (e) {
-      print(
+      debugPrint(
           'had an error checking if the file was there or not - downloadFile()');
-      print(e);
+      debugPrint(e);
     }, cancelOnError: true);
   }
 
@@ -91,7 +90,7 @@ class _DownloadButtonState extends State<DownloadButton> {
       if (!_isDownloading) {
         final directory = await getApplicationDocumentsDirectory();
         final path = directory.path;
-        print(directory.path);
+        debugPrint(directory.path);
         //see if it's on the device
         try {
           final file = File('$path/${show.filename}');
@@ -101,12 +100,12 @@ class _DownloadButtonState extends State<DownloadButton> {
             try {
               final file = File('$path/${show.filename}');
               file.delete();
-              print('deleting file');
+              debugPrint('deleting file');
               setState(() {
                 _isDownloaded = false;
               });
             } catch (e) {
-              print('had an error deleting the file');
+              debugPrint('had an error deleting the file');
               // return false;
             }
           } else {
@@ -124,7 +123,7 @@ class _DownloadButtonState extends State<DownloadButton> {
               shows.snackbarMessageError(context);
             } else if (connected && showExists.length == 0) {
               //download the file
-              print(
+              debugPrint(
                   'The file seems to not be there - starting downloading process');
               //The user can choose to not be warned of download size, that is stored in downloadsApproved
               if (pref.downloadsApproved!) {
@@ -161,8 +160,8 @@ class _DownloadButtonState extends State<DownloadButton> {
             } // end of else
           }
         } catch (e) {
-          print('had an error checking if the file was there or not');
-          print(e);
+          debugPrint('had an error checking if the file was there or not');
+          debugPrint(e.toString());
         }
       }
     }

@@ -21,7 +21,7 @@ class _MainPlayerState extends State<MainPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    print('MainPlayerScreen');
+    debugPrint('MainPlayerScreen');
     //Smallest iPhone is UIKit 320 x 480 = 800.
     //Biggest (12 pro max) is 428 x 926 = 1354.
     //Android biggest phone I can find is is 480 x 853 = 1333

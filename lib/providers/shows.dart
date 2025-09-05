@@ -66,7 +66,7 @@ class Shows with ChangeNotifier {
   }
 
   Future<void> getData() async {
-    print('start getData');
+    debugPrint('start getData');
 
     //check if the current session still contains the shows - if so no need to rebuild
     if (_shows.length != 0) {
@@ -97,12 +97,12 @@ class Shows with ChangeNotifier {
 
     _lastShowViewed = await getLastShowViewed();
 
-    print('end getData');
+    debugPrint('end getData');
     return;
   }
 
   // Future<void> setUpNotificationAreaImages() async {
-  //   print('setUpNotificationAreaImages');
+  //   debugPrint('setUpNotificationAreaImages');
   //   Future<String> _getLastVersionNumber() async {
   //     late String returnValue;
   //     final prefs = await SharedPreferences.getInstance();
@@ -143,7 +143,7 @@ class Shows with ChangeNotifier {
   //         imageLib.copyResizeCropSquare(imageLib.decodeImage(bytes)!, 400);
 
   //     //Write the bytes to disk for use
-  //     // print('Write the bytes to disk for use');
+  //     // debugPrint('Write the bytes to disk for use');
   //     await File(docsDirPathString)
   //         .writeAsBytes(imageLib.encodeJpg(imageSquared));
   //   }
@@ -152,7 +152,7 @@ class Shows with ChangeNotifier {
   //   //Get the current version
   //   PackageInfo _packageInfo = await PackageInfo.fromPlatform();
   //   String version = _packageInfo.version;
-  //   print('version = $version');
+  //   debugPrint('version = $version');
   //   //If the build number is the same, no update to images is possible, skip and go on.
   //   //If it is not, however, set up the images.
   //   String lastVersionNumber = await _getLastVersionNumber();
@@ -164,7 +164,7 @@ class Shows with ChangeNotifier {
   //       version != lastVersionNumber; //testing version
 
   //   if (logicalTest) {
-  //     print('setting up notification images');
+  //     debugPrint('setting up notification images');
 
   //     //Update the stored version number
   //     _setLastVersionNumber(version);
@@ -181,9 +181,9 @@ class Shows with ChangeNotifier {
   //     seen.forEach((image) {
   //       _processNotificationImage(image);
   //     });
-  //     print('done init images');
+  //     debugPrint('done init images');
   //   } else {
-  //     print('not initializing images');
+  //     debugPrint('not initializing images');
   //   }
 
   //   return;
@@ -274,14 +274,14 @@ class Shows with ChangeNotifier {
 
       final file = File('$path/$filename');
       if (await file.exists()) {
-        print('Found the file');
+        debugPrint('Found the file');
 
         return true;
       } else {
         return false;
       }
     } catch (e) {
-      print('had an error checking if the file was there or not');
+      debugPrint('had an error checking if the file was there or not');
       return false;
     }
   }
@@ -290,7 +290,7 @@ class Shows with ChangeNotifier {
 //Begin show verification
 
   Future<List<String>> checkShows([Show? showToCheck]) async {
-    print('checkShows');
+    debugPrint('checkShows');
 
     //temp list of shows to work with
     List<Show> showsToCheck = [];
@@ -307,13 +307,13 @@ class Shows with ChangeNotifier {
     for (var show in showsToCheck) {
       try {
         final url = urlBase + '/' + show.urlSnip + '/' + show.filename;
-        print(url);
-         http.Response r = await http.head(Uri.parse(url));
+        debugPrint(url);
+        http.Response r = await http.head(Uri.parse(url));
         final _total = r.headers["content-length"];
-        print("show ${show.id} total size: $_total");
+        debugPrint("show ${show.id} total size: $_total");
       } catch (e) {
-        print('Error checking show ' + show.id.toString());
-        print(e);
+        debugPrint('Error checking show ' + show.id.toString());
+        debugPrint(e.toString());
         showsWithErrors.add(show.id.toString());
       }
     }
@@ -342,10 +342,10 @@ class Shows with ChangeNotifier {
     //     final _total = r.headers["content-length"]!;
     //     // final _totalAsInt = double.parse(_total);
 
-    //     print(_total);
+    //     debugPrint(_total);
     //     temp.add('worked');
     //   } catch (e) {
-    //     print('Error checking url ' + url);
+    //     debugPrint('Error checking url ' + url);
     //     temp.add('error');
     //   }
     //   return temp;
@@ -491,11 +491,11 @@ class Shows with ChangeNotifier {
 
     try {
       final sendReport = await send(message, smtpServer);
-      print('Message sent: ' + sendReport.toString());
+      debugPrint('Message sent: ' + sendReport.toString());
     } on MailerException catch (e) {
-      print('Message not sent.');
+      debugPrint('Message not sent.');
       for (var p in e.problems) {
-        print('Problem: ${p.code}: ${p.msg}');
+        debugPrint('Problem: ${p.code}: ${p.msg}');
       }
     }
   }

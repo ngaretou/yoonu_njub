@@ -59,7 +59,7 @@ class ControlButtonsState extends State<ControlButtons> {
   }
 
   void ffOrRew(String input) {
-    print('called child method from parent $input');
+    debugPrint('called child method from parent $input');
     if (input == 'rew') {
       //check to make sure we're landing in the duration
       int newPosition = player.position.inSeconds - 10;
@@ -85,7 +85,7 @@ class ControlButtonsState extends State<ControlButtons> {
 
   @override
   Widget build(BuildContext context) {
-    print('player_controls build');
+    debugPrint('player_controls build');
 
     playerManager = Provider.of<PlayerManager>(context, listen: false);
     player = playerManager.player;
@@ -163,7 +163,7 @@ class ControlButtonsState extends State<ControlButtons> {
         await playerManager.changePlaylist(source: source);
         return;
       } catch (e) {
-        print("Unable to stream remote audio. Error message: $e");
+        debugPrint("Unable to stream remote audio. Error message: $e");
         //If we get past the connectivitycheck above but there's a problem wiht the source url; example the site is down,
         //we can get an error. If that happens, show the snackbar but also refresh the page using the below code
         //to get rid of the circular progress indicator (there is a listener for that value that will rebuild)
@@ -174,7 +174,7 @@ class ControlButtonsState extends State<ControlButtons> {
     }
 
     Future _loadLocalAudio(Show show) async {
-      print('loading local audio');
+      debugPrint('loading local audio');
       //Get the image URI set up
       Uri? imageURI = await _getImageURI(show.image);
 
@@ -195,7 +195,7 @@ class ControlButtonsState extends State<ControlButtons> {
         await playerManager.changePlaylist(source: source);
       } catch (e) {
         // catch load errors: 404, invalid url ...
-        print("Unable to load local audio. Error message: $e");
+        debugPrint("Unable to load local audio. Error message: $e");
       }
     }
 
@@ -211,7 +211,7 @@ class ControlButtonsState extends State<ControlButtons> {
         //This waits for all the prelim checks to be done then gets to the next part
         if (await showsProvider.localAudioFileCheck(show.filename)) {
           //source is local
-          print('File is downloaded');
+          debugPrint('File is downloaded');
           await _loadLocalAudio(show);
           manualPlayerStatus = ManualPlayerState.Initialized;
           return true;

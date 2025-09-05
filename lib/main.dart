@@ -55,7 +55,7 @@ class _MyAppState extends State<MyApp> {
 
   //Language code: Initialize the locale
   Future<void> setupLang() async {
-    print('setupLang()');
+    debugPrint('setupLang()');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     Function setLocale =
         Provider.of<ThemeModel>(context, listen: false).setLocale;
@@ -71,7 +71,7 @@ class _MyAppState extends State<MyApp> {
 
       await setLocale(savedUserLang);
     }
-    print('end setupLang()');
+    debugPrint('end setupLang()');
     //end language code
   }
 
@@ -87,9 +87,9 @@ class _MyAppState extends State<MyApp> {
     In order to prevent that, we make sure that the Future is obtained in the initState() and not in the build() 
     method itself. This is something which you may notice in a lot of tutorials online where they assign the 
     Future method directly to the FutureBuilder and it’s factually wrong.*/
-    print('before _initialization');
+    debugPrint('before _initialization');
     _initialization = callInititalization();
-    print('after _initialization');
+    debugPrint('after _initialization');
   }
 
   Future<void> callInititalization() async {
@@ -117,10 +117,9 @@ class _MyAppState extends State<MyApp> {
           future: _initialization,
           builder: (ctx, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              print('Future returned from _initialization');
+              debugPrint('Future returned from _initialization');
               return MainPlayer();
             } else {
-              print('snapshot.data ${snapshot.data}');
               return Center(child: CircularProgressIndicator());
             }
           }),

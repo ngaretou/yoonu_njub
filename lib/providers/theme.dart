@@ -64,7 +64,7 @@ class ThemeModel extends ChangeNotifier {
   Future<void> setupTheme() async {
     ThemeComponents _defaultTheme =
         ThemeComponents(brightness: Brightness.light, color: Colors.teal);
-    print('setupTheme');
+    debugPrint('setupTheme');
 
     //get the prefs
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -119,7 +119,7 @@ class ThemeModel extends ChangeNotifier {
         _downloadsApproved = false;
       }
     }
-    print('end of setup theme');
+    debugPrint('end of setup theme');
     return;
   }
 
@@ -154,7 +154,7 @@ class ThemeModel extends ChangeNotifier {
 
     final tempJSONtrue = json.encode('true');
     prefs.setString('_downloadsApproved', tempJSONtrue);
-    print('allow downloading');
+    debugPrint('allow downloading');
     // notifyListeners();
     return;
   }
@@ -166,7 +166,7 @@ class ThemeModel extends ChangeNotifier {
 
     final tempJSONfalse = json.encode('false');
     prefs.setString('_downloadsApproved', tempJSONfalse);
-    print('deny downloading');
+    debugPrint('deny downloading');
     return;
   }
 

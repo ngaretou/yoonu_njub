@@ -144,7 +144,8 @@ class MainDrawer extends StatelessWidget {
             () async {
               Navigator.of(context).pop();
               if (!kIsWeb) {
-                Share.share('https://sng.al/yn');
+                SharePlus.instance
+                    .share(ShareParams(text: 'https://sng.al/yn'));
               } else {
                 const url =
                     "mailto:?subject=Yoonu Njub&body=Xoolal appli Yoonu Njub fii: https://sng.al/yn";

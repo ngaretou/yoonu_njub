@@ -102,6 +102,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareAppLink => 'Share app';
 
   @override
+  String get shareLink => 'Share link';
+
+  @override
+  String get copyLink => 'Copy link';
+
+  @override
   String get moreApps => 'More apps';
 
   @override

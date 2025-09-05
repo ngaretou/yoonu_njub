@@ -215,7 +215,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 onSelected: (bool selected) {
                   themeProvider.setLocale('fr');
-                  print(AppLocalizations.of(context)!.addHolidays);
+                  debugPrint(AppLocalizations.of(context)!.addHolidays);
                 },
               ),
               ChoiceChip(
@@ -242,7 +242,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     Widget downloadPermissionSetting() {
       bool approved = themeProvider.downloadsApproved!;
-      print(Theme.of(context).primaryColor);
+      debugPrint(Theme.of(context).primaryColor.toString());
 
       return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
         SizedBox(
@@ -356,9 +356,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: GestureDetector(
             onTap: () {
               numberOfTaps++;
-              print(numberOfTaps);
+              debugPrint(numberOfTaps.toString());
               if (numberOfTaps == 6) {
-                print('check all shows');
+                debugPrint('check all shows');
                 Provider.of<Shows>(context, listen: false)
                     .checkAllShowsDialog(context);
                 numberOfTaps = 0;

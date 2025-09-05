@@ -102,6 +102,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get shareAppLink => 'Partager l\'appli';
 
   @override
+  String get shareLink => 'Partager lien';
+
+  @override
+  String get copyLink => 'Copier le lien';
+
+  @override
   String get moreApps => 'D\'autres applis';
 
   @override
@@ -219,6 +225,12 @@ class AppLocalizationsFrCh extends AppLocalizationsFr {
 
   @override
   String get shareAppLink => 'Séddoo appli bi';
+
+  @override
+  String get shareLink => 'Séddoo lëkkalekaay';
+
+  @override
+  String get copyLink => 'Kopie lëkkalekaay';
 
   @override
   String get moreApps => 'Yeneen appli';

@@ -48,7 +48,7 @@ class ShowDisplayState extends State<ShowDisplay> {
 
   @override
   void didChangeDependencies() {
-    print('show display didChangeDependencies');
+    debugPrint('show display didChangeDependencies');
     _pageController = PreloadPageController(
       initialPage: Provider.of<Shows>(context, listen: false).lastShowViewed,
       viewportFraction: 1.0,
@@ -251,7 +251,7 @@ class ShowDisplayState extends State<ShowDisplay> {
 
     // The function that shows the bottom playlist drawer, playList()
     void _popUpShowList() {
-      print('showing playlist');
+      debugPrint('showing playlist');
       showModalBottomSheet(
         context: context,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -292,7 +292,7 @@ class ShowDisplayState extends State<ShowDisplay> {
               preloadPagesCount: 1,
               itemCount: showsProvider.shows.length,
               onPageChanged: (int index) {
-                print(index);
+                debugPrint(index.toString());
                 //Here we want the user to be able to come back to the name they were on when they
                 //return to the app, so save lastpage viewed on each page swipe.
                 showsProvider.saveLastShowViewed(index);
