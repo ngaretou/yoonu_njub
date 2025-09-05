@@ -134,9 +134,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               value: colorToString(_userTheme!.color),
               items: menuItems,
               onChanged: (response) {
-                int _colorValue = int.parse(response.toString());
-
-                Color color = Color(_colorValue);
+                Color color = colorFromString(response.toString());
 
                 ThemeComponents _themeToSet = ThemeComponents(
                     brightness: _userTheme.brightness, color: color);

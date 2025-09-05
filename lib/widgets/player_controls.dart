@@ -408,11 +408,13 @@ class ControlButtonsState extends State<ControlButtons> {
             //download button
             !kIsWeb
                 ? Container(
-                    width: 40,
+                    width: 60,
                     child: DownloadButton(widget.show),
                   )
                 : SizedBox(width: 40, height: 10),
-
+            Expanded(
+              child: SizedBox(width: 40, height: 10),
+            ),
             showPlaylist
                 ? GestureDetector(
                     child: Icon(Icons.playlist_play),
@@ -442,7 +444,8 @@ class ControlButtonsState extends State<ControlButtons> {
                   cursor: SystemMouseCursors.click,
                   child: GestureDetector(
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 24),
                       child: Text("${speed}x",
                           style: Theme.of(context)
                               .textTheme

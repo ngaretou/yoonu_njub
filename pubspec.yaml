@@ -16,8 +16,9 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 
-version: 1.2.1+23
-# 23 only Android - updating to Android 15/API 35
+version: 1.2.2+24
+
+# 24 only Android - updating to Android 15/API 35
 # 22 only for Android right now - getting internal testing track to sdk 33
 # 21: android, ios, web - 20 corrects Android 12 launcher problem
 # 19: macos

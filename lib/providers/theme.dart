@@ -95,6 +95,8 @@ class ThemeModel extends ChangeNotifier {
 
         Color color = Color(_colorValue);
 
+        // Color color = colorFromString(_savedTheme![1]);
+
         ThemeComponents _componentsToSet =
             ThemeComponents(brightness: _brightness, color: color);
         setTheme(_componentsToSet, refresh: false);
@@ -190,7 +192,6 @@ class ThemeModel extends ChangeNotifier {
   //   }
   // }
 }
-
 
 String colorToString(Color color) {
   return [
