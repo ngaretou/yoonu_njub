@@ -14,7 +14,7 @@ import '../providers/player_manager.dart';
 import 'download_button.dart';
 // import '../widgets/contact_options.dart';
 
-enum ManualPlayerState { Uninitialized, Initializing, Initialized }
+// enum ManualPlayerState { Uninitialized, Initializing, Initialized }
 
 class ControlButtons extends StatefulWidget {
   final Function showPlayList; //parent method will be called from this child
@@ -98,82 +98,6 @@ class ControlButtonsState extends State<ControlButtons> {
     //   showsProvider.setReloadMainPage(false);
     // }
 
-    // Future _initializePlayer(String urlBase, Show show) async {
-    //   //This checks to see if the player has already been initialized.
-    //   //If it already has, we know where our audio is coming from and can just play (see button code below).
-    //   //But if not, check to see if we're ready to rock.
-    //   if (manualPlayerStatus == ManualPlayerState.Initialized) {
-    //     // we've been here already; player is initialized, just return true to play
-    //     return true;
-    //   } else if (manualPlayerStatus == ManualPlayerState.Uninitialized) {
-    //     manualPlayerStatus = ManualPlayerState.Initializing;
-    //     //This waits for all the prelim checks to be done then gets to the next part
-    //     if (await showsProvider.localAudioFileCheck(show.filename)) {
-    //       //source is local
-    //       debugPrint('File is downloaded');
-
-    //       // await _loadLocalAudio(show);
-    //       manualPlayerStatus = ManualPlayerState.Initialized;
-    //       return true;
-    //     } else {
-    //       //file is not downloaded; source is remote:
-    //       //check if connected:
-    //       bool? connected = await showsProvider.connectivityCheck;
-
-    //       //check if file exists; this does not work on web app because of CORS
-    //       //https://stackoverflow.com/questions/65630743/how-to-solve-flutter-web-api-cors-error-only-with-dart-code,
-    //       //so check if connected, but not if the file is reachable on the internet at this point.
-    //       //Hopefully Flutter web handling of CORS will be better in the future or I will find another solution for a good check here.
-
-    //       List<String> showExists = [];
-    //       !kIsWeb
-    //           //If not web, continue as normal
-    //           ? showExists = await showsProvider.checkShows(show)
-    //           //If web, return this dummy data that indicates no error
-    //           : showExists = [];
-
-    //       //Now if we're good start playing - if not then give a message
-    //       if (connected! && showExists.length == 0) {
-    //         //We're connected to internet and the show can be found
-
-    //         // await _loadRemoteAudio(show);
-    //         manualPlayerStatus = ManualPlayerState.Initialized;
-    //         return true;
-    //       } else if (connected && showExists.length != 0) {
-    //         //We're connected to internet but the show can NOT be found
-    //         //Note showExists returns the list of shows that have *errors* - a list length of 0 is good news
-    //         manualPlayerStatus = ManualPlayerState.Uninitialized;
-    //         showsProvider.snackbarMessageError(context);
-    //         return false;
-    //       } else {
-    //         //Do this if file is not downloaded and we're not connected
-    //         //The player is not initialized because there's nothing to play;
-    //         //if you get here there's no local file and no internet connection.
-    //         manualPlayerStatus = ManualPlayerState.Uninitialized;
-    //         showsProvider.snackbarMessageNoInternet(context);
-    //         return false;
-    //       }
-    //     }
-    //   }
-    // }
-
-    // Widget playButton() {
-    //   return IconButton(
-    //     icon: Icon(
-    //       Icons.play_arrow_rounded,
-    //     ),
-    //     iconSize: 64.0,
-    //     onPressed: () async {
-    //       bool shouldPlay = await _initializePlayer(urlBase, widget.show);
-
-    //       if (shouldPlay) {
-    //         player.setVolume(1);
-    //         player.play();
-    //       }
-    //     },
-    //   );
-    // }
-
     return Column(
       children: [
         //SeekBar
@@ -190,29 +114,6 @@ class ControlButtonsState extends State<ControlButtons> {
             );
           },
         ),
-        // StreamBuilder<Duration?>(
-        //   stream: player.durationStream,
-        //   builder: (context, snapshot) {
-        //     final Duration duration = snapshot.data ?? Duration.zero;
-
-        //     return StreamBuilder<Duration>(
-        //       stream: player.positionStream,
-        //       builder: (context, snapshot) {
-        //         var position = snapshot.data ?? Duration.zero;
-        //         if (position > duration) {
-        //           position = duration;
-        //         }
-        //         return SeekBar(
-        //           duration: duration,
-        //           position: position,
-        //           onChangeEnd: (newPosition) {
-        //             player.seek(newPosition);
-        //           },
-        //         );
-        //       },
-        //     );
-        //   },
-        // ),
 
         //This row is the control buttons.
         Row(
@@ -254,74 +155,90 @@ class ControlButtonsState extends State<ControlButtons> {
             ),
 
             // Play button
+            /// This StreamBuilder rebuilds whenever the player state changes, which
+            /// includes the playing/paused state and also the
+            /// loading/buffering/ready state. Depending on the state we show the
+            /// appropriate button or loading indicator.
             Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                child:
-
-                    /// This StreamBuilder rebuilds whenever the player state changes, which
-                    /// includes the playing/paused state and also the
-                    /// loading/buffering/ready state. Depending on the state we show the
-                    /// appropriate button or loading indicator.
-                    StreamBuilder<PlayerState>(
-                  stream: player.playerStateStream,
-                  builder: (context, snapshot) {
-                    final playerState = snapshot.data;
-                    final processingState = playerState?.processingState;
-                    final playing = playerState?.playing;
-                    if (processingState == ProcessingState.loading ||
-                        processingState == ProcessingState.buffering) {
-                      return Container(
-                        margin: const EdgeInsets.all(8.0),
-                        width: 64.0,
-                        height: 64.0,
-                        child: const CircularProgressIndicator(),
-                      );
-                    } else if (playing != true) {
-                      return IconButton(
-                        icon: const Icon(Icons.play_arrow),
-                        iconSize: 64.0,
-                        onPressed: player.play,
-                      );
-                    } else if (processingState != ProcessingState.completed) {
-                      return IconButton(
-                        icon: const Icon(Icons.pause),
-                        iconSize: 64.0,
-                        onPressed: player.pause,
-                      );
-                    } else {
-                      return IconButton(
-                        icon: const Icon(Icons.replay),
-                        iconSize: 64.0,
-                        onPressed: () => player.seek(Duration.zero),
-                      );
-                    }
-                  },
-                )),
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: StreamBuilder<(bool, ProcessingState, int)>(
+                stream: Rx.combineLatest2(
+                    player.playerEventStream,
+                    player.sequenceStream,
+                    (event, sequence) => (
+                          event.playing,
+                          event.playbackEvent.processingState,
+                          sequence.length,
+                        )),
+                builder: (context, snapshot) {
+                  final (playing, processingState, sequenceLength) =
+                      snapshot.data ?? (false, null, 0);
+                  if (processingState == ProcessingState.loading ||
+                      processingState == ProcessingState.buffering) {
+                    return Container(
+                      margin: const EdgeInsets.all(8.0),
+                      width: 64.0,
+                      height: 64.0,
+                      child: const CircularProgressIndicator(),
+                    );
+                  } else if (!playing) {
+                    return IconButton(
+                      icon: const Icon(Icons.play_arrow),
+                      iconSize: 64.0,
+                      onPressed: sequenceLength > 0 ? player.play : null,
+                    );
+                  } else if (processingState != ProcessingState.completed) {
+                    return IconButton(
+                      icon: const Icon(Icons.pause),
+                      iconSize: 64.0,
+                      onPressed: player.pause,
+                    );
+                  } else {
+                    return IconButton(
+                      icon: const Icon(Icons.replay),
+                      iconSize: 64.0,
+                      onPressed: sequenceLength > 0
+                          ? () => player.seek(Duration.zero,
+                              index: player.effectiveIndices.first)
+                          : null,
+                    );
+                  }
+                },
+              ),
+            ),
 
             //forward 10 seconds button
+
             Padding(
               padding: const EdgeInsets.only(right: 5),
-              child: IconButton(
-                  icon: Icon(
-                    Icons.forward_10,
-                    size: mainRowIconSize,
-                  ),
-                  onPressed: () {
-                    // TODO
-                    // final duration = positionData
-                    // ffOrRew('ff');
-                  }),
+              child: StreamBuilder<PositionData>(
+                stream: _positionDataStream,
+                builder: (context, snapshot) {
+                  final positionData = snapshot.data;
+                  final position = positionData?.position ?? Duration.zero;
+                  final duration = positionData?.duration ?? Duration.zero;
+                  return IconButton(
+                      icon: Icon(
+                        Icons.forward_10,
+                        size: mainRowIconSize,
+                      ),
+                      onPressed: (duration - position) > Duration(seconds: 11)
+                          ? () => player.seek(position + Duration(seconds: 10))
+                          : null);
+                },
+              ),
             ),
 
             //Next button
             Padding(
               padding: const EdgeInsets.only(right: 5),
               child: IconButton(
-                  icon: Icon(
-                    Icons.skip_next_rounded,
-                    size: mainRowIconSize,
-                  ),
-                  onPressed: player.seekToNext),
+                icon: Icon(
+                  Icons.skip_next_rounded,
+                  size: mainRowIconSize,
+                ),
+                onPressed: player.hasNext ? player.seekToNext : null,
+              ),
             ),
           ],
         ),
@@ -357,14 +274,6 @@ class ControlButtonsState extends State<ControlButtons> {
                     onTap: () => widget.showPlayList(),
                     onVerticalDragStart: (_) => widget.showPlayList())
                 : SizedBox(width: 40, height: 10), //playback speed button
-
-            //show playlist button
-            // showPlaylist
-            //     ? IconButton(
-            // onPressed: () => widget.showPlayList(),
-            //         icon: Icon(Icons.playlist_play),
-            //       )
-            //     : SizedBox(width: 40, height: 10), //playback speed button
 
             StreamBuilder<double>(
               stream: player.speedStream,
@@ -403,23 +312,6 @@ class ControlButtonsState extends State<ControlButtons> {
                 );
               },
             ),
-            // IconButton(
-            //   icon: Icon(Icons.help_outline),
-            //   onPressed: () {
-            //     //open the contact us possibilities
-            //     showDialog(
-            //       context: context,
-            //       builder: (BuildContext context) {
-            //         return SimpleDialog(
-            //           title: Text(
-            //             AppLocalizations.of(context)!.settingsContactUs,
-            //           ),
-            //           children: [ContactOptions()],
-            //         );
-            //       },
-            //     );
-            //   },
-            // ),
           ],
         )
       ],

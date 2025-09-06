@@ -14,11 +14,6 @@ import 'player_controls.dart';
 import '../providers/shows.dart';
 import '../providers/player_manager.dart';
 
-//For calling the child method from the parent - follow the childController text through this and player_controls.dart
-// class ChildController {
-//   void Function(String) childMethod = (String input) {};
-// }
-
 //To adapt to new Flutter 2.8 behavior that does not allow mice to drag - which is our desired behavior here
 class MyCustomScrollBehavior extends ScrollBehavior {
   // Override behavior methods and getters like dragDevices
@@ -270,7 +265,7 @@ class ShowDisplayState extends State<ShowDisplay> {
                   }
                   final metadata = state!.currentSource!.tag as MediaItem;
 
-                  int id = int.parse(metadata.id);
+                  int id = int.parse(metadata.id) - 1;
 
                   //Show image
                   return Column(

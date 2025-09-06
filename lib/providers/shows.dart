@@ -41,19 +41,15 @@ class Show {
 
 class Shows with ChangeNotifier {
   List<Show> _shows = [];
-  List<AudioSource> _playlist = [];
 
   List<Show> get shows {
     return [..._shows];
   }
 
-  List<AudioSource> get playlist {
-    return [..._playlist];
-  }
-
   late int _lastShowViewed;
 
   int get lastShowViewed {
+    
     return _lastShowViewed;
   }
 
@@ -150,42 +146,6 @@ class Shows with ChangeNotifier {
       }
     }
 
-    // final _playlist = [
-    //   AudioSource.uri(
-    //     Uri.parse(
-    //         "https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3"),
-    //     tag: MediaItem(
-    //       id: "1",
-    //       album: "Science Friday",
-    //       title: "A Salute To Head-Scratching Science (30 seconds)",
-    //       artUri: Uri.parse(
-    //           "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg"),
-    //     ),
-    //   ),
-    //   AudioSource.uri(
-    //     Uri.parse(
-    //         "https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3"),
-    //     tag: MediaItem(
-    //       id: "2",
-    //       album: "Science Friday",
-    //       title: "A Salute To Head-Scratching Science",
-    //       artUri: Uri.parse(
-    //           "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg"),
-    //     ),
-    //   ),
-    //   AudioSource.uri(
-    //     Uri.parse(
-    //         "https://s3.amazonaws.com/scifri-segments/scifri201711241.mp3"),
-    //     tag: MediaItem(
-    //       id: '3',
-    //       album: "Science Friday",
-    //       title: "From Cat Rheology To Operatic Incompetence",
-    //       artUri: Uri.parse(
-    //           "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg"),
-    //     ),
-    //   ),
-    // ];
-
     _shows = loadedShowData;
 
     _lastShowViewed = await getLastShowViewed();
@@ -233,12 +193,6 @@ class Shows with ChangeNotifier {
     return Uri.file(docsDirPathString);
   }
 
-  Future<void> saveLastShowViewed(int lastShowViewed) async {
-    _lastShowViewed = lastShowViewed;
-    final prefs = await SharedPreferences.getInstance();
-    final jsonData = json.encode(lastShowViewed.toString());
-    prefs.setString('lastShowViewed', jsonData);
-  }
 
   Future<int> getLastShowViewed() async {
     final prefs = await SharedPreferences.getInstance();
