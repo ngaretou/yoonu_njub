@@ -2,10 +2,11 @@ import 'dart:ui' as ui;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:audio_service/audio_service.dart';
+import 'package:just_audio/just_audio.dart';
 
 import 'package:provider/provider.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:preload_page_view/preload_page_view.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import 'download_button.dart';
@@ -14,9 +15,9 @@ import '../providers/shows.dart';
 import '../providers/player_manager.dart';
 
 //For calling the child method from the parent - follow the childController text through this and player_controls.dart
-class ChildController {
-  void Function(String) childMethod = (String input) {};
-}
+// class ChildController {
+//   void Function(String) childMethod = (String input) {};
+// }
 
 //To adapt to new Flutter 2.8 behavior that does not allow mice to drag - which is our desired behavior here
 class MyCustomScrollBehavior extends ScrollBehavior {
@@ -29,51 +30,41 @@ class MyCustomScrollBehavior extends ScrollBehavior {
 }
 
 class ShowDisplay extends StatefulWidget {
-  final bool showPlaylist;
-  ShowDisplay(this.showPlaylist);
   @override
   ShowDisplayState createState() => ShowDisplayState();
 }
 
 class ShowDisplayState extends State<ShowDisplay> {
-  PreloadPageController _pageController = PreloadPageController();
-  final ScrollController _pageScrollController = ScrollController();
-
-  final ScrollController _scrollController = ScrollController();
   final ItemScrollController itemScrollController = ItemScrollController();
-  final ChildController childController = ChildController();
-  bool isInitialized = false;
+
   ValueNotifier<double> rewValueNotifier = ValueNotifier(0);
   ValueNotifier<double> ffValueNotifier = ValueNotifier(0);
+  late PlayerManager playerManager;
+  late AudioPlayer player;
 
   @override
-  void didChangeDependencies() {
-    debugPrint('show display didChangeDependencies');
-    _pageController = PreloadPageController(
-      initialPage: Provider.of<Shows>(context, listen: false).lastShowViewed,
-      viewportFraction: 1.0,
-      keepPage: true,
-    );
-
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
   }
 
   @override
   void dispose() {
-    _pageController.dispose();
-    _scrollController.dispose();
-    _pageScrollController.dispose();
+    rewValueNotifier.dispose();
+    ffValueNotifier.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('show display build');
+    playerManager = Provider.of<PlayerManager>(context, listen: true);
+    player = playerManager.player;
     //https://github.com/gskinner/flutter_animate#testing-animations
     Animate.restartOnHotReload = true;
 
     //Data and preliminaries
     final showsProvider = Provider.of<Shows>(context, listen: false);
-    final playerManager = Provider.of<PlayerManager>(context, listen: false);
+
     final mediaQuery = MediaQuery.of(context).size;
     //Smallest iPhone is UIKit 320 x 480 = 800.
     //Biggest (12 pro max) is 428 x 926 = 1354.
@@ -99,17 +90,6 @@ class ShowDisplayState extends State<ShowDisplay> {
         color: Theme.of(context).textTheme.titleLarge!.color,
         fontFamily: "Lato",
         fontSize: 20);
-
-    //code for prev/next buttons - this makes clicking the button equivalent to scrolling
-
-    void jumpPrevNext(String direction) {
-      //This gets fed into the player_controls widget
-      direction == 'next'
-          ? _pageController.nextPage(
-              duration: Duration(milliseconds: 500), curve: Curves.ease)
-          : _pageController.previousPage(
-              duration: Duration(milliseconds: 500), curve: Curves.ease);
-    }
 
     //This page is split up into components that can be recombined based on the platform.
 
@@ -142,13 +122,11 @@ class ShowDisplayState extends State<ShowDisplay> {
                       //If not on the web version, pop the modal bottom sheet - if web, no need
                       if (_isPhone || mediaQuery.width < wideVersionBreakPoint)
                         Navigator.pop(context);
-                      _pageController.jumpToPage(
-                        i,
-                      );
+                      player.seek(Duration.zero, index: i);
                     },
                     child: Card(
-                      elevation: 5,
-                      color: Theme.of(context).cardColor,
+                      elevation: 0,
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8.0, vertical: 16.0),
@@ -206,7 +184,6 @@ class ShowDisplayState extends State<ShowDisplay> {
         } else {
           valueNotifier.value = 1;
         }
-        childController.childMethod(direction);
       }
 
       return Expanded(
@@ -250,7 +227,7 @@ class ShowDisplayState extends State<ShowDisplay> {
     }
 
     // The function that shows the bottom playlist drawer, playList()
-    void _popUpShowList() {
+    void popUpShowList() {
       debugPrint('showing playlist');
       showModalBottomSheet(
         context: context,
@@ -273,112 +250,83 @@ class ShowDisplayState extends State<ShowDisplay> {
       );
     }
 
-    //this shows when you reload it from the AppBar button
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.showPlaylist == true) {
-        _popUpShowList();
-      }
-    });
     //End of the playlist section
 
     //This is the main player component - the picture, show name, player controls
     Widget playerStack() {
-      Widget mainStack() {
-        return Stack(children: [
-          PreloadPageView.builder(
-              physics: AlwaysScrollableScrollPhysics(),
-              scrollDirection: Axis.horizontal,
-              controller: _pageController,
-              preloadPagesCount: 1,
-              itemCount: showsProvider.shows.length,
-              onPageChanged: (int index) {
-                debugPrint(index.toString());
-                //Here we want the user to be able to come back to the name they were on when they
-                //return to the app, so save lastpage viewed on each page swipe.
-                showsProvider.saveLastShowViewed(index);
+      return webScrollable(Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            flex: 1,
+            child: StreamBuilder(
+                stream: player.sequenceStateStream,
+                builder: (context, snapshot) {
+                  print('sequencestatestream');
+                  final state = snapshot.data;
+                  if (state?.sequence.isEmpty ?? true) {
+                    // return const SizedBox();
+                    return const SizedBox();
+                  }
+                  final metadata = state!.currentSource!.tag as MediaItem;
 
-                //This tells the player manager which show to stop.
-                playerManager.showToPlay =
-                    (int.parse(showsProvider.shows[index].id)).toString();
-                playerManager.changePlaylist();
-              },
-              itemBuilder: (context, i) {
-                Show show = showsProvider.shows[i];
+                  int id = int.parse(metadata.id);
 
-                return Column(
-                  key: UniqueKey(),
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    //Show image
-                    Expanded(
-                      flex: 1,
-                      child: Stack(
-                        children: [
-                          Container(
-                            // width: mediaQuery.width,
-                            decoration: BoxDecoration(
-                              color: Colors.black54,
-                              image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: AssetImage(
-                                  "assets/images/${show.image}.jpg",
+                  //Show image
+                  return Column(
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: Stack(
+                          children: [
+                            Container(
+                              // width: mediaQuery.width,
+                              decoration: BoxDecoration(
+                                color: Colors.black54,
+                                image: DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: AssetImage(
+                                    "assets/images/${showsProvider.shows[id].image}.jpg",
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
 
-                          //the left and right sides of the invisible double tap ff and rewind areas
-                          Material(
-                            type: MaterialType.transparency,
-                            child: Row(
-                              children: [
-                                animatedSeekPanel('rew'),
-                                animatedSeekPanel('ff'),
-                              ],
+                            //the left and right sides of the invisible double tap ff and rewind areas
+
+                            Material(
+                              type: MaterialType.transparency,
+                              child: Row(
+                                children: [
+                                  animatedSeekPanel('rew'),
+                                  animatedSeekPanel('ff'),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(showsProvider.shows[i].id,
-                              style: _rsStyle.copyWith(fontSize: 18)),
-                          Text(showsProvider.shows[i].showNameAS,
-                              textAlign: TextAlign.center,
-                              style: _asStyle,
-                              textDirection: _rtlText),
-                          Text(showsProvider.shows[i].showNameRS,
-                              textAlign: TextAlign.center,
-                              style: _rsStyle,
-                              textDirection: _ltrText),
-                        ],
-                      ),
-                    ),
-
-                    ControlButtons(
-                      key: ValueKey(show.filename),
-                      show: show,
-                      jumpPrevNext: jumpPrevNext,
-                      showPlayList: _popUpShowList,
-                      childController: childController,
-                      wideVersionBreakPoint: wideVersionBreakPoint,
-                    ),
-                  ],
-                );
-              }),
-        ]);
-      }
-
-      //playerStack return:
-      // return _isPhone ? mainStack() : webScrollable(mainStack());
-      return webScrollable(mainStack());
+                      SizedBox(height: 16),
+                      Text(showsProvider.shows[id].id,
+                          style: _rsStyle.copyWith(fontSize: 18)),
+                      Text(showsProvider.shows[id].showNameAS,
+                          textAlign: TextAlign.center,
+                          style: _asStyle,
+                          textDirection: _rtlText),
+                      Text(showsProvider.shows[id].showNameRS,
+                          textAlign: TextAlign.center,
+                          style: _rsStyle,
+                          textDirection: _ltrText),
+                    ],
+                  );
+                }),
+          ),
+          ControlButtons(
+            showPlayList: popUpShowList,
+            wideVersionBreakPoint: wideVersionBreakPoint,
+          )
+        ],
+      ));
     }
     //End of main player component
 

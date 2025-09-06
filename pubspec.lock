@@ -605,14 +605,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.3"
-  preload_page_view:
-    dependency: "direct main"
-    description:
-      name: preload_page_view
-      sha256: "488a10c158c5c2e9ba9d77e5dbc09b1e49e37a20df2301e5ba02992eac802b7a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
   provider:
     dependency: "direct main"
     description:
@@ -638,7 +630,7 @@ packages:
     source: hosted
     version: "4.1.0"
   rxdart:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: rxdart
       sha256: "5c3004a4a8dbb94bd4bf5412a4def4acdaa12e12f269737a5751369e12d1a962"

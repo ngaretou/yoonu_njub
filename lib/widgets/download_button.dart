@@ -18,13 +18,13 @@ class DownloadButton extends StatefulWidget {
 
 class _DownloadButtonState extends State<DownloadButton> {
   bool? _isDownloaded;
-  late bool _isDownloading;
+  bool _isDownloading = false;
   double? _percentDone;
   // bool approved;
 
   @override
   void initState() {
-    _isDownloading = false;
+    // _isDownloading = false;
     super.initState();
   }
 

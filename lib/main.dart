@@ -94,14 +94,8 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> callInititalization() async {
     await Provider.of<ThemeModel>(context, listen: false).setupTheme();
-    await Provider.of<Shows>(context, listen: false).getData();
+    await Provider.of<Shows>(context, listen: false).getData(context);
     await setupLang();
-    await Provider.of<PlayerManager>(context, listen: false)
-        .initializeSession();
-    //This gives the flutter UI a second to complete these above initialization processes
-    //These should wait and this be unnecessary but the build happens before all these inits finish,
-    //so this is a hack that helps
-    await Future.delayed(Duration(milliseconds: 1000));
     return;
   }
 

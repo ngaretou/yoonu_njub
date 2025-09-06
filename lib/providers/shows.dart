@@ -1,20 +1,26 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
-
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
+import 'package:provider/provider.dart';
+
+import 'package:image/image.dart' as imageLib;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:just_audio/just_audio.dart';
 
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
+import 'package:yoonu_njub/providers/player_manager.dart';
 
 import '../providers/messaging.dart';
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 class Show {
   final String id;
@@ -35,9 +41,14 @@ class Show {
 
 class Shows with ChangeNotifier {
   List<Show> _shows = [];
+  List<AudioSource> _playlist = [];
 
   List<Show> get shows {
     return [..._shows];
+  }
+
+  List<AudioSource> get playlist {
+    return [..._playlist];
   }
 
   late int _lastShowViewed;
@@ -65,7 +76,7 @@ class Shows with ChangeNotifier {
     }
   }
 
-  Future<void> getData() async {
+  Future<void> getData(BuildContext context) async {
     debugPrint('start getData');
 
     //check if the current session still contains the shows - if so no need to rebuild
@@ -75,13 +86,15 @@ class Shows with ChangeNotifier {
 
     //temporary simple list for holding data
     final List<Show> loadedShowData = [];
+    List<AudioSource> _playlist = [];
 
     //Get the data from json file
     String showsJSON = await rootBundle.loadString("assets/shows.json");
     final showsData = json.decode(showsJSON) as List<dynamic>;
 
     //So we have the info but it's in the wrong format - here map it to our class
-    showsData.forEach((show) {
+    for (var show in showsData) {
+      // add it to the show info
       loadedShowData.add(
         Show(
             id: show['id'],
@@ -91,103 +104,134 @@ class Shows with ChangeNotifier {
             filename: show['filename'],
             image: show['image']),
       );
-    });
+
+      // and add it to the playlist
+
+      //Get the image URI set up
+      Uri? imageURI;
+      //If web, the notification area code does not work, so
+      kIsWeb ? imageURI = null : imageURI = await _getImageURI(show['image']);
+
+      //  check to see if it's downloaded
+      bool downloaded = await localAudioFileCheck(show['filename']);
+      if (downloaded) {
+        final Directory docsDirectory =
+            await getApplicationDocumentsDirectory();
+        final uri = '${docsDirectory.path}/${show['filename']}';
+        AudioSource source = AudioSource.file(
+          uri,
+          tag: MediaItem(
+            // Specify a unique ID for each media item:
+            id: show['id'],
+            // Metadata to display in the notification:
+            album: "Yoonu Njub",
+            title: show['showNameRS'],
+            artUri: imageURI,
+          ),
+        );
+
+        _playlist.add(source);
+      } else {
+        //This is the audio source
+        final uri = '$urlBase/${show['urlSnip']}/${show['filename']}';
+        AudioSource source = AudioSource.uri(
+          Uri.parse(uri),
+          //The notification area setup
+          tag: MediaItem(
+              // Specify a unique ID for each media item:
+              id: show['id'],
+              // Metadata to display in the notification:
+              album: "Yoonu Njub",
+              title: show['showNameRS'],
+              artUri: imageURI),
+        );
+
+        _playlist.add(source);
+      }
+    }
+
+    // final _playlist = [
+    //   AudioSource.uri(
+    //     Uri.parse(
+    //         "https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3"),
+    //     tag: MediaItem(
+    //       id: "1",
+    //       album: "Science Friday",
+    //       title: "A Salute To Head-Scratching Science (30 seconds)",
+    //       artUri: Uri.parse(
+    //           "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg"),
+    //     ),
+    //   ),
+    //   AudioSource.uri(
+    //     Uri.parse(
+    //         "https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3"),
+    //     tag: MediaItem(
+    //       id: "2",
+    //       album: "Science Friday",
+    //       title: "A Salute To Head-Scratching Science",
+    //       artUri: Uri.parse(
+    //           "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg"),
+    //     ),
+    //   ),
+    //   AudioSource.uri(
+    //     Uri.parse(
+    //         "https://s3.amazonaws.com/scifri-segments/scifri201711241.mp3"),
+    //     tag: MediaItem(
+    //       id: '3',
+    //       album: "Science Friday",
+    //       title: "From Cat Rheology To Operatic Incompetence",
+    //       artUri: Uri.parse(
+    //           "https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg"),
+    //     ),
+    //   ),
+    // ];
 
     _shows = loadedShowData;
 
     _lastShowViewed = await getLastShowViewed();
 
+    // await PlayerManager().loadPlaylist(_playlist, _lastShowViewed);
+    await Provider.of<PlayerManager>(context, listen: false)
+        .initializeSession();
+    await Provider.of<PlayerManager>(context, listen: false)
+        .loadPlaylist(_playlist, _lastShowViewed);
+
     debugPrint('end getData');
     return;
   }
 
-  // Future<void> setUpNotificationAreaImages() async {
-  //   debugPrint('setUpNotificationAreaImages');
-  //   Future<String> _getLastVersionNumber() async {
-  //     late String returnValue;
-  //     final prefs = await SharedPreferences.getInstance();
-  //     if (!prefs.containsKey('version')) {
-  //       //This will return 0, which will eventually kick off an update of the stored build number
-  //       returnValue = '0';
-  //     } else {
-  //       returnValue = json.decode(prefs.getString('version')!).toString();
-  //     }
-  //     return returnValue;
-  //   }
+  Future<Uri> _getImageURI(String image) async {
+    /*Set notification area playback widget image:
+      Problem here is that you can't reference an asset image directly as a URI
+      But the notification area needs it as a URI so you have to
+      temporarily write the image outside the asset bundle. Yuck.*/
 
-  //   Future<void> _setLastVersionNumber(String currentVersionNumber) async {
-  //     final prefs = await SharedPreferences.getInstance();
-  //     final jsonData = json.encode(currentVersionNumber);
-  //     prefs.setString('version', jsonData);
-  //   }
+    final Directory docsDirectory = await getApplicationDocumentsDirectory();
+    String docsDirPathString = join(docsDirectory.path, "$image.jpg");
 
-  //   Future<void> _processNotificationImage(String image) async {
-  //     //Get notification area playback widget image
-  //     //Problem here is that you can't reference an asset image directly as a URI
-  //     //But the notification area needs it as a URI so you have to
-  //     //temporarily write the image outside the asset bundle. Yuck.
-  //     final Directory docsDirectory = await getApplicationDocumentsDirectory();
-  //     final String docsDirPathString =
-  //         path.join(docsDirectory.path, "$image.jpg");
+    bool exists = await File(docsDirPathString).exists();
 
-  //     //Get image from assets in ByteData
-  //     ByteData imageByteData =
-  //         await rootBundle.load("assets/images/$image.jpg");
+    if (!exists) {
+      //Get image from assets in ByteData
+      ByteData imageByteData =
+          await rootBundle.load("assets/images/$image.jpg");
 
-  //     //Set up the write & write it to the file as bytes:
-  //     // Get the ByteData into the format List<int>
-  //     List<int> bytes = imageByteData.buffer.asUint8List(
-  //         imageByteData.offsetInBytes, imageByteData.lengthInBytes);
-  //     //Load the bytes as an image & resize the image
-  //     imageLib.Image? imageSquared =
-  //         imageLib.copyResizeCropSquare(imageLib.decodeImage(bytes)!, 400);
+      //Set up the write & write it to the file as bytes:
+      // Get the ByteData into the format List<int>
+      Uint8List bytes = imageByteData.buffer.asUint8List(
+          imageByteData.offsetInBytes, imageByteData.lengthInBytes);
 
-  //     //Write the bytes to disk for use
-  //     // debugPrint('Write the bytes to disk for use');
-  //     await File(docsDirPathString)
-  //         .writeAsBytes(imageLib.encodeJpg(imageSquared));
-  //   }
-  //   //End helper functions
+      //Load the bytes as an image & resize the image
+      imageLib.Image? imageSquared = imageLib
+          .copyResizeCropSquare(imageLib.decodeImage(bytes)!, size: 400);
 
-  //   //Get the current version
-  //   PackageInfo _packageInfo = await PackageInfo.fromPlatform();
-  //   String version = _packageInfo.version;
-  //   debugPrint('version = $version');
-  //   //If the build number is the same, no update to images is possible, skip and go on.
-  //   //If it is not, however, set up the images.
-  //   String lastVersionNumber = await _getLastVersionNumber();
+      //Write the bytes to disk for use
+      await File(docsDirPathString)
+          .writeAsBytes(imageLib.encodeJpg(imageSquared));
+    }
 
-  //   late bool logicalTest;
-
-  //   // logicalTest = lastVersionNumber != version; //production version
-  //   logicalTest = version == lastVersionNumber ||
-  //       version != lastVersionNumber; //testing version
-
-  //   if (logicalTest) {
-  //     debugPrint('setting up notification images');
-
-  //     //Update the stored version number
-  //     _setLastVersionNumber(version);
-
-  //     //And now set up the images:
-  //     //First get a list of the unique values used for images
-  //     var seen = Set<String>();
-  //     shows.where((show) => seen.add(show.image)).toList();
-
-  //     //Then process each one
-  //     // for (var image in seen) {
-  //     //   _processNotificationImage(image);
-  //     // }
-  //     seen.forEach((image) {
-  //       _processNotificationImage(image);
-  //     });
-  //     debugPrint('done init images');
-  //   } else {
-  //     debugPrint('not initializing images');
-  //   }
-
-  //   return;
-  // }
+    return Uri.file(docsDirPathString);
+  }
 
   Future<void> saveLastShowViewed(int lastShowViewed) async {
     _lastShowViewed = lastShowViewed;
@@ -271,7 +315,7 @@ class Shows with ChangeNotifier {
   Future<bool> localAudioFileCheck(String filename) async {
     try {
       final path = await _localPath;
-
+      print(_localPath.toString());
       final file = File('$path/$filename');
       if (await file.exists()) {
         debugPrint('Found the file');

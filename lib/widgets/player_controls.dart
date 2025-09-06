@@ -1,94 +1,84 @@
-import 'dart:io';
 import 'dart:async';
 import 'dart:math';
-import 'dart:typed_data';
-import 'package:image/image.dart' as imageLib;
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:rxdart/rxdart.dart';
 import 'package:yoonu_njub/l10n/app_localizations.dart'; // the new Flutter 3.x localization method
 
 import 'package:provider/provider.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:just_audio_background/just_audio_background.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart';
+import 'package:audio_service/audio_service.dart';
 
 import '../providers/shows.dart';
 import '../providers/player_manager.dart';
-import 'show_display.dart';
 import 'download_button.dart';
 // import '../widgets/contact_options.dart';
 
 enum ManualPlayerState { Uninitialized, Initializing, Initialized }
 
 class ControlButtons extends StatefulWidget {
-  final Show show;
-  final Function jumpPrevNext; //parent method will be called from this child
   final Function showPlayList; //parent method will be called from this child
-  final ChildController childController; //child method called via this
   final int wideVersionBreakPoint;
 
   const ControlButtons(
       {Key? key,
-      required this.show,
-      required this.jumpPrevNext,
       required this.showPlayList,
-      required this.childController,
       required this.wideVersionBreakPoint})
       : super(key: key);
 
   @override
-  ControlButtonsState createState() => ControlButtonsState(childController);
+  ControlButtonsState createState() => ControlButtonsState();
 }
 
 class ControlButtonsState extends State<ControlButtons> {
-  ControlButtonsState(ChildController childController) {
-    childController.childMethod = ffOrRew;
-  }
-
-  late ManualPlayerState manualPlayerStatus;
-
   late PlayerManager playerManager;
-  late AudioPlayer player = playerManager.player;
+  late AudioPlayer player;
+  // void ffOrRew(String input) {
+  //   debugPrint('called child method from parent $input');
+  //   if (input == 'rew') {
+  //     //check to make sure we're landing in the duration
+  //     int newPosition = player.position.inSeconds - 10;
+
+  //     if (newPosition > 0) {
+  //       player.seek(Duration(seconds: player.position.inSeconds - 10));
+  //     }
+  //   } else if (input == 'ff') {
+  //     //check to make sure we're landing in the duration
+
+  //     if (player.duration != null) {
+  //       int newPosition = player.position.inSeconds + 10;
+
+  //       if (newPosition < player.duration!.inSeconds) {
+  //         player.seek(Duration(seconds: player.position.inSeconds + 10));
+  //       } else {
+  //         //jump to next show
+  //         widget.jumpPrevNext('next');
+  //       }
+  //     }
+  //   }
+  // }
 
   @override
   void initState() {
+    playerManager = Provider.of<PlayerManager>(context, listen: false);
+    player = playerManager.player;
     super.initState();
-    manualPlayerStatus = ManualPlayerState.Uninitialized;
   }
 
-  void ffOrRew(String input) {
-    debugPrint('called child method from parent $input');
-    if (input == 'rew') {
-      //check to make sure we're landing in the duration
-      int newPosition = player.position.inSeconds - 10;
-
-      if (newPosition > 0) {
-        player.seek(Duration(seconds: player.position.inSeconds - 10));
-      }
-    } else if (input == 'ff') {
-      //check to make sure we're landing in the duration
-
-      if (player.duration != null) {
-        int newPosition = player.position.inSeconds + 10;
-
-        if (newPosition < player.duration!.inSeconds) {
-          player.seek(Duration(seconds: player.position.inSeconds + 10));
-        } else {
-          //jump to next show
-          widget.jumpPrevNext('next');
-        }
-      }
-    }
-  }
+  Stream<PositionData> get _positionDataStream =>
+      Rx.combineLatest2<Duration, Duration?, PositionData>(
+          playerManager.player.positionStream,
+          playerManager.player.durationStream, (position, reportedDuration) {
+        final duration = reportedDuration ?? Duration.zero;
+        return PositionData(position, duration);
+      });
 
   @override
   Widget build(BuildContext context) {
     debugPrint('player_controls build');
 
-    playerManager = Provider.of<PlayerManager>(context, listen: false);
-    player = playerManager.player;
+    /// Collects the data useful for displaying in a seek bar, using a handy
+    /// feature of rx_dart to combine the 3 streams of interest into one.
 
     final mediaQuery = MediaQuery.of(context).size;
     //Smallest iPhone is UIKit 320 x 480 = 800.
@@ -104,204 +94,125 @@ class ControlButtonsState extends State<ControlButtons> {
     final showsProvider = Provider.of<Shows>(context, listen: false);
 
     //This is to refresh the main view after downloads are clear
-    if (Provider.of<Shows>(context, listen: true).reloadMainPage == true) {
-      showsProvider.setReloadMainPage(false);
-    }
+    // if (Provider.of<Shows>(context, listen: true).reloadMainPage == true) {
+    //   showsProvider.setReloadMainPage(false);
+    // }
 
-    final urlBase = showsProvider.urlBase;
+    // Future _initializePlayer(String urlBase, Show show) async {
+    //   //This checks to see if the player has already been initialized.
+    //   //If it already has, we know where our audio is coming from and can just play (see button code below).
+    //   //But if not, check to see if we're ready to rock.
+    //   if (manualPlayerStatus == ManualPlayerState.Initialized) {
+    //     // we've been here already; player is initialized, just return true to play
+    //     return true;
+    //   } else if (manualPlayerStatus == ManualPlayerState.Uninitialized) {
+    //     manualPlayerStatus = ManualPlayerState.Initializing;
+    //     //This waits for all the prelim checks to be done then gets to the next part
+    //     if (await showsProvider.localAudioFileCheck(show.filename)) {
+    //       //source is local
+    //       debugPrint('File is downloaded');
 
-    Future<Uri> _getImageURI(String image) async {
-      /*Set notification area playback widget image:
-      Problem here is that you can't reference an asset image directly as a URI
-      But the notification area needs it as a URI so you have to
-      temporarily write the image outside the asset bundle. Yuck.*/
+    //       // await _loadLocalAudio(show);
+    //       manualPlayerStatus = ManualPlayerState.Initialized;
+    //       return true;
+    //     } else {
+    //       //file is not downloaded; source is remote:
+    //       //check if connected:
+    //       bool? connected = await showsProvider.connectivityCheck;
 
-      final Directory docsDirectory = await getApplicationDocumentsDirectory();
-      String docsDirPathString = join(docsDirectory.path, "$image.jpg");
+    //       //check if file exists; this does not work on web app because of CORS
+    //       //https://stackoverflow.com/questions/65630743/how-to-solve-flutter-web-api-cors-error-only-with-dart-code,
+    //       //so check if connected, but not if the file is reachable on the internet at this point.
+    //       //Hopefully Flutter web handling of CORS will be better in the future or I will find another solution for a good check here.
 
-      //Get image from assets in ByteData
-      ByteData imageByteData =
-          await rootBundle.load("assets/images/$image.jpg");
+    //       List<String> showExists = [];
+    //       !kIsWeb
+    //           //If not web, continue as normal
+    //           ? showExists = await showsProvider.checkShows(show)
+    //           //If web, return this dummy data that indicates no error
+    //           : showExists = [];
 
-      //Set up the write & write it to the file as bytes:
-      // Get the ByteData into the format List<int>
-      Uint8List bytes = imageByteData.buffer.asUint8List(
-          imageByteData.offsetInBytes, imageByteData.lengthInBytes);
+    //       //Now if we're good start playing - if not then give a message
+    //       if (connected! && showExists.length == 0) {
+    //         //We're connected to internet and the show can be found
 
-      //Load the bytes as an image & resize the image
-      imageLib.Image? imageSquared = imageLib
-          .copyResizeCropSquare(imageLib.decodeImage(bytes)!, size: 400);
+    //         // await _loadRemoteAudio(show);
+    //         manualPlayerStatus = ManualPlayerState.Initialized;
+    //         return true;
+    //       } else if (connected && showExists.length != 0) {
+    //         //We're connected to internet but the show can NOT be found
+    //         //Note showExists returns the list of shows that have *errors* - a list length of 0 is good news
+    //         manualPlayerStatus = ManualPlayerState.Uninitialized;
+    //         showsProvider.snackbarMessageError(context);
+    //         return false;
+    //       } else {
+    //         //Do this if file is not downloaded and we're not connected
+    //         //The player is not initialized because there's nothing to play;
+    //         //if you get here there's no local file and no internet connection.
+    //         manualPlayerStatus = ManualPlayerState.Uninitialized;
+    //         showsProvider.snackbarMessageNoInternet(context);
+    //         return false;
+    //       }
+    //     }
+    //   }
+    // }
 
-      //Write the bytes to disk for use
-      await File(docsDirPathString)
-          .writeAsBytes(imageLib.encodeJpg(imageSquared));
+    // Widget playButton() {
+    //   return IconButton(
+    //     icon: Icon(
+    //       Icons.play_arrow_rounded,
+    //     ),
+    //     iconSize: 64.0,
+    //     onPressed: () async {
+    //       bool shouldPlay = await _initializePlayer(urlBase, widget.show);
 
-      return Uri.file(docsDirPathString);
-    }
-
-    Future _loadRemoteAudio(Show show) async {
-      //Get the image URI set up
-      Uri? imageURI;
-      //If web, the notification area code does not work, so
-      kIsWeb ? imageURI = null : imageURI = await _getImageURI(show.image);
-
-      //This is the audio source
-      AudioSource source = AudioSource.uri(
-        Uri.parse('$urlBase/${show.urlSnip}/${show.filename}'),
-        //The notification area setup
-        tag: MediaItem(
-            // Specify a unique ID for each media item:
-            id: show.id,
-            // Metadata to display in the notification:
-            album: "Yoonu Njub",
-            title: show.showNameRS,
-            artUri: imageURI),
-      );
-
-      //Set the player source
-      try {
-        await playerManager.changePlaylist(source: source);
-        return;
-      } catch (e) {
-        debugPrint("Unable to stream remote audio. Error message: $e");
-        //If we get past the connectivitycheck above but there's a problem wiht the source url; example the site is down,
-        //we can get an error. If that happens, show the snackbar but also refresh the page using the below code
-        //to get rid of the circular progress indicator (there is a listener for that value that will rebuild)
-        showsProvider.snackbarMessageNoInternet(context);
-        Provider.of<Shows>(context, listen: false).setReloadMainPage(true);
-        return;
-      }
-    }
-
-    Future _loadLocalAudio(Show show) async {
-      debugPrint('loading local audio');
-      //Get the image URI set up
-      Uri? imageURI = await _getImageURI(show.image);
-
-      //Audio source initialization
-      final Directory docsDirectory = await getApplicationDocumentsDirectory();
-      AudioSource source = ProgressiveAudioSource(
-        Uri.file('${docsDirectory.path}/${show.filename}'),
-        tag: MediaItem(
-          // Specify a unique ID for each media item:
-          id: show.id,
-          // Metadata to display in the notification:
-          album: "Yoonu Njub",
-          title: show.showNameRS,
-          artUri: imageURI,
-        ),
-      );
-      try {
-        await playerManager.changePlaylist(source: source);
-      } catch (e) {
-        // catch load errors: 404, invalid url ...
-        debugPrint("Unable to load local audio. Error message: $e");
-      }
-    }
-
-    Future _initializePlayer(String urlBase, Show show) async {
-      //This checks to see if the player has already been initialized.
-      //If it already has, we know where our audio is coming from and can just play (see button code below).
-      //But if not, check to see if we're ready to rock.
-      if (manualPlayerStatus == ManualPlayerState.Initialized) {
-        // we've been here already; player is initialized, just return true to play
-        return true;
-      } else if (manualPlayerStatus == ManualPlayerState.Uninitialized) {
-        manualPlayerStatus = ManualPlayerState.Initializing;
-        //This waits for all the prelim checks to be done then gets to the next part
-        if (await showsProvider.localAudioFileCheck(show.filename)) {
-          //source is local
-          debugPrint('File is downloaded');
-          await _loadLocalAudio(show);
-          manualPlayerStatus = ManualPlayerState.Initialized;
-          return true;
-        } else {
-          //file is not downloaded; source is remote:
-          //check if connected:
-          bool? connected = await showsProvider.connectivityCheck;
-
-          //check if file exists; this does not work on web app because of CORS
-          //https://stackoverflow.com/questions/65630743/how-to-solve-flutter-web-api-cors-error-only-with-dart-code,
-          //so check if connected, but not if the file is reachable on the internet at this point.
-          //Hopefully Flutter web handling of CORS will be better in the future or I will find another solution for a good check here.
-
-          List<String> showExists = [];
-          !kIsWeb
-              //If not web, continue as normal
-              ? showExists = await showsProvider.checkShows(show)
-              //If web, return this dummy data that indicates no error
-              : showExists = [];
-
-          //Now if we're good start playing - if not then give a message
-          if (connected! && showExists.length == 0) {
-            //We're connected to internet and the show can be found
-            await _loadRemoteAudio(show);
-            manualPlayerStatus = ManualPlayerState.Initialized;
-            return true;
-          } else if (connected && showExists.length != 0) {
-            //We're connected to internet but the show can NOT be found
-            //Note showExists returns the list of shows that have *errors* - a list length of 0 is good news
-            manualPlayerStatus = ManualPlayerState.Uninitialized;
-            showsProvider.snackbarMessageError(context);
-            return false;
-          } else {
-            //Do this if file is not downloaded and we're not connected
-            //The player is not initialized because there's nothing to play;
-            //if you get here there's no local file and no internet connection.
-            manualPlayerStatus = ManualPlayerState.Uninitialized;
-            showsProvider.snackbarMessageNoInternet(context);
-            return false;
-          }
-        }
-      }
-    }
-
-    Widget playButton() {
-      return IconButton(
-        icon: Icon(
-          Icons.play_arrow_rounded,
-        ),
-        iconSize: 64.0,
-        onPressed: () async {
-          bool shouldPlay = await _initializePlayer(urlBase, widget.show);
-
-          if (shouldPlay) {
-            player.setVolume(1);
-            player.play();
-          }
-        },
-      );
-    }
+    //       if (shouldPlay) {
+    //         player.setVolume(1);
+    //         player.play();
+    //       }
+    //     },
+    //   );
+    // }
 
     return Column(
       children: [
         //SeekBar
-        StreamBuilder<Duration?>(
-          stream: player.durationStream,
+        StreamBuilder<PositionData>(
+          stream: _positionDataStream,
           builder: (context, snapshot) {
-            final Duration duration = snapshot.data ?? Duration.zero;
-            return StreamBuilder<Duration>(
-              stream: player.positionStream,
-              builder: (context, snapshot) {
-                var position = snapshot.data ?? Duration.zero;
-                if (position > duration) {
-                  position = duration;
-                }
-                return SeekBar(
-                  duration: duration,
-                  position: position,
-                  onChangeEnd: (newPosition) {
-                    player.seek(newPosition);
-                  },
-                  playerIsInitialized:
-                      manualPlayerStatus == ManualPlayerState.Uninitialized
-                          ? false
-                          : true,
-                );
+            final positionData = snapshot.data;
+            return SeekBar(
+              duration: positionData?.duration ?? Duration.zero,
+              position: positionData?.position ?? Duration.zero,
+              onChangeEnd: (newPosition) {
+                player.seek(newPosition);
               },
             );
           },
         ),
+        // StreamBuilder<Duration?>(
+        //   stream: player.durationStream,
+        //   builder: (context, snapshot) {
+        //     final Duration duration = snapshot.data ?? Duration.zero;
+
+        //     return StreamBuilder<Duration>(
+        //       stream: player.positionStream,
+        //       builder: (context, snapshot) {
+        //         var position = snapshot.data ?? Duration.zero;
+        //         if (position > duration) {
+        //           position = duration;
+        //         }
+        //         return SeekBar(
+        //           duration: duration,
+        //           position: position,
+        //           onChangeEnd: (newPosition) {
+        //             player.seek(newPosition);
+        //           },
+        //         );
+        //       },
+        //     );
+        //   },
+        // ),
 
         //This row is the control buttons.
         Row(
@@ -310,70 +221,82 @@ class ControlButtonsState extends State<ControlButtons> {
             //Previous button
             Padding(
               padding: const EdgeInsets.only(left: 5),
-              child: IconButton(
+              child: StreamBuilder<SequenceState?>(
+                stream: player.sequenceStateStream,
+                builder: (context, snapshot) => IconButton(
                   icon: Icon(
                     Icons.skip_previous_rounded,
                     size: mainRowIconSize,
                   ),
-                  onPressed: () {
-                    //communicating back up the widget tree here
-                    widget.jumpPrevNext('back');
-                  }),
+                  onPressed: player.hasPrevious ? player.seekToPrevious : null,
+                ),
+              ),
             ),
 
             //back 10 seconds button
             Padding(
               padding: const EdgeInsets.only(left: 5),
-              child: IconButton(
-                  icon: Icon(
-                    Icons.replay_10,
-                    size: mainRowIconSize,
-                  ),
-                  onPressed: () => ffOrRew('rew')),
+              child: StreamBuilder<PositionData>(
+                stream: _positionDataStream,
+                builder: (context, snapshot) {
+                  final positionData = snapshot.data;
+                  final position = positionData?.position ?? Duration.zero;
+                  return IconButton(
+                      icon: Icon(
+                        Icons.replay_10,
+                        size: mainRowIconSize,
+                      ),
+                      onPressed: position > Duration(seconds: 11)
+                          ? () => player.seek(position - Duration(seconds: 10))
+                          : null);
+                },
+              ),
             ),
 
             // Play button
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: StreamBuilder<PlayerState>(
-                stream: player.playerStateStream,
-                builder: (context, snapshot) {
-                  final playerState = snapshot.data;
-                  final processingState = playerState?.processingState;
-                  final playing = playerState?.playing;
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child:
 
-                  /*original version of the if stmt here. With the player manager code 
-                  in changePlaylist to dismiss the notification and building screens on 
-                  either side of the main player, it gets a bit confused so doing a 
-                  manual status for now. */
-                  // if (processingState == ProcessingState.buffering ||
-                  //     (processingState == ProcessingState.loading)) {
-
-                  if (manualPlayerStatus == ManualPlayerState.Initializing) {
-                    return Container(
-                      margin: EdgeInsets.all(08.0),
-                      width: 64.0,
-                      height: 64.0,
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (playing != true) {
-                    return playButton();
-                  } else if (processingState != ProcessingState.completed) {
-                    return IconButton(
-                      icon: Icon(Icons.pause),
-                      iconSize: 64.0,
-                      onPressed: player.pause,
-                    );
-                  } else {
-                    return IconButton(
-                      icon: Icon(Icons.replay),
-                      iconSize: 64.0,
-                      onPressed: () => player.seek(Duration.zero, index: 0),
-                    );
-                  }
-                },
-              ),
-            ),
+                    /// This StreamBuilder rebuilds whenever the player state changes, which
+                    /// includes the playing/paused state and also the
+                    /// loading/buffering/ready state. Depending on the state we show the
+                    /// appropriate button or loading indicator.
+                    StreamBuilder<PlayerState>(
+                  stream: player.playerStateStream,
+                  builder: (context, snapshot) {
+                    final playerState = snapshot.data;
+                    final processingState = playerState?.processingState;
+                    final playing = playerState?.playing;
+                    if (processingState == ProcessingState.loading ||
+                        processingState == ProcessingState.buffering) {
+                      return Container(
+                        margin: const EdgeInsets.all(8.0),
+                        width: 64.0,
+                        height: 64.0,
+                        child: const CircularProgressIndicator(),
+                      );
+                    } else if (playing != true) {
+                      return IconButton(
+                        icon: const Icon(Icons.play_arrow),
+                        iconSize: 64.0,
+                        onPressed: player.play,
+                      );
+                    } else if (processingState != ProcessingState.completed) {
+                      return IconButton(
+                        icon: const Icon(Icons.pause),
+                        iconSize: 64.0,
+                        onPressed: player.pause,
+                      );
+                    } else {
+                      return IconButton(
+                        icon: const Icon(Icons.replay),
+                        iconSize: 64.0,
+                        onPressed: () => player.seek(Duration.zero),
+                      );
+                    }
+                  },
+                )),
 
             //forward 10 seconds button
             Padding(
@@ -383,7 +306,11 @@ class ControlButtonsState extends State<ControlButtons> {
                     Icons.forward_10,
                     size: mainRowIconSize,
                   ),
-                  onPressed: () => ffOrRew('ff')),
+                  onPressed: () {
+                    // TODO
+                    // final duration = positionData
+                    // ffOrRew('ff');
+                  }),
             ),
 
             //Next button
@@ -394,10 +321,7 @@ class ControlButtonsState extends State<ControlButtons> {
                     Icons.skip_next_rounded,
                     size: mainRowIconSize,
                   ),
-                  onPressed: () async {
-                    //communicating back up the widget tree here
-                    widget.jumpPrevNext('next');
-                  }),
+                  onPressed: player.seekToNext),
             ),
           ],
         ),
@@ -407,10 +331,22 @@ class ControlButtonsState extends State<ControlButtons> {
           children: [
             //download button
             !kIsWeb
-                ? Container(
-                    width: 60,
-                    child: DownloadButton(widget.show),
-                  )
+                ? StreamBuilder(
+                    stream: player.sequenceStateStream,
+                    builder: (context, snapshot) {
+                      final state = snapshot.data;
+                      if (state?.sequence.isEmpty ?? true) {
+                        return const SizedBox();
+                      }
+                      final metadata = state!.currentSource!.tag as MediaItem;
+
+                      int id = int.parse(metadata.id);
+
+                      return Container(
+                        width: 60,
+                        child: DownloadButton(showsProvider.shows[id]),
+                      );
+                    })
                 : SizedBox(width: 40, height: 10),
             Expanded(
               child: SizedBox(width: 40, height: 10),
@@ -496,14 +432,13 @@ class SeekBar extends StatefulWidget {
   final Duration position;
   final ValueChanged<Duration>? onChanged;
   final ValueChanged<Duration>? onChangeEnd;
-  final bool playerIsInitialized;
 
-  SeekBar(
-      {required this.duration,
-      required this.position,
-      this.onChanged,
-      this.onChangeEnd,
-      required this.playerIsInitialized});
+  SeekBar({
+    required this.duration,
+    required this.position,
+    this.onChanged,
+    this.onChangeEnd,
+  });
 
   @override
   _SeekBarState createState() => _SeekBarState();
@@ -540,16 +475,12 @@ class _SeekBarState extends State<SeekBar> {
           right: 16.0,
           bottom: 0.0,
           // If the player is not yet initialized....
-          child: !widget.playerIsInitialized
-              //Before load, this will appear; you can choose Text(''), Text('-:--') etc
-              ? Text('')
-              //After the audio loads, there will be a duration, so show the time remaining
-              : Text(
-                  RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$')
-                          .firstMatch("$_remaining")
-                          ?.group(1) ??
-                      '$_remaining',
-                  style: Theme.of(context).textTheme.titleSmall),
+          child: Text(
+              RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$')
+                      .firstMatch("$_remaining")
+                      ?.group(1) ??
+                  '$_remaining',
+              style: Theme.of(context).textTheme.titleSmall),
         ),
       ],
     );
@@ -597,4 +528,12 @@ _showSliderDialog({
       ),
     ),
   );
+}
+
+class PositionData {
+  final Duration position;
+
+  final Duration duration;
+
+  PositionData(this.position, this.duration);
 }

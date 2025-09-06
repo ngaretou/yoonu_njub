@@ -12,13 +12,6 @@ class MainPlayer extends StatefulWidget {
 }
 
 class _MainPlayerState extends State<MainPlayer> {
-  late bool _showPlaylist;
-  @override
-  void initState() {
-    _showPlaylist = false;
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     debugPrint('MainPlayerScreen');
@@ -42,31 +35,32 @@ class _MainPlayerState extends State<MainPlayer> {
     }
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      // floatingActionButton: FloatingActionButton(
-      //   child: Icon(Icons.menu),
-      //   onPressed: () => Scaffold.of(context).openDrawer(),
-      //   mini: true,
-      //   shape: RoundedRectangleBorder(
-      //     borderRadius: BorderRadius.all(
-      //       Radius.circular(10),
-      //     ),
-      //   ),
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
-      // appBar: AppBar(
-      //   backgroundColor: Colors.transparent,
-      //   elevation: 0,
-      // ),
-      appBar: AppBar(
-        systemOverlayStyle: Theme.of(context).brightness == Brightness.light
-            ? SystemUiOverlayStyle.dark
-            : SystemUiOverlayStyle.light,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      drawer: MainDrawer(),
-      body: ShowDisplay(_showPlaylist),
-    );
+        extendBodyBehindAppBar: true,
+        // floatingActionButton: FloatingActionButton(
+        //   child: Icon(Icons.menu),
+        //   onPressed: () => Scaffold.of(context).openDrawer(),
+        //   mini: true,
+        //   shape: RoundedRectangleBorder(
+        //     borderRadius: BorderRadius.all(
+        //       Radius.circular(10),
+        //     ),
+        //   ),
+        // ),
+        // floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
+        // appBar: AppBar(
+        //   backgroundColor: Colors.transparent,
+        //   elevation: 0,
+        // ),
+        appBar: AppBar(
+          systemOverlayStyle: Theme.of(context).brightness == Brightness.light
+              ? SystemUiOverlayStyle.dark
+              : SystemUiOverlayStyle.light,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        drawer: MainDrawer(),
+        body: ShowDisplay()
+        // body: ShowDisplaySimple()
+        );
   }
 }
