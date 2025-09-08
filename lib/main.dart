@@ -43,10 +43,10 @@ Future<void> main() async {
 }
 
 class MyApp extends StatefulWidget {
-  MyApp();
+  const MyApp({super.key});
 
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
@@ -57,6 +57,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> setupLang() async {
     debugPrint('setupLang()');
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     Function setLocale =
         Provider.of<ThemeModel>(context, listen: false).setLocale;
 
@@ -94,6 +95,7 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> callInititalization() async {
     await Provider.of<ThemeModel>(context, listen: false).setupTheme();
+    if (!mounted) return;
     await Provider.of<Shows>(context, listen: false).getData(context);
     await setupLang();
     return;
@@ -101,10 +103,10 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData? _currentTheme = Provider.of<ThemeModel>(context).currentTheme;
+    ThemeData? currentTheme = Provider.of<ThemeModel>(context).currentTheme;
 
     return MaterialApp(
-      theme: _currentTheme == null ? ThemeData.light() : _currentTheme,
+      theme: currentTheme ?? ThemeData.light(),
       debugShowCheckedModeBanner: false,
       title: 'Yoonu Njub',
       home: FutureBuilder(
@@ -139,9 +141,8 @@ class _MyAppState extends State<MyApp> {
         // So when we switch locale to fr_CH, that's Wolof.
         const Locale('fr', 'CH'),
       ],
-      locale: Provider.of<ThemeModel>(context, listen: false).userLocale == null
-          ? Locale('fr', 'CH')
-          : Provider.of<ThemeModel>(context, listen: false).userLocale,
+      locale: Provider.of<ThemeModel>(context, listen: false).userLocale ??
+          Locale('fr', 'CH'),
     );
   }
 }

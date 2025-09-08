@@ -14,8 +14,10 @@ import '../providers/shows.dart';
 class SettingsScreen extends StatefulWidget {
   static const routeName = '/settings-screen';
 
+  const SettingsScreen({super.key});
+
   @override
-  _SettingsScreenState createState() => _SettingsScreenState();
+  State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
@@ -26,15 +28,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     int numberOfTaps = 0;
     final themeProvider = Provider.of<ThemeModel>(context, listen: false);
-    final ThemeComponents? _userTheme = themeProvider.userTheme;
-    final Locale userLocale = themeProvider.userLocale!;
+    final ThemeComponents? userTheme = themeProvider.userTheme;
+    final Locale userLocale = themeProvider.userLocale ?? Locale('en');
 
     //Widgets
     //Main template for all setting titles
     Widget settingTitle(String title, IconData icon, Function? tapHandler) {
       return InkWell(
         onTap: tapHandler as void Function()?,
-        child: Container(
+        child: SizedBox(
             width: 300,
             child: Padding(
                 padding: EdgeInsets.all(20),
@@ -113,6 +115,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       for (var color in themeColors) {
         menuItems.add(DropdownMenuItem(
+            value: colorToString(color),
             child: Material(
               shape: CircleBorder(side: BorderSide.none),
               elevation: 2,
@@ -121,8 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 margin: EdgeInsets.all(0),
                 width: 36,
               ),
-            ),
-            value: colorToString(color)));
+            )));
       }
 
       return Row(
@@ -131,57 +133,60 @@ class _SettingsScreenState extends State<SettingsScreen> {
           DropdownButton(
               itemHeight: 48,
               underline: SizedBox(),
-              value: colorToString(_userTheme!.color),
+              value: colorToString(userTheme?.color ?? Colors.teal),
               items: menuItems,
               onChanged: (response) {
                 Color color = colorFromString(response.toString());
 
-                ThemeComponents _themeToSet = ThemeComponents(
-                    brightness: _userTheme.brightness, color: color);
+                ThemeComponents themeToSet = ThemeComponents(
+                    brightness: userTheme?.brightness ?? Brightness.light,
+                    color: color);
 
-                themeProvider.setTheme(_themeToSet);
+                themeProvider.setTheme(themeToSet);
               }),
           Container(
               height: 45,
               width: 1,
               color: Theme.of(context).colorScheme.outline),
           ElevatedButton(
-            child: _userTheme.brightness == Brightness.light
-                ? Icon(
-                    Icons.check,
-                    color: Colors.black,
-                  )
-                : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               padding: EdgeInsets.all(0),
               shape: CircleBorder(),
             ),
             onPressed: () {
-              ThemeComponents _themeToSet = ThemeComponents(
-                  brightness: Brightness.light, color: _userTheme.color);
+              ThemeComponents themeToSet = ThemeComponents(
+                  brightness: Brightness.light,
+                  color: userTheme?.color ?? Colors.teal);
 
-              themeProvider.setTheme(_themeToSet);
+              themeProvider.setTheme(themeToSet);
             },
-          ),
-          ElevatedButton(
-            child: _userTheme.brightness == Brightness.dark
+            child: userTheme?.brightness == Brightness.light
                 ? Icon(
                     Icons.check,
-                    color: Colors.white,
+                    color: Colors.black,
                   )
                 : null,
+          ),
+          ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
               padding: EdgeInsets.all(0),
               shape: CircleBorder(),
             ),
             onPressed: () {
-              ThemeComponents _themeToSet = ThemeComponents(
-                  brightness: Brightness.dark, color: _userTheme.color);
+              ThemeComponents themeToSet = ThemeComponents(
+                  brightness: Brightness.dark,
+                  color: userTheme?.color ?? Colors.teal);
 
-              themeProvider.setTheme(_themeToSet);
+              themeProvider.setTheme(themeToSet);
             },
+            child: userTheme?.brightness == Brightness.dark
+                ? Icon(
+                    Icons.check,
+                    color: Colors.white,
+                  )
+                : null,
           ),
         ],
       );
@@ -241,7 +246,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     Widget downloadPermissionSetting() {
-      bool approved = themeProvider.downloadsApproved!;
+      bool approved = themeProvider.downloadsApproved ?? false;
       debugPrint(Theme.of(context).primaryColor.toString());
 
       return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
@@ -261,7 +266,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               : Colors.white,
           value: approved,
           onChanged: (response) {
-            if (response!) {
+            if (response == null) return;
+
+            if (response) {
               themeProvider.approveDownloading();
             } else {
               themeProvider.denyDownloading();
@@ -274,33 +281,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ]);
     }
 
-    Future<String> _getSizeOfAllDownloads() async {
+    Future<String> getSizeOfAllDownloads() async {
       final directory = await getApplicationDocumentsDirectory();
-      int _counter = 0;
+      int counter = 0;
       var myStream = directory.list(recursive: false, followLinks: false);
       await for (var element in myStream) {
         if (element is File) {
-          _counter += await element.length();
+          counter += await element.length();
         }
       }
-      return (_counter / 1000000).toStringAsFixed(2);
+      return (counter / 1000000).toStringAsFixed(2);
     }
 
-    Future<String> _deleteAllDownloads() async {
+    Future<String> deleteAllDownloads() async {
       final directory = await getApplicationDocumentsDirectory();
-      int _counter = 0;
+      int counter = 0;
       var myStream = directory.list(recursive: false, followLinks: false);
       await for (var element in myStream) {
         if (element is File) {
           element.delete();
         }
       }
-      return (_counter / 1000000).toStringAsFixed(2);
+      return (counter / 1000000).toStringAsFixed(2);
     }
 
     Widget clearDownloads() {
       return FutureBuilder(
-          future: _getSizeOfAllDownloads(),
+          future: getSizeOfAllDownloads(),
           builder: (ctx, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: LinearProgressIndicator());
@@ -320,11 +327,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                                 Expanded(
                                   child: Text(
-                                    AppLocalizations.of(context)!
-                                            .deleteDownloads +
-                                        ' (' +
-                                        snapshot.data.toString() +
-                                        ' Mb)',
+                                    '${AppLocalizations.of(context)!.deleteDownloads} (${snapshot.data} Mb)',
                                     // style: Theme.of(context)
                                     //     .textTheme
                                     //     .titleLarge
@@ -333,7 +336,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ],
                             )),
                         onPressed: () {
-                          _deleteAllDownloads();
+                          deleteAllDownloads();
                           Provider.of<Shows>(context, listen: false)
                               .setReloadMainPage(true);
                           setState(() {});
@@ -351,7 +354,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       //Having a button to verify the presence of all shows on the internet is great,
       //but not necessarily something all should see right off. This button is 'hidden' in that it is not visible,
       //tap 6 times and the function kicks off.
-      return Container(
+      return SizedBox(
           height: 70,
           child: GestureDetector(
             onTap: () {

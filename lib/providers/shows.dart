@@ -8,7 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 
-import 'package:image/image.dart' as imageLib;
+import 'package:image/image.dart' as image_lib;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:just_audio/just_audio.dart';
@@ -49,7 +49,6 @@ class Shows with ChangeNotifier {
   late int _lastShowViewed;
 
   int get lastShowViewed {
-    
     return _lastShowViewed;
   }
 
@@ -76,13 +75,13 @@ class Shows with ChangeNotifier {
     debugPrint('start getData');
 
     //check if the current session still contains the shows - if so no need to rebuild
-    if (_shows.length != 0) {
+    if (_shows.isNotEmpty) {
       return;
     }
 
     //temporary simple list for holding data
     final List<Show> loadedShowData = [];
-    List<AudioSource> _playlist = [];
+    List<AudioSource> playlist = [];
 
     //Get the data from json file
     String showsJSON = await rootBundle.loadString("assets/shows.json");
@@ -126,7 +125,7 @@ class Shows with ChangeNotifier {
           ),
         );
 
-        _playlist.add(source);
+        playlist.add(source);
       } else {
         //This is the audio source
         final uri = '$urlBase/${show['urlSnip']}/${show['filename']}';
@@ -142,7 +141,7 @@ class Shows with ChangeNotifier {
               artUri: imageURI),
         );
 
-        _playlist.add(source);
+        playlist.add(source);
       }
     }
 
@@ -151,10 +150,12 @@ class Shows with ChangeNotifier {
     _lastShowViewed = await getLastShowViewed();
 
     // await PlayerManager().loadPlaylist(_playlist, _lastShowViewed);
+    if (!context.mounted) return;
     await Provider.of<PlayerManager>(context, listen: false)
         .initializeSession();
+    if (!context.mounted) return;
     await Provider.of<PlayerManager>(context, listen: false)
-        .loadPlaylist(_playlist, _lastShowViewed);
+        .loadPlaylist(playlist, _lastShowViewed);
 
     debugPrint('end getData');
     return;
@@ -182,17 +183,16 @@ class Shows with ChangeNotifier {
           imageByteData.offsetInBytes, imageByteData.lengthInBytes);
 
       //Load the bytes as an image & resize the image
-      imageLib.Image? imageSquared = imageLib
-          .copyResizeCropSquare(imageLib.decodeImage(bytes)!, size: 400);
+      image_lib.Image? imageSquared = image_lib
+          .copyResizeCropSquare(image_lib.decodeImage(bytes)!, size: 400);
 
       //Write the bytes to disk for use
       await File(docsDirPathString)
-          .writeAsBytes(imageLib.encodeJpg(imageSquared));
+          .writeAsBytes(image_lib.encodeJpg(imageSquared));
     }
 
     return Uri.file(docsDirPathString);
   }
-
 
   Future<int> getLastShowViewed() async {
     final prefs = await SharedPreferences.getInstance();
@@ -200,8 +200,8 @@ class Shows with ChangeNotifier {
       return 0;
     } else {
       final storedValue = json.decode(prefs.getString('lastShowViewed')!);
-      int _lastShowViewed = int.parse(storedValue);
-      return _lastShowViewed;
+      int lastShowViewed = int.parse(storedValue);
+      return lastShowViewed;
     }
   }
 
@@ -209,8 +209,8 @@ class Shows with ChangeNotifier {
     bool? connected;
     if (kIsWeb) {
       var connectivityResult = await (Connectivity().checkConnectivity());
-      if (connectivityResult == ConnectivityResult.mobile ||
-          connectivityResult == ConnectivityResult.wifi) {
+      if (connectivityResult.contains(ConnectivityResult.mobile) ||
+          connectivityResult.contains(ConnectivityResult.wifi)) {
         connected = true;
       } else {
         connected = false;
@@ -269,7 +269,7 @@ class Shows with ChangeNotifier {
   Future<bool> localAudioFileCheck(String filename) async {
     try {
       final path = await _localPath;
-      print(_localPath.toString());
+      debugPrint(filename);
       final file = File('$path/$filename');
       if (await file.exists()) {
         debugPrint('Found the file');
@@ -304,13 +304,13 @@ class Shows with ChangeNotifier {
     //Note shows.forEach doesn't await, it just runs, which messes everything up, stick with 'for'
     for (var show in showsToCheck) {
       try {
-        final url = urlBase + '/' + show.urlSnip + '/' + show.filename;
+        final url = '$urlBase/${show.urlSnip}/${show.filename}';
         debugPrint(url);
         http.Response r = await http.head(Uri.parse(url));
-        final _total = r.headers["content-length"];
-        debugPrint("show ${show.id} total size: $_total");
+        final total = r.headers["content-length"];
+        debugPrint("show ${show.id} total size: $total");
       } catch (e) {
-        debugPrint('Error checking show ' + show.id.toString());
+        debugPrint('Error checking show ${show.id}');
         debugPrint(e.toString());
         showsWithErrors.add(show.id.toString());
       }
@@ -318,10 +318,10 @@ class Shows with ChangeNotifier {
     //Now we have the problem shows in the list showsWithErrors -
     //First, if there are errors, get an async process going
     //sending a message to the dev
-    if (showsWithErrors.length != 0) {
+    if (showsWithErrors.isNotEmpty) {
       String messageText = "Errors in show(s) ";
       for (var showID in showsWithErrors) {
-        messageText = messageText + " " + showID;
+        messageText = "$messageText $showID";
       }
       sendMessage(messageText);
     }
@@ -353,15 +353,15 @@ class Shows with ChangeNotifier {
     Widget checkResultMessage(List<String> errorList) {
       late String message;
       //if no errors
-      if (errorList.length == 0) {
+      if (errorList.isEmpty) {
         message = "No errors detected";
         //This if uncommented sends a no errors detected email
         // sendMessage(message);
       } else {
         String errorListString = "Errors in shows: ";
-        errorList.forEach((element) {
-          errorListString = errorListString + " " + element;
-        });
+        for (var element in errorList) {
+          errorListString = "$errorListString $element";
+        }
         message = errorListString;
         //Let dev know about the errors
         sendMessage(message);
@@ -409,7 +409,7 @@ class Shows with ChangeNotifier {
                 future: checkShows(),
                 builder: (ctx, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    //AbsorbPointer makes the screen nonresponsive til the future completes!
+                    //AbsorbPointer makes the screen nonresponsive til the future completes
                     return AbsorbPointer(
                         absorbing: true,
                         // child: Center(child: CircularProgressIndicator()));
@@ -418,9 +418,7 @@ class Shows with ChangeNotifier {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Expanded(
-                                flex: 0,
-                                child: Container(
-                                    child: CircularProgressIndicator())),
+                                flex: 0, child: CircularProgressIndicator()),
                             // Container(
                             //   height: 50,
                             // ),
@@ -489,7 +487,7 @@ class Shows with ChangeNotifier {
 
     try {
       final sendReport = await send(message, smtpServer);
-      debugPrint('Message sent: ' + sendReport.toString());
+      debugPrint('Message sent: $sendReport');
     } on MailerException catch (e) {
       debugPrint('Message not sent.');
       for (var p in e.problems) {

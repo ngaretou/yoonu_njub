@@ -62,7 +62,7 @@ class ThemeModel extends ChangeNotifier {
   }
 
   Future<void> setupTheme() async {
-    ThemeComponents _defaultTheme =
+    ThemeComponents defaultTheme =
         ThemeComponents(brightness: Brightness.light, color: Colors.teal);
     debugPrint('setupTheme');
 
@@ -71,37 +71,37 @@ class ThemeModel extends ChangeNotifier {
 
     //if there's no userTheme, it's the first time they've run the app, so give them lightTheme with teal
     if (!prefs.containsKey('userTheme')) {
-      setTheme(_defaultTheme, refresh: false);
+      setTheme(defaultTheme, refresh: false);
     } else {
-      final List<String>? _savedTheme = prefs.getStringList('userTheme');
-      late Brightness _brightness;
+      final List<String> savedTheme = prefs.getStringList('userTheme') ??
+          ["Brightness.light", "255,0,150,136"];
+      late Brightness brightness;
       //Try this out - if there's a version problem where the variable doesn't fit,
       //the default theme is used
       try {
-        switch (_savedTheme?[0]) {
+        switch (savedTheme[0]) {
           case "Brightness.light":
             {
-              _brightness = Brightness.light;
+              brightness = Brightness.light;
               break;
             }
 
           case "Brightness.dark":
             {
-              _brightness = Brightness.dark;
+              brightness = Brightness.dark;
               break;
             }
         }
-        int _colorValue = int.parse(_savedTheme![1]);
+        int colorValue = int.parse(savedTheme[1]);
 
-        Color color = Color(_colorValue);
+        Color color = Color(colorValue);
 
-        // Color color = colorFromString(_savedTheme![1]);
 
-        ThemeComponents _componentsToSet =
-            ThemeComponents(brightness: _brightness, color: color);
-        setTheme(_componentsToSet, refresh: false);
+        ThemeComponents componentsToSet =
+            ThemeComponents(brightness: brightness, color: color);
+        setTheme(componentsToSet, refresh: false);
       } catch (e) {
-        setTheme(_defaultTheme, refresh: false);
+        setTheme(defaultTheme, refresh: false);
       }
     }
 

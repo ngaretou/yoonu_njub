@@ -24,7 +24,7 @@ Future<void> launchDeepLink(String appToLaunch, String identifier) async {
   } else if (appToLaunch == 'fb') {
     urlPrefix = 'https://m.me/';
     appURLScheme = 'fb-messenger-public://';
-    appURLSchemeCompleter = 'user-thread/' + identifier;
+    appURLSchemeCompleter = 'user-thread/$identifier';
   } else {
     debugPrint('appToLaunch not found in deep_link.dart');
   }

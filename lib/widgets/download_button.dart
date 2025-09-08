@@ -10,10 +10,10 @@ import '../providers/theme.dart';
 
 class DownloadButton extends StatefulWidget {
   final Show show;
-  DownloadButton(this.show);
+  const DownloadButton(this.show, {super.key});
 
   @override
-  _DownloadButtonState createState() => _DownloadButtonState();
+  State<DownloadButton> createState() => _DownloadButtonState();
 }
 
 class _DownloadButtonState extends State<DownloadButton> {
@@ -35,26 +35,26 @@ class _DownloadButtonState extends State<DownloadButton> {
       _isDownloading = true;
     });
     //This will hold the downloaded file temporarily before writing
-    List<int> _bytes = [];
-    String url = urlbase + '/' + show.urlSnip + '/' + show.filename;
-    final http.StreamedResponse _response =
-        await http.Client().send(http.Request('GET', Uri.parse("$url")));
+    List<int> bytes = [];
+    String url = '$urlbase/${show.urlSnip}/${show.filename}';
+    final http.StreamedResponse response =
+        await http.Client().send(http.Request('GET', Uri.parse(url)));
     //total size of download
-    final _total = _response.contentLength;
+    final total = response.contentLength ?? 0;
 
-    var _received = 0;
+    var received = 0;
     //Here we listen to the stream an monitor it so we nkow how much has been downloaded, which allows us to calculate the percentage done
     //https://medium.com/flutter-community/how-to-show-download-progress-in-a-flutter-app-8810e294acbd
-    _response.stream.listen((value) {
+    response.stream.listen((value) {
       if (!mounted) return;
       setState(() {
-        _bytes.addAll(value);
-        _received += value.length;
-        _percentDone = ((_received) / _total!);
+        bytes.addAll(value);
+        received += value.length;
+        _percentDone = ((received) / total);
       });
     }, onDone: () async {
       final file = File("$path/${show.filename}");
-      await file.writeAsBytes(_bytes);
+      await file.writeAsBytes(bytes);
       debugPrint('download done');
       if (!mounted) return;
       setState(() {
@@ -75,17 +75,17 @@ class _DownloadButtonState extends State<DownloadButton> {
 
     Future<String> getDownloadSize(url) async {
       final http.Response r = await http.head(Uri.parse(url));
-      final _total = r.headers["content-length"]!;
-      final _totalAsInt = double.parse(_total);
-      final String _totalFormatted = (_totalAsInt / 1000000).toStringAsFixed(2);
+      final total = r.headers["content-length"]!;
+      final totalAsInt = double.parse(total);
+      final String totalFormatted = (totalAsInt / 1000000).toStringAsFixed(2);
 
-      return _totalFormatted;
+      return totalFormatted;
     }
 
     //This either deletes the file if it's on the device or downloads it if not.
-    Future<void> _downloadOrDeleteFile(String urlbase, Show show) async {
+    Future<void> downloadOrDeleteFile(String urlbase, Show show) async {
       //putting together the whole url for the show we're looking at
-      String url = shows.urlBase + '/' + show.urlSnip + '/' + show.filename;
+      String url = '${shows.urlBase}/${show.urlSnip}/${show.filename}';
       //If you are not already downloading something...
       if (!_isDownloading) {
         final directory = await getApplicationDocumentsDirectory();
@@ -111,27 +111,29 @@ class _DownloadButtonState extends State<DownloadButton> {
           } else {
             //If file not on the device, check if we have internet connection
             //check if connected:
-            bool? connected = await shows.connectivityCheck;
+            bool connected = await shows.connectivityCheck ?? false;
             //check if file exists
             List<String> showExists = await shows.checkShows(show);
             //If not connected, just stop.
-            if (!connected!) {
+            if (!context.mounted) return;
+            if (!connected) {
               //No connection; show the no internet message and stop
               shows.snackbarMessageNoInternet(context);
-            } else if (connected && showExists.length != 0) {
+            } else if (connected && showExists.isNotEmpty) {
               //We're connected but teh show isn't there
               shows.snackbarMessageError(context);
-            } else if (connected && showExists.length == 0) {
+            } else if (connected && showExists.isEmpty) {
               //download the file
               debugPrint(
                   'The file seems to not be there - starting downloading process');
               //The user can choose to not be warned of download size, that is stored in downloadsApproved
-              if (pref.downloadsApproved!) {
+              if (pref.downloadsApproved ?? false) {
                 //downloading is approved - just download the file.
                 downloadFile(path, shows.urlBase, show);
               } else {
                 //if downloading is not already approved, get feedback from the user
                 //I have
+                if (!context.mounted) return;
                 showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -177,7 +179,7 @@ class _DownloadButtonState extends State<DownloadButton> {
             value: _isDownloading ? _percentDone : 0,
           ),
           IconButton(
-              icon: _isDownloaded!
+              icon: _isDownloaded ?? false
                   ? Icon(
                       Icons.download_sharp,
                       color: Theme.of(context).colorScheme.primary,
@@ -193,7 +195,7 @@ class _DownloadButtonState extends State<DownloadButton> {
                 //     widget.show.urlSnip +
                 //     '/' +
                 //     widget.show.filename;
-                _downloadOrDeleteFile(shows.urlBase, widget.show);
+                downloadOrDeleteFile(shows.urlBase, widget.show);
                 // setState(() {});
               }),
         ],
@@ -229,10 +231,10 @@ class DownloadConfirmation extends StatefulWidget {
   final String url;
   final String? downloadSize;
 
-  DownloadConfirmation(this.url, this.downloadSize);
+  const DownloadConfirmation(this.url, this.downloadSize, {super.key});
 
   @override
-  _DownloadConfirmationState createState() => _DownloadConfirmationState();
+  State<DownloadConfirmation> createState() => _DownloadConfirmationState();
 }
 
 class _DownloadConfirmationState extends State<DownloadConfirmation> {
@@ -255,21 +257,20 @@ class _DownloadConfirmationState extends State<DownloadConfirmation> {
         AppLocalizations.of(context)!.downloadTitle,
       ),
       content: Text(
-        AppLocalizations.of(context)!.downloadMessage +
-            widget.downloadSize! +
-            ' Mb?',
+        '${AppLocalizations.of(context)!.downloadMessage}${widget.downloadSize ?? '?'} Mb?',
       ),
 
       actions: [
         Column(
           children: [
-            Container(
+            SizedBox(
               width: 300,
               child: CheckboxListTile(
                 title: Text(AppLocalizations.of(context)!.approveDownloads),
                 value: approved,
                 onChanged: (response) {
-                  if (response!) {
+                  if (response == null) return;
+                  if (response) {
                     pref.approveDownloading();
                   } else {
                     pref.denyDownloading();

@@ -21,10 +21,9 @@ class ControlButtons extends StatefulWidget {
   final int wideVersionBreakPoint;
 
   const ControlButtons(
-      {Key? key,
+      {super.key,
       required this.showPlayList,
-      required this.wideVersionBreakPoint})
-      : super(key: key);
+      required this.wideVersionBreakPoint});
 
   @override
   ControlButtonsState createState() => ControlButtonsState();
@@ -33,30 +32,6 @@ class ControlButtons extends StatefulWidget {
 class ControlButtonsState extends State<ControlButtons> {
   late PlayerManager playerManager;
   late AudioPlayer player;
-  // void ffOrRew(String input) {
-  //   debugPrint('called child method from parent $input');
-  //   if (input == 'rew') {
-  //     //check to make sure we're landing in the duration
-  //     int newPosition = player.position.inSeconds - 10;
-
-  //     if (newPosition > 0) {
-  //       player.seek(Duration(seconds: player.position.inSeconds - 10));
-  //     }
-  //   } else if (input == 'ff') {
-  //     //check to make sure we're landing in the duration
-
-  //     if (player.duration != null) {
-  //       int newPosition = player.position.inSeconds + 10;
-
-  //       if (newPosition < player.duration!.inSeconds) {
-  //         player.seek(Duration(seconds: player.position.inSeconds + 10));
-  //       } else {
-  //         //jump to next show
-  //         widget.jumpPrevNext('next');
-  //       }
-  //     }
-  //   }
-  // }
 
   @override
   void initState() {
@@ -85,10 +60,10 @@ class ControlButtonsState extends State<ControlButtons> {
     //Biggest (12 pro max) is 428 x 926 = 1354.
     //Android biggest phone I can find is is 480 x 853 = 1333
     //For tablets the smallest I can find is 768 x 1024
-    final bool _isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
+    final bool isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
 
     final bool showPlaylist =
-        _isPhone || mediaQuery.width < widget.wideVersionBreakPoint;
+        isPhone || mediaQuery.width < widget.wideVersionBreakPoint;
 
     final mainRowIconSize = 36.0;
     final showsProvider = Provider.of<Shows>(context, listen: false);
@@ -252,16 +227,23 @@ class ControlButtonsState extends State<ControlButtons> {
                     stream: player.sequenceStateStream,
                     builder: (context, snapshot) {
                       final state = snapshot.data;
-                      if (state?.sequence.isEmpty ?? true) {
-                        return const SizedBox();
+                      final bool isLoading =
+                          state == null || state.sequence.isEmpty;
+
+                      int id = 0;
+
+                      if (!isLoading) {
+                        MediaItem metadata =
+                            state.currentSource?.tag as MediaItem;
+
+                        id = int.parse(metadata.id) - 1;
                       }
-                      final metadata = state!.currentSource!.tag as MediaItem;
 
-                      int id = int.parse(metadata.id);
-
-                      return Container(
+                      return SizedBox(
                         width: 60,
-                        child: DownloadButton(showsProvider.shows[id]),
+                        child: isLoading
+                            ? SizedBox()
+                            : DownloadButton(showsProvider.shows[id]),
                       );
                     })
                 : SizedBox(width: 40, height: 10),
@@ -325,7 +307,8 @@ class SeekBar extends StatefulWidget {
   final ValueChanged<Duration>? onChanged;
   final ValueChanged<Duration>? onChangeEnd;
 
-  SeekBar({
+  const SeekBar({
+    super.key,
     required this.duration,
     required this.position,
     this.onChanged,
@@ -333,7 +316,7 @@ class SeekBar extends StatefulWidget {
   });
 
   @override
-  _SeekBarState createState() => _SeekBarState();
+  State<SeekBar> createState() => _SeekBarState();
 }
 
 class _SeekBarState extends State<SeekBar> {
@@ -385,8 +368,8 @@ _showSliderDialog({
   required BuildContext context,
   String? title,
   int? divisions,
-  double? min,
-  double? max,
+  double min = 0,
+  double max = 0,
   String valueSuffix = '',
   Stream<double>? stream,
   ValueChanged<double>? onChanged,
@@ -394,10 +377,10 @@ _showSliderDialog({
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text(title!, textAlign: TextAlign.center),
+      title: Text(title ?? '', textAlign: TextAlign.center),
       content: StreamBuilder<double>(
         stream: stream,
-        builder: (context, snapshot) => Container(
+        builder: (context, snapshot) => SizedBox(
           height: 100.0,
           child: Column(
             children: [
@@ -409,8 +392,8 @@ _showSliderDialog({
                   )),
               Slider(
                 divisions: divisions,
-                min: min!,
-                max: max!,
+                min: min,
+                max: max,
                 value: snapshot.data ?? 1.0,
                 onChanged: onChanged,
               ),

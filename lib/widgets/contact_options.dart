@@ -6,12 +6,14 @@ import 'package:yoonu_njub/l10n/app_localizations.dart'; // the new Flutter 3.x 
 import 'deep_link.dart'; //for WhatsApp link below
 
 class ContactOptions extends StatelessWidget {
+  const ContactOptions({super.key});
+
   @override
   Widget build(BuildContext context) {
     Widget drawerTitle(String title, IconData icon, Function tapHandler) {
       return InkWell(
         onTap: tapHandler as void Function()?,
-        child: Container(
+        child: SizedBox(
             width: 300,
             child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -29,7 +31,7 @@ class ContactOptions extends StatelessWidget {
                     SizedBox(width: 25),
                     Expanded(
                         child: Text(title,
-                            style: Theme.of(context).textTheme.titleLarge!)),
+                            style: Theme.of(context).textTheme.titleLarge)),
                   ],
                 ))),
       );
@@ -47,6 +49,7 @@ class ContactOptions extends StatelessWidget {
             } else {
               throw 'Could not launch $url';
             }
+            if (!context.mounted) return; 
             Navigator.of(context).pop();
           },
         ),

@@ -14,20 +14,15 @@ import 'contact_options.dart';
 import 'deep_link.dart';
 
 class MainDrawer extends StatelessWidget {
+  const MainDrawer({super.key});
+
   @override
   Widget build(BuildContext context) {
-    // TextStyle drawerEntryStyle = Theme.of(context).textTheme.titleLarge!;
-    // TextStyle whitetitleLarge = drawerEntryStyle.copyWith(color: Colors.white);
-
-    // TextStyle drawerEntryStyle = Theme.of(context)
-    //     .appBarTheme
-    //     .titleTextStyle /*!*/ .copyWith(color: Colors.white);
-
     //Main template for all titles
     Widget drawerTitle(String title, IconData icon, Function tapHandler) {
       return InkWell(
         onTap: tapHandler as void Function()?,
-        child: Container(
+        child: SizedBox(
             width: 300,
             child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -37,15 +32,10 @@ class MainDrawer extends StatelessWidget {
                         ? FaIcon(
                             icon,
                             size: 27,
-
-                            // color:
-                            //     Theme.of(context).appBarTheme.iconTheme!.color
                           )
                         : Icon(
                             icon,
                             size: 27,
-                            // color:
-                            //     Theme.of(context).appBarTheme.iconTheme!.color,
                           ),
                     SizedBox(width: 25),
                     Text(
@@ -60,7 +50,7 @@ class MainDrawer extends StatelessWidget {
     Widget drawerTileWithFormatting(title, icon, tapHandler) {
       return InkWell(
         onTap: tapHandler,
-        child: Container(
+        child: SizedBox(
             width: 300,
             child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -70,14 +60,10 @@ class MainDrawer extends StatelessWidget {
                         ? FaIcon(
                             icon,
                             size: 27,
-                            // color:
-                            //     Theme.of(context).appBarTheme.iconTheme!.color
                           )
                         : Icon(
                             icon,
                             size: 27,
-                            // color:
-                            //     Theme.of(context).appBarTheme.iconTheme!.color,
                           ),
                     SizedBox(width: 25),
                     Text(
@@ -100,29 +86,28 @@ class MainDrawer extends StatelessWidget {
       child: ListView(
         children: [
           //Main title
-          Container(
-              child: Padding(
-                  padding:
-                      EdgeInsets.only(top: 30, bottom: 20, left: 20, right: 20),
-                  child: Row(
-                    children: [
-                      Container(
-                        // child: Image.asset('assets/icons/icon.png'),
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage("assets/icons/icon.png"),
-                          ),
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(40)),
-                        ),
+          Padding(
+              padding:
+                  EdgeInsets.only(top: 30, bottom: 20, left: 20, right: 20),
+              child: Row(
+                children: [
+                  Container(
+                    // child: Image.asset('assets/icons/icon.png'),
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage("assets/icons/icon.png"),
                       ),
-                      SizedBox(width: 25),
-                      Text("Yoonu Njub",
-                          style: Theme.of(context).textTheme.titleLarge)
-                    ],
-                  ))),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.all(Radius.circular(40)),
+                    ),
+                  ),
+                  SizedBox(width: 25),
+                  Text("Yoonu Njub",
+                      style: Theme.of(context).textTheme.titleLarge)
+                ],
+              )),
           Divider(
             thickness: 3,
           ),
@@ -190,7 +175,7 @@ class MainDrawer extends StatelessWidget {
             thickness: 1,
           ),
 
-          Container(
+          SizedBox(
               width: 300,
               child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -226,10 +211,17 @@ class MainDrawer extends StatelessWidget {
 
 void showAbout(BuildContext context) async {
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
-
+  if (!context.mounted) return;
   showDialog(
       context: context,
       builder: (BuildContext context) {
+        TextStyle italicStyle = Theme.of(context).textTheme.bodyLarge != null
+            ? Theme.of(context)
+                .textTheme
+                .bodyLarge!
+                .copyWith(fontStyle: FontStyle.italic)
+            : TextStyle(fontStyle: FontStyle.italic);
+
         return AlertDialog(
           // title: Text(packageInfo.appName),
           content: SingleChildScrollView(
@@ -280,10 +272,7 @@ void showAbout(BuildContext context) async {
                   text: 'Emissions ',
                 ),
                 TextSpan(
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge!
-                      .copyWith(fontStyle: FontStyle.italic),
+                  style: italicStyle,
                   text: 'Yoonu Njub',
                 ),
                 TextSpan(

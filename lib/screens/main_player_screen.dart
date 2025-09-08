@@ -7,8 +7,10 @@ import '../widgets/show_display.dart';
 class MainPlayer extends StatefulWidget {
   static const routeName = 'main-player-screen';
 
+  const MainPlayer({super.key});
+
   @override
-  _MainPlayerState createState() => _MainPlayerState();
+  State<MainPlayer> createState() => _MainPlayerState();
 }
 
 class _MainPlayerState extends State<MainPlayer> {
@@ -20,8 +22,8 @@ class _MainPlayerState extends State<MainPlayer> {
     //Android biggest phone I can find is is 480 x 853 = 1333
     //For tablets the smallest I can find is 768 x 1024
     final mediaQuery = MediaQuery.of(context).size;
-    final bool _isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
-    if (_isPhone) {
+    final bool isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
+    if (isPhone) {
       //only allow portrait mode, not landscape
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,

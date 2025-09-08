@@ -19,26 +19,28 @@ class PlayerManager with ChangeNotifier {
     await session.configure(AudioSessionConfiguration.speech());
 
     player.sequenceStream.listen((event) {
-      var tag = player.sequenceState.currentSource!.tag as MediaItem;
-      var id = tag.id;
-      saveLastShowViewed(int.parse(id) - 1);
+      if (player.sequenceState.currentSource != null) {
+        var tag = player.sequenceState.currentSource!.tag as MediaItem;
+        var id = tag.id;
+        saveLastShowViewed(int.parse(id) - 1);
+      }
     });
 
     // Listen to errors during playback.
     // player.errorStream.listen((event) {
     //   debugPrint('A stream error occurred: ${event.toString}');
     // });
-    print('initializeSession complete');
+    debugPrint('initializeSession complete');
   }
 
   Future<void> loadPlaylist(
       List<AudioSource> playlist, int initialIndex) async {
-    print('loadPlaylist');
+    debugPrint('loadPlaylist');
     try {
       await player.setAudioSources(playlist,
           initialIndex: initialIndex, preload: true);
     } on PlayerException catch (e) {
-      print("Error loading audio source: $e");
+      debugPrint("Error loading audio source: $e");
     }
   }
 

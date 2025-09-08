@@ -32,7 +32,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   provider: ^6.0.2
-  intl: any
+  intl: ^0.20.2
   shared_preferences: ^2.0.12
   url_launcher: ^6.0.20
   font_awesome_flutter: ^10.2.1
@@ -44,7 +44,7 @@ dependencies:
   scrollable_positioned_list: ^0.3.8
   http: ^1.0.0
   mailer: ^6.0.1
-  flutter_html: ^3.0.0-alpha.6
+  flutter_html: ^3.0.0
   just_audio_background: ^0.0.1-beta.17
   package_info_plus: ^8.3.1
   share_plus: ^11.1.0
@@ -54,10 +54,14 @@ dependencies:
   qr_flutter: ^4.1.0
   rxdart: ^0.28.0
 
+  path: any
+  image: any
+  audio_service: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: ^0.14.4
+  flutter_lints: ^5.0.0
 
 flutter_icons:
   android: true

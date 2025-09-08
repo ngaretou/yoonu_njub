@@ -25,6 +25,8 @@ class MyCustomScrollBehavior extends ScrollBehavior {
 }
 
 class ShowDisplay extends StatefulWidget {
+  const ShowDisplay({super.key});
+
   @override
   ShowDisplayState createState() => ShowDisplayState();
 }
@@ -65,26 +67,30 @@ class ShowDisplayState extends State<ShowDisplay> {
     //Biggest (12 pro max) is 428 x 926 = 1354.
     //Android biggest phone I can find is is 480 x 853 = 1333
     //For tablets the smallest I can find is 768 x 1024
-    final bool _isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
+    final bool isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
     final int wideVersionBreakPoint = 700;
     //Text Styles
-    ui.TextDirection _rtlText = ui.TextDirection.rtl;
-    ui.TextDirection _ltrText = ui.TextDirection.ltr;
+    ui.TextDirection rtlText = ui.TextDirection.rtl;
+    ui.TextDirection ltrText = ui.TextDirection.ltr;
 
-    TextStyle _asStyle = TextStyle(
-        color: Theme.of(context).textTheme.titleLarge!.color,
+    TextStyle asStyle = TextStyle(
+        color: Theme.of(context).textTheme.titleLarge?.color,
         fontFamily: "Harmattan",
         fontSize: 32);
 
-    TextStyle _rsStyle = TextStyle(
-        color: Theme.of(context).textTheme.titleLarge!.color,
+    TextStyle rsStyle = TextStyle(
+        color: Theme.of(context).textTheme.titleLarge?.color,
         fontFamily: "Lato",
         fontSize: 22);
 
     TextStyle showListStyle = TextStyle(
-        color: Theme.of(context).textTheme.titleLarge!.color,
+        color: Theme.of(context).textTheme.titleLarge?.color,
         fontFamily: "Lato",
-        fontSize: 20);
+        fontSize: 18);
+    TextStyle showNumberStyle = TextStyle(
+        color: Theme.of(context).textTheme.titleSmall?.color,
+        fontFamily: "Lato",
+        fontSize: 16);
 
     //This page is split up into components that can be recombined based on the platform.
 
@@ -109,48 +115,61 @@ class ShowDisplayState extends State<ShowDisplay> {
             physics: ClampingScrollPhysics(),
             itemCount: showsProvider.shows.length,
             itemBuilder: (ctx, i) {
-              return Container(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: InkWell(
-                    onTap: () {
-                      //If not on the web version, pop the modal bottom sheet - if web, no need
-                      if (_isPhone || mediaQuery.width < wideVersionBreakPoint)
-                        Navigator.pop(context);
-                      player.seek(Duration.zero, index: i);
-                    },
-                    child: Card(
-                      elevation: 0,
-                      color: Theme.of(context).colorScheme.surfaceContainerLow,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8.0, vertical: 16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Expanded(
-                                flex: 0,
-                                child: Text(showsProvider.shows[i].id + ".  ",
-                                    style: showListStyle)),
-                            Expanded(
-                              flex: 3,
-                              child: Text(showsProvider.shows[i].showNameRS,
-                                  style: showListStyle),
-                            ),
-                            if (!kIsWeb)
-                              Container(
-                                  width: 40,
-                                  height: 40,
-                                  child:
-                                      DownloadButton(showsProvider.shows[i])),
-                            // ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+              return ListTile(
+                leading:
+                    Text(showsProvider.shows[i].id, style: showNumberStyle),
+                title: Text(showsProvider.shows[i].showNameRS,
+                    style: showListStyle),
+                trailing:
+                    !kIsWeb ? DownloadButton(showsProvider.shows[i]) : null,
+                onTap: () {
+                  //If not on the web version, pop the modal bottom sheet - if web, no need
+                  if (isPhone || mediaQuery.width < wideVersionBreakPoint) {
+                    Navigator.pop(context);
+                  }
+                  player.seek(Duration.zero, index: i);
+                },
               );
+              // return Padding(
+              //   padding: const EdgeInsets.all(8.0),
+              //   child: InkWell(
+              //     onTap: () {
+              //       //If not on the web version, pop the modal bottom sheet - if web, no need
+              //       if (isPhone || mediaQuery.width < wideVersionBreakPoint) {
+              //         Navigator.pop(context);
+              //       }
+              //       player.seek(Duration.zero, index: i);
+              //     },
+              //     child: Card(
+              //       elevation: 0,
+              //       color: Theme.of(context).colorScheme.surfaceContainerLow,
+              //       child: Padding(
+              //         padding: const EdgeInsets.symmetric(
+              //             horizontal: 8.0, vertical: 16.0),
+              //         child: Row(
+              //           mainAxisAlignment: MainAxisAlignment.start,
+              //           children: [
+              //             Expanded(
+              //                 flex: 0,
+              //                 child: Text("${showsProvider.shows[i].id}.  ",
+              //                     style: showListStyle)),
+              //             Expanded(
+              //               flex: 3,
+              //               child: Text(showsProvider.shows[i].showNameRS,
+              //                   style: showListStyle),
+              //             ),
+              //             if (!kIsWeb)
+              //               SizedBox(
+              //                   width: 40,
+              //                   height: 40,
+              //                   child: DownloadButton(showsProvider.shows[i])),
+              //             // ),
+              //           ],
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // );
             });
       }
 
@@ -191,11 +210,6 @@ class ShowDisplayState extends State<ShowDisplay> {
             onDoubleTap: !kIsWeb ? triggerSeek : () {},
             child: RepaintBoundary(
               child: Container(
-                child: Icon(
-                  directionIcon,
-                  size: 75,
-                ),
-                // width: mediaQuery.width / 2,
                 height: double.infinity,
                 decoration: BoxDecoration(
                   gradient: RadialGradient(
@@ -206,6 +220,10 @@ class ShowDisplayState extends State<ShowDisplay> {
                     center: Alignment.center,
                     radius: 2,
                   ),
+                ),
+                child: Icon(
+                  directionIcon,
+                  size: 75,
                 ),
               )
                   .animate(
@@ -257,15 +275,18 @@ class ShowDisplayState extends State<ShowDisplay> {
             child: StreamBuilder(
                 stream: player.sequenceStateStream,
                 builder: (context, snapshot) {
-                  print('sequencestatestream');
+                  debugPrint('sequencestatestream');
                   final state = snapshot.data;
-                  if (state?.sequence.isEmpty ?? true) {
-                    // return const SizedBox();
-                    return const SizedBox();
-                  }
-                  final metadata = state!.currentSource!.tag as MediaItem;
+                  final bool isLoading =
+                      state == null || state.sequence.isEmpty;
 
-                  int id = int.parse(metadata.id) - 1;
+                  // Use last viewed show as a default to prevent layout jump
+                  int id = showsProvider.lastShowViewed;
+
+                  if (!isLoading) {
+                    final metadata = state.currentSource!.tag as MediaItem;
+                    id = int.parse(metadata.id) - 1;
+                  }
 
                   //Show image
                   return Column(
@@ -273,13 +294,14 @@ class ShowDisplayState extends State<ShowDisplay> {
                       Expanded(
                         flex: 1,
                         child: Stack(
+                          alignment: Alignment.center,
                           children: [
                             Container(
                               // width: mediaQuery.width,
                               decoration: BoxDecoration(
                                 color: Colors.black54,
                                 image: DecorationImage(
-                                  fit: BoxFit.cover,
+                                  fit: BoxFit.fill,
                                   image: AssetImage(
                                     "assets/images/${showsProvider.shows[id].image}.jpg",
                                   ),
@@ -303,15 +325,15 @@ class ShowDisplayState extends State<ShowDisplay> {
                       ),
                       SizedBox(height: 16),
                       Text(showsProvider.shows[id].id,
-                          style: _rsStyle.copyWith(fontSize: 18)),
+                          style: rsStyle.copyWith(fontSize: 18)),
                       Text(showsProvider.shows[id].showNameAS,
                           textAlign: TextAlign.center,
-                          style: _asStyle,
-                          textDirection: _rtlText),
+                          style: asStyle,
+                          textDirection: rtlText),
                       Text(showsProvider.shows[id].showNameRS,
                           textAlign: TextAlign.center,
-                          style: _rsStyle,
-                          textDirection: _ltrText),
+                          style: rsStyle,
+                          textDirection: ltrText),
                     ],
                   );
                 }),
@@ -337,15 +359,15 @@ class ShowDisplayState extends State<ShowDisplay> {
     Widget wideVersion() {
       return Row(
         children: [
-          Container(width: mediaQuery.width * .7, child: playerStack()),
-          Container(width: mediaQuery.width * .3, child: playList()),
+          SizedBox(width: mediaQuery.width * .7, child: playerStack()),
+          SizedBox(width: mediaQuery.width * .3, child: playList()),
         ],
       );
     }
 
     //Now figure out which version to use and build it
 
-    if (_isPhone || mediaQuery.width <= wideVersionBreakPoint) {
+    if (isPhone || mediaQuery.width <= wideVersionBreakPoint) {
       return phoneVersion();
     } else {
       return wideVersion();
