@@ -66,6 +66,8 @@ class ControlButtonsState extends State<ControlButtons> {
         isPhone || mediaQuery.width < widget.wideVersionBreakPoint;
 
     final mainRowIconSize = 36.0;
+    final secondaryRowIconSize = 24.0;
+
     final showsProvider = Provider.of<Shows>(context, listen: false);
 
     //This is to refresh the main view after downloads are clear
@@ -218,83 +220,101 @@ class ControlButtonsState extends State<ControlButtons> {
           ],
         ),
         //Second row of control buttons
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            //download button
-            !kIsWeb
-                ? StreamBuilder(
-                    stream: player.sequenceStateStream,
+        // Download, share, playlist, speed
+        Padding(
+          padding:
+              const EdgeInsets.only(left: 24.0, right: 24, top: 8, bottom: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              //download button
+              !kIsWeb
+                  ? SizedBox(
+                      height: 48,
+                      width: 48,
+                      child: StreamBuilder(
+                          stream: player.sequenceStateStream,
+                          builder: (context, snapshot) {
+                            final state = snapshot.data;
+                            final bool isLoading =
+                                state == null || state.sequence.isEmpty;
+
+                            int id = 0;
+
+                            if (!isLoading) {
+                              MediaItem metadata =
+                                  state.currentSource?.tag as MediaItem;
+
+                              id = int.parse(metadata.id) - 1;
+                            }
+
+                            return isLoading
+                                ? Icon(Icons.download_sharp,
+                                    size: secondaryRowIconSize)
+                                : DownloadButton(
+                                    showsProvider.shows[id],
+                                    iconSize: secondaryRowIconSize,
+                                  );
+                          }),
+                    )
+                  : SizedBox(width: 48, height: 48),
+              // if (!kIsWeb) SizedBox(width: secondaryRowIconSize),
+              IconButton(
+                onPressed: () {},
+                icon: Icon(Icons.share),
+                iconSize: secondaryRowIconSize,
+              ),
+              Expanded(
+                child: SizedBox(width: 48, height: 48),
+              ),
+              showPlaylist
+                  ? IconButton(
+                      onPressed: () => widget.showPlayList(),
+                      icon:
+                          Icon(Icons.playlist_play, size: secondaryRowIconSize))
+                  : SizedBox(width: 48, height: 48), //playback speed button
+
+              SizedBox(
+                height: 48,
+                width: 48,
+                child: Center(
+                  child: StreamBuilder<double>(
+                    stream: player.speedStream,
                     builder: (context, snapshot) {
-                      final state = snapshot.data;
-                      final bool isLoading =
-                          state == null || state.sequence.isEmpty;
-
-                      int id = 0;
-
-                      if (!isLoading) {
-                        MediaItem metadata =
-                            state.currentSource?.tag as MediaItem;
-
-                        id = int.parse(metadata.id) - 1;
+                      late String? speed;
+                      if (snapshot.data != null) {
+                        speed = snapshot.data?.toStringAsFixed(1);
+                      } else {
+                        speed = '1.0';
                       }
 
-                      return SizedBox(
-                        width: 60,
-                        child: isLoading
-                            ? SizedBox()
-                            : DownloadButton(showsProvider.shows[id]),
-                      );
-                    })
-                : SizedBox(width: 40, height: 10),
-            Expanded(
-              child: SizedBox(width: 40, height: 10),
-            ),
-            showPlaylist
-                ? GestureDetector(
-                    child: Icon(Icons.playlist_play),
-                    onTap: () => widget.showPlayList(),
-                    onVerticalDragStart: (_) => widget.showPlayList())
-                : SizedBox(width: 40, height: 10), //playback speed button
-
-            StreamBuilder<double>(
-              stream: player.speedStream,
-              builder: (context, snapshot) {
-                late String? speed;
-                if (snapshot.data != null) {
-                  speed = snapshot.data?.toStringAsFixed(1);
-                } else {
-                  speed = '1.0';
-                }
-
-                return MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 24),
-                      child: Text("${speed}x",
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall!
-                              .copyWith(fontWeight: FontWeight.bold)),
-                    ),
-                    onTap: () {
-                      _showSliderDialog(
-                        context: context,
-                        title: AppLocalizations.of(context)!.adjustSpeed,
-                        divisions: 10,
-                        min: 0.5,
-                        max: 1.5,
-                        stream: player.speedStream,
-                        onChanged: player.setSpeed,
+                      return MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          child: Text("${speed}x",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall!
+                                  .copyWith(fontWeight: FontWeight.bold)),
+                          onTap: () {
+                            _showSliderDialog(
+                              context: context,
+                              title: AppLocalizations.of(context)!.adjustSpeed,
+                              divisions: 10,
+                              min: 0.5,
+                              max: 1.5,
+                              stream: player.speedStream,
+                              onChanged: player.setSpeed,
+                            );
+                          },
+                        ),
                       );
                     },
                   ),
-                );
-              },
-            ),
-          ],
+                ),
+              ),
+            ],
+          ),
         )
       ],
     );

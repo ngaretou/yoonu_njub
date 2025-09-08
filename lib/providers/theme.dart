@@ -29,9 +29,8 @@ class ThemeModel extends ChangeNotifier {
 
   Future<void> migrateToHive() async {
     // migrating from SharedPreferences to Hive
+    final oldPrefs = await SharedPreferences.getInstance();
     try {
-      final oldPrefs = await SharedPreferences.getInstance();
-
       Future<void> migrateOne(String oldKey, {String? newKey}) async {
         if (oldPrefs.containsKey(oldKey)) {
           String storedValue = json.decode(oldPrefs.getString(oldKey)!);
@@ -63,6 +62,7 @@ class ThemeModel extends ChangeNotifier {
         prefsBox.put(key, defaultPrefs[key]);
       }
     }
+    await oldPrefs.clear();
   }
 
   //Language code: Initialize the locale

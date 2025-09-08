@@ -154,11 +154,26 @@ class ShowDisplayState extends State<ShowDisplay> {
       return webScrollable(playListInterior());
     }
 
-    //Widget for the transparent panel left and right that ff and rew 10 seconds
+    // Widget for the transparent panel left and right that ff and rew 10 seconds
+    // this is a bit complicated but it's this way so that we can reuse the widget!
     Widget animatedSeekPanel(String direction) {
       late ValueNotifier<double> valueNotifier;
       late IconData directionIcon;
       late MouseCursor cursor;
+
+      seekForward() {
+        final duration = player.duration ?? Duration.zero;
+
+        if ((duration - player.position) > Duration(seconds: 11)) {
+          player.seek(player.position + Duration(seconds: 10));
+        }
+      }
+
+      seekBackward() {
+        if (player.position > Duration(seconds: 11)) {
+          player.seek(player.position - Duration(seconds: 10));
+        }
+      }
 
       if (direction == 'ff') {
         valueNotifier = ffValueNotifier;
@@ -168,6 +183,7 @@ class ShowDisplayState extends State<ShowDisplay> {
         valueNotifier = rewValueNotifier;
         directionIcon = Icons.fast_rewind;
         cursor = SystemMouseCursors.resizeLeft;
+        seekBackward();
       }
 
       void triggerSeek() {
@@ -175,6 +191,11 @@ class ShowDisplayState extends State<ShowDisplay> {
           valueNotifier.value = 0;
         } else {
           valueNotifier.value = 1;
+        }
+        if (direction == 'ff') {
+          seekForward();
+        } else if (direction == 'rew') {
+          seekBackward();
         }
       }
 
@@ -248,7 +269,7 @@ class ShowDisplayState extends State<ShowDisplay> {
       print('building teh player stack');
 
       return webScrollable(Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        // mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Expanded(
             flex: 1,

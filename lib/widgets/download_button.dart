@@ -10,7 +10,8 @@ import '../providers/theme.dart';
 
 class DownloadButton extends StatefulWidget {
   final Show show;
-  const DownloadButton(this.show, {super.key});
+  final double? iconSize;
+  const DownloadButton(this.show, {this.iconSize, super.key});
 
   @override
   State<DownloadButton> createState() => _DownloadButtonState();
@@ -70,6 +71,7 @@ class _DownloadButtonState extends State<DownloadButton> {
 
   @override
   Widget build(BuildContext context) {
+    print('building Download button');
     final shows = Provider.of<Shows>(context, listen: false);
     final pref = Provider.of<ThemeModel>(context, listen: false);
 
@@ -179,6 +181,7 @@ class _DownloadButtonState extends State<DownloadButton> {
             value: _isDownloading ? _percentDone : 0,
           ),
           IconButton(
+              iconSize: widget.iconSize,
               icon: _isDownloaded ?? false
                   ? Icon(
                       Icons.download_sharp,
