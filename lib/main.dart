@@ -1,13 +1,12 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart'; // the new Flutter 3.x localization method
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import './providers/player_manager.dart';
 import './providers/shows.dart';
@@ -17,7 +16,11 @@ import 'screens/main_player_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/about_screen.dart';
 
+late Box prefsBox;
+
 Future<void> main() async {
+  await Hive.initFlutter();
+  prefsBox = await Hive.openBox('userPrefs');
   //Initialize the audio background service that allows the notification area playback controller widget
   await JustAudioBackground.init(
     androidNotificationChannelId: 'org.yoonunjub.channel.audio',
@@ -53,29 +56,6 @@ class _MyAppState extends State<MyApp> {
   //A Future for the future builder
   late Future<void> _initialization;
 
-  //Language code: Initialize the locale
-  Future<void> setupLang() async {
-    debugPrint('setupLang()');
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (!mounted) return;
-    Function setLocale =
-        Provider.of<ThemeModel>(context, listen: false).setLocale;
-
-    //If there is no lang pref (i.e. first run), set lang to Wolof
-    if (!prefs.containsKey('userLang')) {
-      // fr_CH is our Flutter 2.x stand-in for Wolof
-      await setLocale('fr_CH');
-    } else {
-      //otherwise grab the saved setting
-      String savedUserLang =
-          json.decode(prefs.getString('userLang')!) as String;
-
-      await setLocale(savedUserLang);
-    }
-    debugPrint('end setupLang()');
-    //end language code
-  }
-
   @override
   void initState() {
     super.initState();
@@ -96,8 +76,9 @@ class _MyAppState extends State<MyApp> {
   Future<void> callInititalization() async {
     await Provider.of<ThemeModel>(context, listen: false).setupTheme();
     if (!mounted) return;
+    await Provider.of<ThemeModel>(context, listen: false).initializeLocale();
+    if (!mounted) return;
     await Provider.of<Shows>(context, listen: false).getData(context);
-    await setupLang();
     return;
   }
 

@@ -3,6 +3,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../main.dart';
+
 //New Material 3 version
 
 class ThemeComponents {
@@ -16,7 +18,6 @@ class ThemeComponents {
 }
 
 class ThemeModel extends ChangeNotifier {
-  Future<SharedPreferences> prefs = SharedPreferences.getInstance();
   ThemeComponents? userTheme;
   ThemeData? currentTheme;
   Locale? userLocale;
@@ -24,6 +25,62 @@ class ThemeModel extends ChangeNotifier {
 
   bool? get downloadsApproved {
     return _downloadsApproved;
+  }
+
+  Future<void> migrateToHive() async {
+    // migrating from SharedPreferences to Hive
+    try {
+      final oldPrefs = await SharedPreferences.getInstance();
+
+      Future<void> migrateOne(String oldKey, {String? newKey}) async {
+        if (oldPrefs.containsKey(oldKey)) {
+          String storedValue = json.decode(oldPrefs.getString(oldKey)!);
+          prefsBox.put(newKey ?? oldKey, storedValue);
+        }
+      }
+
+      migrateOne('lastShowViewed');
+      migrateOne('userLang');
+      migrateOne('_downloadsApproved', newKey: 'downloadsApproved');
+
+      if (oldPrefs.containsKey('userTheme')) {
+        final List<String> savedTheme = oldPrefs.getStringList('userTheme') ??
+            ["Brightness.light", "255,0,150,136"];
+        prefsBox.put('brightness', savedTheme[0]);
+        prefsBox.put('color', savedTheme[1]);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      debugPrint('setting default preferences...');
+      Map<String, String>? defaultPrefs = {
+        'lastShowViewed': '0',
+        'userLang': 'fr_CH',
+        'downloadsApproved': 'false',
+        'brightness': 'Brightness.light',
+        'color': '255,0,150,136',
+      };
+      for (var key in defaultPrefs.keys) {
+        prefsBox.put(key, defaultPrefs[key]);
+      }
+    }
+  }
+
+  //Language code: Initialize the locale
+  Future<void> initializeLocale() async {
+    debugPrint('setupLang()');
+
+    //If there is no lang pref (i.e. first run), set lang to Wolof
+    String? savedUserLang = prefsBox.get('userLang');
+
+    if (savedUserLang == null) {
+      // fr_CH is our Flutter 2.x stand-in for Wolof
+      await setLocale('fr_CH');
+    } else {
+      //otherwise grab the saved setting
+      await setLocale(savedUserLang);
+    }
+    debugPrint('end setupLang()');
+    //end language code
   }
 
   //called in initState of main.dart
@@ -46,40 +103,34 @@ class ThemeModel extends ChangeNotifier {
     return;
   }
 
-  String colorToString(Color color) {
-    return [
-      (color.a * 255).round(),
-      (color.r * 255).round(),
-      (color.g * 255).round(),
-      (color.b * 255).round()
-    ].join(',');
-  }
-
-  Color colorFromString(String string) {
-    List<String> vals = string.split(',');
-    List<int> argblist = List.generate(vals.length, (i) => int.parse(vals[i]));
-    return Color.fromARGB(argblist[0], argblist[1], argblist[2], argblist[3]);
-  }
-
   Future<void> setupTheme() async {
+    // migrate old SharedPreferences to Hive
+    await migrateToHive();
     ThemeComponents defaultTheme =
         ThemeComponents(brightness: Brightness.light, color: Colors.teal);
     debugPrint('setupTheme');
 
     //get the prefs
-    SharedPreferences prefs = await SharedPreferences.getInstance();
 
     //if there's no userTheme, it's the first time they've run the app, so give them lightTheme with teal
-    if (!prefs.containsKey('userTheme')) {
+    String? storedBrightness = prefsBox.get('brightness');
+
+    //We save the color as String so have to convert it to Color:
+    String? themeColorValue = prefsBox.get('color');
+
+    //check if a color is set by user - if not use default color
+    Color color = themeColorValue != null
+        ? colorFromString(themeColorValue)
+        : Colors.teal;
+
+    if (storedBrightness == null || themeColorValue == null) {
       setTheme(defaultTheme, refresh: false);
     } else {
-      final List<String> savedTheme = prefs.getStringList('userTheme') ??
-          ["Brightness.light", "255,0,150,136"];
       late Brightness brightness;
       //Try this out - if there's a version problem where the variable doesn't fit,
       //the default theme is used
       try {
-        switch (savedTheme[0]) {
+        switch (storedBrightness) {
           case "Brightness.light":
             {
               brightness = Brightness.light;
@@ -92,10 +143,6 @@ class ThemeModel extends ChangeNotifier {
               break;
             }
         }
-        int colorValue = int.parse(savedTheme[1]);
-
-        Color color = Color(colorValue);
-
 
         ThemeComponents componentsToSet =
             ThemeComponents(brightness: brightness, color: color);
@@ -106,19 +153,19 @@ class ThemeModel extends ChangeNotifier {
     }
 
     //initializing the ask to download setting
-    if (!prefs.containsKey('_downloadsApproved')) {
-      _downloadsApproved = false;
-      denyDownloading();
-    } else {
-      final temp =
-          json.decode(prefs.getString('_downloadsApproved')!) as String?;
-
-      if (temp == 'true') {
+    final downloadsApprovedString =
+        prefsBox.get('downloadsApproved') ?? 'false';
+    switch (downloadsApprovedString) {
+      case 'true':
         _downloadsApproved = true;
-      } else {
+        break;
+      case 'false':
         _downloadsApproved = false;
-      }
+        break;
+      default:
+        _downloadsApproved = false;
     }
+
     debugPrint('end of setup theme');
     return;
   }
@@ -138,22 +185,14 @@ class ThemeModel extends ChangeNotifier {
   }
 
   Future<void> saveThemeToDisk(ThemeComponents theme) async {
-    //get prefs from disk
-    final prefs = await SharedPreferences.getInstance();
-    //save _themeName to disk
-    // final _userTheme = json.encode(theme);
-
-    await prefs.setStringList('userTheme',
-        <String>[theme.brightness.toString(), colorToString(theme.color)]);
+    prefsBox.put('brightness', theme.brightness.toString());
+    prefsBox.put('color', colorToString(theme.color));
   }
 
   void approveDownloading() async {
     _downloadsApproved = true;
     //get prefs from disk
-    final prefs = await SharedPreferences.getInstance();
-
-    final tempJSONtrue = json.encode('true');
-    prefs.setString('_downloadsApproved', tempJSONtrue);
+    prefsBox.put('downloadsApproved', true);
     debugPrint('allow downloading');
     // notifyListeners();
     return;
@@ -162,10 +201,8 @@ class ThemeModel extends ChangeNotifier {
   void denyDownloading() async {
     _downloadsApproved = false;
     //get prefs from disk
-    final prefs = await SharedPreferences.getInstance();
 
-    final tempJSONfalse = json.encode('false');
-    prefs.setString('_downloadsApproved', tempJSONfalse);
+    prefsBox.put('downloadsApproved', false);
     debugPrint('deny downloading');
     return;
   }

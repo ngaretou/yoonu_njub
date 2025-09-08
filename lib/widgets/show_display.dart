@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 
 import 'package:provider/provider.dart';
@@ -38,24 +37,42 @@ class ShowDisplayState extends State<ShowDisplay> {
   ValueNotifier<double> ffValueNotifier = ValueNotifier(0);
   late PlayerManager playerManager;
   late AudioPlayer player;
+  late PageController _pageController;
+  bool isUserSwipe = true;
 
   @override
   void initState() {
     super.initState();
+    playerManager = Provider.of<PlayerManager>(context, listen: false);
+    player = playerManager.player;
+    final showsProvider = Provider.of<Shows>(context, listen: false);
+    player.currentIndex;
+    player.currentIndexStream.listen((index) {
+      isUserSwipe = false;
+      if (index != null &&
+          _pageController.hasClients &&
+          _pageController.page?.round() != index) {
+        _pageController.animateToPage(
+          index,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeIn,
+        );
+      }
+    });
+    _pageController = PageController(initialPage: showsProvider.lastShowViewed);
   }
 
   @override
   void dispose() {
     rewValueNotifier.dispose();
     ffValueNotifier.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     debugPrint('show display build');
-    playerManager = Provider.of<PlayerManager>(context, listen: true);
-    player = playerManager.player;
     //https://github.com/gskinner/flutter_animate#testing-animations
     Animate.restartOnHotReload = true;
 
@@ -109,6 +126,7 @@ class ShowDisplayState extends State<ShowDisplay> {
     //This is the playList widget. For web, it will go side by side; for app, it will go as a drawer.
     Widget playList() {
       Widget playListInterior() {
+        print('building scrollable positionedlist of playlist');
         return ScrollablePositionedList.builder(
             itemScrollController: itemScrollController,
             initialScrollIndex: showsProvider.lastShowViewed,
@@ -130,46 +148,6 @@ class ShowDisplayState extends State<ShowDisplay> {
                   player.seek(Duration.zero, index: i);
                 },
               );
-              // return Padding(
-              //   padding: const EdgeInsets.all(8.0),
-              //   child: InkWell(
-              //     onTap: () {
-              //       //If not on the web version, pop the modal bottom sheet - if web, no need
-              //       if (isPhone || mediaQuery.width < wideVersionBreakPoint) {
-              //         Navigator.pop(context);
-              //       }
-              //       player.seek(Duration.zero, index: i);
-              //     },
-              //     child: Card(
-              //       elevation: 0,
-              //       color: Theme.of(context).colorScheme.surfaceContainerLow,
-              //       child: Padding(
-              //         padding: const EdgeInsets.symmetric(
-              //             horizontal: 8.0, vertical: 16.0),
-              //         child: Row(
-              //           mainAxisAlignment: MainAxisAlignment.start,
-              //           children: [
-              //             Expanded(
-              //                 flex: 0,
-              //                 child: Text("${showsProvider.shows[i].id}.  ",
-              //                     style: showListStyle)),
-              //             Expanded(
-              //               flex: 3,
-              //               child: Text(showsProvider.shows[i].showNameRS,
-              //                   style: showListStyle),
-              //             ),
-              //             if (!kIsWeb)
-              //               SizedBox(
-              //                   width: 40,
-              //                   height: 40,
-              //                   child: DownloadButton(showsProvider.shows[i])),
-              //             // ),
-              //           ],
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              // );
             });
       }
 
@@ -267,28 +245,33 @@ class ShowDisplayState extends State<ShowDisplay> {
 
     //This is the main player component - the picture, show name, player controls
     Widget playerStack() {
+      print('building teh player stack');
+
       return webScrollable(Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             flex: 1,
-            child: StreamBuilder(
-                stream: player.sequenceStateStream,
-                builder: (context, snapshot) {
-                  debugPrint('sequencestatestream');
-                  final state = snapshot.data;
-                  final bool isLoading =
-                      state == null || state.sequence.isEmpty;
-
-                  // Use last viewed show as a default to prevent layout jump
-                  int id = showsProvider.lastShowViewed;
-
-                  if (!isLoading) {
-                    final metadata = state.currentSource!.tag as MediaItem;
-                    id = int.parse(metadata.id) - 1;
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification is ScrollStartNotification &&
+                    notification.dragDetails != null) {
+                  isUserSwipe = true;
+                }
+                return false;
+              },
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: showsProvider.shows.length,
+                onPageChanged: (index) {
+                  if (isUserSwipe) {
+                    if (player.currentIndex != index) {
+                      player.seek(Duration.zero, index: index);
+                    }
                   }
-
-                  //Show image
+                },
+                itemBuilder: (context, index) {
+                  final show = showsProvider.shows[index];
                   return Column(
                     children: [
                       Expanded(
@@ -301,9 +284,9 @@ class ShowDisplayState extends State<ShowDisplay> {
                               decoration: BoxDecoration(
                                 color: Colors.black54,
                                 image: DecorationImage(
-                                  fit: BoxFit.fill,
+                                  fit: BoxFit.cover,
                                   image: AssetImage(
-                                    "assets/images/${showsProvider.shows[id].image}.jpg",
+                                    "assets/images/${show.image}.jpg",
                                   ),
                                 ),
                               ),
@@ -324,19 +307,20 @@ class ShowDisplayState extends State<ShowDisplay> {
                         ),
                       ),
                       SizedBox(height: 16),
-                      Text(showsProvider.shows[id].id,
-                          style: rsStyle.copyWith(fontSize: 18)),
-                      Text(showsProvider.shows[id].showNameAS,
+                      Text(show.id, style: rsStyle.copyWith(fontSize: 18)),
+                      Text(show.showNameAS,
                           textAlign: TextAlign.center,
                           style: asStyle,
                           textDirection: rtlText),
-                      Text(showsProvider.shows[id].showNameRS,
+                      Text(show.showNameRS,
                           textAlign: TextAlign.center,
                           style: rsStyle,
                           textDirection: ltrText),
                     ],
                   );
-                }),
+                },
+              ),
+            ),
           ),
           ControlButtons(
             showPlayList: popUpShowList,

@@ -1,30 +1,20 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:just_audio_background/just_audio_background.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import '../main.dart';
 
 class PlayerManager with ChangeNotifier {
   AudioPlayer player = AudioPlayer();
 
-  Future<void> saveLastShowViewed(int lastShowViewed) async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonData = json.encode(lastShowViewed.toString());
-    prefs.setString('lastShowViewed', jsonData);
+  saveLastShowViewed(int lastShowViewed) {
+    prefsBox.put('lastShowViewed', lastShowViewed.toString());
   }
 
   Future<void> initializeSession() async {
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.speech());
-
-    player.sequenceStream.listen((event) {
-      if (player.sequenceState.currentSource != null) {
-        var tag = player.sequenceState.currentSource!.tag as MediaItem;
-        var id = tag.id;
-        saveLastShowViewed(int.parse(id) - 1);
-      }
-    });
 
     // Listen to errors during playback.
     // player.errorStream.listen((event) {
@@ -42,6 +32,14 @@ class PlayerManager with ChangeNotifier {
     } on PlayerException catch (e) {
       debugPrint("Error loading audio source: $e");
     }
+    player.sequenceStateStream.listen((event) {
+      if (player.sequenceState.currentSource != null) {
+        var tag = player.sequenceState.currentSource!.tag as MediaItem;
+        var id = tag.id;
+        saveLastShowViewed(int.parse(id) -
+            1); // to get the index - the id is the human readable show number here
+      }
+    });
   }
 
   // Future<void> play() async {

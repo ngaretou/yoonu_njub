@@ -9,7 +9,6 @@ import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 
 import 'package:image/image.dart' as image_lib;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -17,7 +16,8 @@ import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 import 'package:yoonu_njub/providers/player_manager.dart';
 
-import '../providers/messaging.dart';
+import 'messaging.dart';
+import '../main.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -195,14 +195,8 @@ class Shows with ChangeNotifier {
   }
 
   Future<int> getLastShowViewed() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey('lastShowViewed')) {
-      return 0;
-    } else {
-      final storedValue = json.decode(prefs.getString('lastShowViewed')!);
-      int lastShowViewed = int.parse(storedValue);
-      return lastShowViewed;
-    }
+    String lastShowViewed = prefsBox.get('lastShowViewed') ?? 0;
+    return int.parse(lastShowViewed);
   }
 
   Future<bool?> get connectivityCheck async {
@@ -269,7 +263,7 @@ class Shows with ChangeNotifier {
   Future<bool> localAudioFileCheck(String filename) async {
     try {
       final path = await _localPath;
-      debugPrint(filename);
+      // debugPrint(filename);
       final file = File('$path/$filename');
       if (await file.exists()) {
         debugPrint('Found the file');
