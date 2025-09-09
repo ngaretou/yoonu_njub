@@ -46,10 +46,8 @@ class Shows with ChangeNotifier {
     return [..._shows];
   }
 
-  late int _lastShowViewed;
-
   int get lastShowViewed {
-    return _lastShowViewed;
+    return prefsBox.get('lastShowViewed') ?? 0;
   }
 
   String get urlBase {
@@ -147,15 +145,14 @@ class Shows with ChangeNotifier {
 
     _shows = loadedShowData;
 
-    _lastShowViewed = await getLastShowViewed();
-
-    // await PlayerManager().loadPlaylist(_playlist, _lastShowViewed);
     if (!context.mounted) return;
     await Provider.of<PlayerManager>(context, listen: false)
         .initializeSession();
+    
+    
     if (!context.mounted) return;
     await Provider.of<PlayerManager>(context, listen: false)
-        .loadPlaylist(playlist, _lastShowViewed);
+        .loadPlaylist(playlist, lastShowViewed);
 
     debugPrint('end getData');
     return;
@@ -194,10 +191,6 @@ class Shows with ChangeNotifier {
     return Uri.file(docsDirPathString);
   }
 
-  Future<int> getLastShowViewed() async {
-    String lastShowViewed = prefsBox.get('lastShowViewed') ?? 0;
-    return int.parse(lastShowViewed);
-  }
 
   Future<bool?> get connectivityCheck async {
     bool? connected;

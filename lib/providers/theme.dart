@@ -29,19 +29,43 @@ class ThemeModel extends ChangeNotifier {
 
   Future<void> migrateToHive() async {
     // migrating from SharedPreferences to Hive
+    if (prefsBox.get('hiveMigrationComplete') == true) {
+      return;
+    }
     final oldPrefs = await SharedPreferences.getInstance();
     try {
-      Future<void> migrateOne(String oldKey, {String? newKey}) async {
-        if (oldPrefs.containsKey(oldKey)) {
-          String storedValue = json.decode(oldPrefs.getString(oldKey)!);
-          prefsBox.put(newKey ?? oldKey, storedValue);
+      if (oldPrefs.containsKey('userLang')) {
+        String storedValue = json.decode(oldPrefs.getString('userLang')!);
+        prefsBox.put('userLang', storedValue);
+      }
+
+      if (oldPrefs.containsKey('_downloadsApproved')) {
+        try {
+          String storedValue =
+              json.decode(oldPrefs.getString('_downloadsApproved')!);
+          switch (storedValue) {
+            case 'true':
+              prefsBox.put('downloadsApproved', true);
+              break;
+            case 'false':
+              prefsBox.put('downloadsApproved', false);
+              break;
+            default:
+              prefsBox.put('downloadsApproved', false);
+          }
+        } catch (e) {
+          debugPrint(e.toString());
+          prefsBox.put('downloadsApproved', false);
         }
       }
 
-      migrateOne('lastShowViewed');
-      migrateOne('userLang');
-      migrateOne('_downloadsApproved', newKey: 'downloadsApproved');
-
+      // lastShowViewed is an int in hive
+      if (oldPrefs.containsKey('lastShowViewed')) {
+        int storedValue =
+            int.parse(json.decode(oldPrefs.getString('lastShowViewed') ?? '0'));
+        prefsBox.put('lastShowViewed', storedValue);
+      }
+      // userTheme is a List of Strings so let's separate for the hive version
       if (oldPrefs.containsKey('userTheme')) {
         final List<String> savedTheme = oldPrefs.getStringList('userTheme') ??
             ["Brightness.light", "255,0,150,136"];
@@ -51,10 +75,10 @@ class ThemeModel extends ChangeNotifier {
     } catch (e) {
       debugPrint(e.toString());
       debugPrint('setting default preferences...');
-      Map<String, String>? defaultPrefs = {
-        'lastShowViewed': '0',
+      Map<String, dynamic>? defaultPrefs = {
+        'lastShowViewed': 0,
         'userLang': 'fr_CH',
-        'downloadsApproved': 'false',
+        'downloadsApproved': false,
         'brightness': 'Brightness.light',
         'color': '255,0,150,136',
       };
@@ -63,6 +87,7 @@ class ThemeModel extends ChangeNotifier {
       }
     }
     await oldPrefs.clear();
+    prefsBox.put('hiveMigrationComplete', true);
   }
 
   //Language code: Initialize the locale
@@ -153,18 +178,7 @@ class ThemeModel extends ChangeNotifier {
     }
 
     //initializing the ask to download setting
-    final downloadsApprovedString =
-        prefsBox.get('downloadsApproved') ?? 'false';
-    switch (downloadsApprovedString) {
-      case 'true':
-        _downloadsApproved = true;
-        break;
-      case 'false':
-        _downloadsApproved = false;
-        break;
-      default:
-        _downloadsApproved = false;
-    }
+    _downloadsApproved = prefsBox.get('downloadsApproved') ?? false;
 
     debugPrint('end of setup theme');
     return;

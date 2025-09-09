@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:just_audio/just_audio.dart';
-
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:yoonu_njub/main.dart';
 
 import 'download_button.dart';
 import 'player_controls.dart';
@@ -42,24 +43,51 @@ class ShowDisplayState extends State<ShowDisplay> {
 
   @override
   void initState() {
+    print('show display init');
     super.initState();
     playerManager = Provider.of<PlayerManager>(context, listen: false);
     player = playerManager.player;
-    final showsProvider = Provider.of<Shows>(context, listen: false);
-    player.currentIndex;
-    player.currentIndexStream.listen((index) {
-      isUserSwipe = false;
-      if (index != null &&
-          _pageController.hasClients &&
-          _pageController.page?.round() != index) {
-        _pageController.animateToPage(
-          index,
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeIn,
-        );
+    int initialPage = prefsBox.get('lastShowViewed') ?? 0;
+    _pageController = PageController(initialPage: initialPage);
+
+    player.sequenceStateStream.listen((event) {
+      // this listens to the progress of the tracks playing (not duration)
+      if (player.sequenceState.currentSource != null) {
+        // dealing with the related page builder
+
+        // this simply stores the current track so we can know on launch which was the last listened to
+        var tag = player.sequenceState.currentSource!.tag as MediaItem;
+        int index = int.parse(tag.id) - 1;
+        prefsBox.put('lastShowViewed', index);
+        print('tag id $index');
+
+        // this controls the page controller
+        if (_pageController.hasClients &&
+            _pageController.page?.round() != index &&
+            !isUserSwipe) {
+          _pageController
+              .animateToPage(
+                index,
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.linear,
+              )
+              .then((value) => isUserSwipe = false);
+        }
       }
     });
-    _pageController = PageController(initialPage: showsProvider.lastShowViewed);
+
+    // player.currentIndexStream.listen((index) {
+    //   isUserSwipe = false;
+    //   if (index != null &&
+    //       _pageController.hasClients &&
+    //       _pageController.page?.round() != index) {
+    //     _pageController.animateToPage(
+    //       index,
+    //       duration: const Duration(milliseconds: 400),
+    //       curve: Curves.easeIn,
+    //     );
+    //   }
+    // });
   }
 
   @override
@@ -140,12 +168,13 @@ class ShowDisplayState extends State<ShowDisplay> {
                     style: showListStyle),
                 trailing:
                     !kIsWeb ? DownloadButton(showsProvider.shows[i]) : null,
-                onTap: () {
+                onTap: () async {
                   //If not on the web version, pop the modal bottom sheet - if web, no need
                   if (isPhone || mediaQuery.width < wideVersionBreakPoint) {
                     Navigator.pop(context);
                   }
-                  player.seek(Duration.zero, index: i);
+                  await player.seek(Duration.zero, index: i);
+                  // await player.play();
                 },
               );
             });
@@ -161,17 +190,17 @@ class ShowDisplayState extends State<ShowDisplay> {
       late IconData directionIcon;
       late MouseCursor cursor;
 
-      seekForward() {
+      seekForward() async {
         final duration = player.duration ?? Duration.zero;
 
         if ((duration - player.position) > Duration(seconds: 11)) {
-          player.seek(player.position + Duration(seconds: 10));
+          await player.seek(player.position + Duration(seconds: 10));
         }
       }
 
-      seekBackward() {
+      seekBackward() async {
         if (player.position > Duration(seconds: 11)) {
-          player.seek(player.position - Duration(seconds: 10));
+          await player.seek(player.position - Duration(seconds: 10));
         }
       }
 
@@ -284,12 +313,13 @@ class ShowDisplayState extends State<ShowDisplay> {
               child: PageView.builder(
                 controller: _pageController,
                 itemCount: showsProvider.shows.length,
-                onPageChanged: (index) {
+                onPageChanged: (index) async {
                   if (isUserSwipe) {
                     if (player.currentIndex != index) {
-                      player.seek(Duration.zero, index: index);
+                      await player.seek(Duration.zero, index: index);
                     }
                   }
+                  isUserSwipe = false;
                 },
                 itemBuilder: (context, index) {
                   final show = showsProvider.shows[index];

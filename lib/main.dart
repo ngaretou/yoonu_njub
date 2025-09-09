@@ -79,7 +79,7 @@ class _MyAppState extends State<MyApp> {
     await Provider.of<ThemeModel>(context, listen: false).initializeLocale();
     if (!mounted) return;
     await Provider.of<Shows>(context, listen: false).getData(context);
-    return;
+    // return;
   }
 
   @override

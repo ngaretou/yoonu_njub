@@ -85,8 +85,8 @@ class ControlButtonsState extends State<ControlButtons> {
             return SeekBar(
               duration: positionData?.duration ?? Duration.zero,
               position: positionData?.position ?? Duration.zero,
-              onChangeEnd: (newPosition) {
-                player.seek(newPosition);
+              onChangeEnd: (newPosition) async {
+                await player.seek(newPosition);
               },
             );
           },
@@ -125,7 +125,10 @@ class ControlButtonsState extends State<ControlButtons> {
                         size: mainRowIconSize,
                       ),
                       onPressed: position > Duration(seconds: 11)
-                          ? () => player.seek(position - Duration(seconds: 10))
+                          ? () async {
+                              await player
+                                  .seek(position - Duration(seconds: 10));
+                            }
                           : null);
                 },
               ),
@@ -175,8 +178,10 @@ class ControlButtonsState extends State<ControlButtons> {
                       icon: const Icon(Icons.replay),
                       iconSize: 64.0,
                       onPressed: sequenceLength > 0
-                          ? () => player.seek(Duration.zero,
-                              index: player.effectiveIndices.first)
+                          ? () async {
+                              await player.seek(Duration.zero,
+                                  index: player.effectiveIndices.first);
+                            }
                           : null,
                     );
                   }
@@ -200,7 +205,10 @@ class ControlButtonsState extends State<ControlButtons> {
                         size: mainRowIconSize,
                       ),
                       onPressed: (duration - position) > Duration(seconds: 11)
-                          ? () => player.seek(position + Duration(seconds: 10))
+                          ? () async {
+                              await player
+                                  .seek(position + Duration(seconds: 10));
+                            }
                           : null);
                 },
               ),
@@ -209,12 +217,15 @@ class ControlButtonsState extends State<ControlButtons> {
             //Next button
             Padding(
               padding: const EdgeInsets.only(right: 5),
-              child: IconButton(
-                icon: Icon(
-                  Icons.skip_next_rounded,
-                  size: mainRowIconSize,
+              child: StreamBuilder<SequenceState?>(
+                stream: player.sequenceStateStream,
+                builder: (context, snapshot) => IconButton(
+                  icon: Icon(
+                    Icons.skip_next_rounded,
+                    size: mainRowIconSize,
+                  ),
+                  onPressed: player.hasNext ? player.seekToNext : null,
                 ),
-                onPressed: player.hasNext ? player.seekToNext : null,
               ),
             ),
           ],
