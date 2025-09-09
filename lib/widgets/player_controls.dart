@@ -69,7 +69,7 @@ class ControlButtonsState extends State<ControlButtons> {
     final secondaryRowIconSize = 24.0;
 
     final showsProvider = Provider.of<Shows>(context, listen: false);
-
+    // TODO test this
     //This is to refresh the main view after downloads are clear
     // if (Provider.of<Shows>(context, listen: true).reloadMainPage == true) {
     //   showsProvider.setReloadMainPage(false);
@@ -244,28 +244,13 @@ class ControlButtonsState extends State<ControlButtons> {
                       height: 48,
                       width: 48,
                       child: StreamBuilder(
-                          stream: player.sequenceStateStream,
+                          stream: player.currentIndexStream,
                           builder: (context, snapshot) {
-                            final state = snapshot.data;
-                            final bool isLoading =
-                                state == null || state.sequence.isEmpty;
-
-                            int id = 0;
-
-                            if (!isLoading) {
-                              MediaItem metadata =
-                                  state.currentSource?.tag as MediaItem;
-
-                              id = int.parse(metadata.id) - 1;
-                            }
-
-                            return isLoading
-                                ? Icon(Icons.download_sharp,
-                                    size: secondaryRowIconSize)
-                                : DownloadButton(
-                                    showsProvider.shows[id],
-                                    iconSize: secondaryRowIconSize,
-                                  );
+                            final currentIndex = snapshot.data ?? 0;
+                            return DownloadButton(
+                              showsProvider.shows[currentIndex],
+                              iconSize: secondaryRowIconSize,
+                            );
                           }),
                     )
                   : SizedBox(width: 48, height: 48),

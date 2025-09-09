@@ -50,29 +50,22 @@ class ShowDisplayState extends State<ShowDisplay> {
     int initialPage = prefsBox.get('lastShowViewed') ?? 0;
     _pageController = PageController(initialPage: initialPage);
 
-    player.sequenceStateStream.listen((event) {
-      // this listens to the progress of the tracks playing (not duration)
-      if (player.sequenceState.currentSource != null) {
-        // dealing with the related page builder
+    player.currentIndexStream.listen((currentIndex) {
+      int index = currentIndex ?? 0;
+      print(index);
+      prefsBox.put('lastShowViewed', index);
 
-        // this simply stores the current track so we can know on launch which was the last listened to
-        var tag = player.sequenceState.currentSource!.tag as MediaItem;
-        int index = int.parse(tag.id) - 1;
-        prefsBox.put('lastShowViewed', index);
-        print('tag id $index');
-
-        // this controls the page controller
-        if (_pageController.hasClients &&
-            _pageController.page?.round() != index &&
-            !isUserSwipe) {
-          _pageController
-              .animateToPage(
-                index,
-                duration: const Duration(milliseconds: 400),
-                curve: Curves.linear,
-              )
-              .then((value) => isUserSwipe = false);
-        }
+      // this controls the page controller
+      if (_pageController.hasClients &&
+          _pageController.page?.round() != index &&
+          !isUserSwipe) {
+        _pageController
+            .animateToPage(
+              index,
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.linear,
+            )
+            .then((value) => isUserSwipe = false);
       }
     });
 
