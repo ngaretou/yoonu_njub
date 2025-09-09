@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:path_provider/path_provider.dart';
 
@@ -221,7 +220,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 onSelected: (bool selected) {
                   themeProvider.setLocale('fr');
-                  debugPrint(AppLocalizations.of(context)!.addHolidays);
+                  if (kDebugMode)
+                  {  debugPrint(AppLocalizations.of(context)!.addHolidays);}
                 },
               ),
               ChoiceChip(
@@ -248,7 +248,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     Widget downloadPermissionSetting() {
       bool approved = themeProvider.downloadsApproved ?? false;
-      debugPrint(Theme.of(context).primaryColor.toString());
+      if (kDebugMode) debugPrint(Theme.of(context).primaryColor.toString());
 
       return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
         SizedBox(
@@ -296,7 +296,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     Future<void> deleteAllDownloads() async {
       final directory = await getApplicationDocumentsDirectory();
-      int counter = 0;
+
       var myStream = directory.list(recursive: false, followLinks: false);
       await for (var element in myStream) {
         if (element is File) {
@@ -359,9 +359,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: GestureDetector(
             onTap: () {
               numberOfTaps++;
-              debugPrint(numberOfTaps.toString());
+              if (kDebugMode) debugPrint(numberOfTaps.toString());
               if (numberOfTaps == 6) {
-                debugPrint('check all shows');
+                if (kDebugMode) debugPrint('check all shows');
                 Provider.of<Shows>(context, listen: false)
                     .checkAllShowsDialog(context);
                 numberOfTaps = 0;

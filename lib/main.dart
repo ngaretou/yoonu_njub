@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
@@ -72,9 +72,9 @@ class _MyAppState extends State<MyApp> {
     In order to prevent that, we make sure that the Future is obtained in the initState() and not in the build() 
     method itself. This is something which you may notice in a lot of tutorials online where they assign the 
     Future method directly to the FutureBuilder and it’s factually wrong.*/
-    debugPrint('before _initialization');
+    if (kDebugMode) debugPrint('before _initialization');
     _initialization = callInititalization();
-    debugPrint('after _initialization');
+    if (kDebugMode) debugPrint('after _initialization');
   }
 
   Future<void> callInititalization() async {
@@ -98,7 +98,8 @@ class _MyAppState extends State<MyApp> {
           future: _initialization,
           builder: (ctx, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              debugPrint('Future returned from _initialization');
+              if (kDebugMode)
+                {debugPrint('Future returned from _initialization');}
               return MainPlayer();
             } else {
               return Center(child: CircularProgressIndicator());

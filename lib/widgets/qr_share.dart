@@ -111,7 +111,7 @@ class _ShareAppPanelState extends State<ShareAppPanel> {
             .first;
       }
     } catch (e) {
-      debugPrint(e.toString());
+      if (kDebugMode) debugPrint(e.toString());
       currentShare = widget.shareAppData[0];
     }
     super.initState();
@@ -187,13 +187,13 @@ class _ShareAppPanelState extends State<ShareAppPanel> {
           Navigator.of(context).pop();
         });
       } catch (e) {
-        debugPrint(e.toString());
+        if (kDebugMode) debugPrint(e.toString());
       }
     }
 
     // if single share don't show the different platform chooser
     bool singleShare = widget.shareAppData.length == 1;
-
+    print(size.height);
     return SingleChildScrollView(
         child: SizedBox(
       width: min(500, size.width),
@@ -203,7 +203,7 @@ class _ShareAppPanelState extends State<ShareAppPanel> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              if (size.height > 600)
+              if (size.height > 700)
                 SizedBox(
                   height: 60,
                   width: 60,

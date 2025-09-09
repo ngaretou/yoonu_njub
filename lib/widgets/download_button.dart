@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:yoonu_njub/l10n/app_localizations.dart'; // the new Flutter 3.x localization method
@@ -56,20 +57,21 @@ class _DownloadButtonState extends State<DownloadButton> {
     }, onDone: () async {
       final file = File("$path/${show.filename}");
       await file.writeAsBytes(bytes);
-      debugPrint('download done');
+      if (kDebugMode) debugPrint('download done');
       downloadedBox.put((show.id), true);
 
       _isDownloading = false;
     }, onError: (e) {
-      debugPrint(
-          'had an error checking if the file was there or not - downloadFile()');
-      debugPrint(e);
+      if (kDebugMode)
+      {  debugPrint(
+            'had an error checking if the file was there or not - downloadFile()');}
+      if (kDebugMode) debugPrint(e);
     }, cancelOnError: true);
   }
 
   @override
   Widget build(BuildContext context) {
-    print('building Download button');
+    // print('building Download button');
     final shows = Provider.of<Shows>(context, listen: false);
     final pref = Provider.of<ThemeModel>(context, listen: false);
 
@@ -90,7 +92,7 @@ class _DownloadButtonState extends State<DownloadButton> {
       if (!_isDownloading) {
         final directory = await getApplicationDocumentsDirectory();
         final path = directory.path;
-        debugPrint(directory.path);
+        if (kDebugMode) debugPrint(directory.path);
         //see if it's on the device
         try {
           final file = File('$path/${show.filename}');
@@ -100,10 +102,10 @@ class _DownloadButtonState extends State<DownloadButton> {
             try {
               final file = File('$path/${show.filename}');
               file.delete();
-              debugPrint('deleting file');
+              if (kDebugMode) debugPrint('deleting file');
               downloadedBox.put(show.id, false);
             } catch (e) {
-              debugPrint('had an error deleting the file');
+              if (kDebugMode) debugPrint('had an error deleting the file');
               // return false;
             }
           } else {
@@ -122,8 +124,9 @@ class _DownloadButtonState extends State<DownloadButton> {
               shows.snackbarMessageError(context);
             } else if (connected && showExists.isEmpty) {
               //download the file
-              debugPrint(
-                  'The file seems to not be there - starting downloading process');
+              if (kDebugMode)
+              {  debugPrint(
+                    'The file seems to not be there - starting downloading process');}
               //The user can choose to not be warned of download size, that is stored in downloadsApproved
               if (pref.downloadsApproved ?? false) {
                 //downloading is approved - just download the file.
@@ -160,8 +163,9 @@ class _DownloadButtonState extends State<DownloadButton> {
             } // end of else
           }
         } catch (e) {
-          debugPrint('had an error checking if the file was there or not');
-          debugPrint(e.toString());
+          if (kDebugMode)
+           { debugPrint('had an error checking if the file was there or not');}
+          if (kDebugMode) debugPrint(e.toString());
         }
       }
     }

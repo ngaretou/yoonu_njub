@@ -70,7 +70,7 @@ class Shows with ChangeNotifier {
   // }
 
   Future<void> getData(BuildContext context) async {
-    debugPrint('start getData');
+    if (kDebugMode) debugPrint('start getData');
     downloadedBox.clear();
 
     //check if the current session still contains the shows - if so no need to rebuild
@@ -87,7 +87,7 @@ class Shows with ChangeNotifier {
     final showsData = json.decode(showsJSON) as List<dynamic>;
 
     //So we have the info but it's in the wrong format - here map it to our class
-    
+
     for (var show in showsData) {
       // add it to the show info
       loadedShowData.add(
@@ -147,7 +147,6 @@ class Shows with ChangeNotifier {
 
         playlist.add(source);
       }
-     
     }
 
     _shows = loadedShowData;
@@ -160,7 +159,7 @@ class Shows with ChangeNotifier {
     await Provider.of<PlayerManager>(context, listen: false)
         .loadPlaylist(playlist, lastShowViewed);
 
-    debugPrint('end getData');
+    if (kDebugMode) debugPrint('end getData');
     return;
   }
 
@@ -261,17 +260,18 @@ class Shows with ChangeNotifier {
   Future<bool> localAudioFileCheck(String filename) async {
     try {
       final path = await _localPath;
-      // debugPrint(filename);
+      // if (kDebugMode) debugPrint(filename);
       final file = File('$path/$filename');
       if (await file.exists()) {
-        debugPrint('Found the file');
+        if (kDebugMode) debugPrint('Found the file');
 
         return true;
       } else {
         return false;
       }
     } catch (e) {
-      debugPrint('had an error checking if the file was there or not');
+      if (kDebugMode)
+       { debugPrint('had an error checking if the file was there or not');}
       return false;
     }
   }
@@ -280,7 +280,7 @@ class Shows with ChangeNotifier {
 //Begin show verification
 
   Future<List<String>> checkShows([Show? showToCheck]) async {
-    debugPrint('checkShows');
+    if (kDebugMode) debugPrint('checkShows');
 
     //temp list of shows to work with
     List<Show> showsToCheck = [];
@@ -297,13 +297,13 @@ class Shows with ChangeNotifier {
     for (var show in showsToCheck) {
       try {
         final url = '$urlBase/${show.urlSnip}/${show.filename}';
-        debugPrint(url);
+        if (kDebugMode) if (kDebugMode) debugPrint(url);
         http.Response r = await http.head(Uri.parse(url));
         final total = r.headers["content-length"];
-        debugPrint("show ${show.id} total size: $total");
+        if (kDebugMode) debugPrint("show ${show.id} total size: $total");
       } catch (e) {
-        debugPrint('Error checking show ${show.id}');
-        debugPrint(e.toString());
+        if (kDebugMode) debugPrint('Error checking show ${show.id}');
+        if (kDebugMode) debugPrint(e.toString());
         showsWithErrors.add(show.id.toString());
       }
     }
@@ -332,10 +332,10 @@ class Shows with ChangeNotifier {
     //     final _total = r.headers["content-length"]!;
     //     // final _totalAsInt = double.parse(_total);
 
-    //     debugPrint(_total);
+    //     if (kDebugMode) debugPrint(_total);
     //     temp.add('worked');
     //   } catch (e) {
-    //     debugPrint('Error checking url ' + url);
+    //     if (kDebugMode) debugPrint('Error checking url ' + url);
     //     temp.add('error');
     //   }
     //   return temp;
@@ -479,11 +479,11 @@ class Shows with ChangeNotifier {
 
     try {
       final sendReport = await send(message, smtpServer);
-      debugPrint('Message sent: $sendReport');
+      if (kDebugMode) debugPrint('Message sent: $sendReport');
     } on MailerException catch (e) {
-      debugPrint('Message not sent.');
+      if (kDebugMode) debugPrint('Message not sent.');
       for (var p in e.problems) {
-        debugPrint('Problem: ${p.code}: ${p.msg}');
+        if (kDebugMode) debugPrint('Problem: ${p.code}: ${p.msg}');
       }
     }
   }

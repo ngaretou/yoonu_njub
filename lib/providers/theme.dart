@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -54,7 +55,7 @@ class ThemeModel extends ChangeNotifier {
               prefsBox.put('downloadsApproved', false);
           }
         } catch (e) {
-          debugPrint(e.toString());
+          if (kDebugMode) debugPrint(e.toString());
           prefsBox.put('downloadsApproved', false);
         }
       }
@@ -73,8 +74,8 @@ class ThemeModel extends ChangeNotifier {
         prefsBox.put('color', savedTheme[1]);
       }
     } catch (e) {
-      debugPrint(e.toString());
-      debugPrint('setting default preferences...');
+      if (kDebugMode) debugPrint(e.toString());
+      if (kDebugMode) debugPrint('setting default preferences...');
       Map<String, dynamic>? defaultPrefs = {
         'lastShowViewed': 0,
         'userLang': 'fr_CH',
@@ -92,7 +93,7 @@ class ThemeModel extends ChangeNotifier {
 
   //Language code: Initialize the locale
   Future<void> initializeLocale() async {
-    debugPrint('setupLang()');
+    if (kDebugMode) debugPrint('setupLang()');
 
     //If there is no lang pref (i.e. first run), set lang to Wolof
     String? savedUserLang = prefsBox.get('userLang');
@@ -104,7 +105,7 @@ class ThemeModel extends ChangeNotifier {
       //otherwise grab the saved setting
       await setLocale(savedUserLang);
     }
-    debugPrint('end setupLang()');
+    if (kDebugMode) debugPrint('end setupLang()');
     //end language code
   }
 
@@ -133,7 +134,7 @@ class ThemeModel extends ChangeNotifier {
     await migrateToHive();
     ThemeComponents defaultTheme =
         ThemeComponents(brightness: Brightness.light, color: Colors.teal);
-    debugPrint('setupTheme');
+    if (kDebugMode) debugPrint('setupTheme');
 
     //get the prefs
 
@@ -180,7 +181,7 @@ class ThemeModel extends ChangeNotifier {
     //initializing the ask to download setting
     _downloadsApproved = prefsBox.get('downloadsApproved') ?? false;
 
-    debugPrint('end of setup theme');
+    if (kDebugMode) debugPrint('end of setup theme');
     return;
   }
 
@@ -207,7 +208,7 @@ class ThemeModel extends ChangeNotifier {
     _downloadsApproved = true;
     //get prefs from disk
     prefsBox.put('downloadsApproved', true);
-    debugPrint('allow downloading');
+    if (kDebugMode) debugPrint('allow downloading');
     // notifyListeners();
     return;
   }
@@ -217,31 +218,9 @@ class ThemeModel extends ChangeNotifier {
     //get prefs from disk
 
     prefsBox.put('downloadsApproved', false);
-    debugPrint('deny downloading');
+    if (kDebugMode) debugPrint('deny downloading');
     return;
   }
-
-  // void setDarkTheme({bool? refresh}) {
-  //   currentTheme = darkTheme;
-  //   _themeType = ThemeType.Dark;
-  //   //get the theme name as a string for storage
-  //   userThemeName = 'darkTheme';
-  //   //send it for storage
-  //   saveThemeToDisk(userThemeName);
-  //   if (refresh == true || refresh == null) {
-  //     notifyListeners();
-  //   }
-  // }
-
-  // void setLightTheme({bool? refresh}) {
-  //   currentTheme = lightTheme;
-  //   _themeType = ThemeType.Light;
-  //   userThemeName = 'lightTheme';
-  //   saveThemeToDisk(userThemeName);
-  //   if (refresh == true || refresh == null) {
-  //     notifyListeners();
-  //   }
-  // }
 }
 
 String colorToString(Color color) {

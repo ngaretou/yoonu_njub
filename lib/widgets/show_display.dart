@@ -1,7 +1,7 @@
 import 'dart:ui' as ui;
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
@@ -68,18 +68,6 @@ class ShowDisplayState extends State<ShowDisplay> {
       }
     });
 
-    // player.currentIndexStream.listen((index) {
-    //   isUserSwipe = false;
-    //   if (index != null &&
-    //       _pageController.hasClients &&
-    //       _pageController.page?.round() != index) {
-    //     _pageController.animateToPage(
-    //       index,
-    //       duration: const Duration(milliseconds: 400),
-    //       curve: Curves.easeIn,
-    //     );
-    //   }
-    // });
   }
 
   @override
@@ -92,7 +80,7 @@ class ShowDisplayState extends State<ShowDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('show display build');
+    if (kDebugMode) debugPrint('show display build');
     //https://github.com/gskinner/flutter_animate#testing-animations
     Animate.restartOnHotReload = true;
 
@@ -124,10 +112,10 @@ class ShowDisplayState extends State<ShowDisplay> {
         color: Theme.of(context).textTheme.titleLarge?.color,
         fontFamily: "Lato",
         fontSize: 18);
-    TextStyle showNumberStyle = TextStyle(
-        color: Theme.of(context).textTheme.titleSmall?.color,
-        fontFamily: "Lato",
-        fontSize: 16);
+    // TextStyle showNumberStyle = TextStyle(
+    //     color: Theme.of(context).textTheme.titleSmall?.color,
+    //     fontFamily: "Lato",
+    //     fontSize: 16);
 
     //This page is split up into components that can be recombined based on the platform.
 
@@ -145,18 +133,17 @@ class ShowDisplayState extends State<ShowDisplay> {
 
     //This is the playList widget. For web, it will go side by side; for app, it will go as a drawer.
     Widget playList() {
-      Widget playListInterior() {
-        print('building scrollable positionedlist of playlist');
-        return ScrollablePositionedList.builder(
+      return webScrollable(
+        ScrollablePositionedList.builder(
             itemScrollController: itemScrollController,
             initialScrollIndex: showsProvider.lastShowViewed,
             physics: ClampingScrollPhysics(),
             itemCount: showsProvider.shows.length,
             itemBuilder: (ctx, i) {
               return ListTile(
-                leading:
-                    Text(showsProvider.shows[i].id, style: showNumberStyle),
-                title: Text(showsProvider.shows[i].showNameRS,
+                // leading: Icon(Icons.podcasts),
+                title: Text(
+                    '${showsProvider.shows[i].id}. ${showsProvider.shows[i].showNameRS}',
                     style: showListStyle),
                 trailing:
                     !kIsWeb ? DownloadButton(showsProvider.shows[i]) : null,
@@ -169,10 +156,8 @@ class ShowDisplayState extends State<ShowDisplay> {
                   // await player.play();
                 },
               );
-            });
-      }
-
-      return webScrollable(playListInterior());
+            }),
+      );
     }
 
     // Widget for the transparent panel left and right that ff and rew 10 seconds
@@ -261,9 +246,10 @@ class ShowDisplayState extends State<ShowDisplay> {
 
     // The function that shows the bottom playlist drawer, playList()
     void popUpShowList() {
-      debugPrint('showing playlist');
+      if (kDebugMode) debugPrint('showing playlist');
       showModalBottomSheet(
         context: context,
+        showDragHandle: true,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         isScrollControlled: true,
         shape: RoundedRectangleBorder(

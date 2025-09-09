@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:flutter/foundation.dart';
 import '../widgets/drawer.dart';
 import '../widgets/show_display.dart';
 
@@ -16,7 +16,7 @@ class MainPlayer extends StatefulWidget {
 class _MainPlayerState extends State<MainPlayer> {
   @override
   Widget build(BuildContext context) {
-    debugPrint('MainPlayerScreen');
+    if (kDebugMode) debugPrint('MainPlayerScreen');
     //Smallest iPhone is UIKit 320 x 480 = 800.
     //Biggest (12 pro max) is 428 x 926 = 1354.
     //Android biggest phone I can find is is 480 x 853 = 1333

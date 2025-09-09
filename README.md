@@ -43,6 +43,8 @@ Other:
 
 ### 1.3.0
 - Rewrote the playlist handling to solve several problems
+- Rewrote the download tracking and notifying
 - Added QR share
 - SharedPreferences >> Hive for settings
-- Share audio directly
+- Share audio directly to messaging apps
+- playlist improvements

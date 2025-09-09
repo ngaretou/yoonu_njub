@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:rxdart/rxdart.dart';
 import 'package:yoonu_njub/l10n/app_localizations.dart'; // the new Flutter 3.x localization method
 import 'package:path_provider/path_provider.dart';
@@ -14,9 +14,6 @@ import '/main.dart';
 import '../providers/shows.dart';
 import '../providers/player_manager.dart';
 import 'download_button.dart';
-// import '../widgets/contact_options.dart';
-
-// enum ManualPlayerState { Uninitialized, Initializing, Initialized }
 
 class ControlButtons extends StatefulWidget {
   final Function showPlayList; //parent method will be called from this child
@@ -88,8 +85,6 @@ class ControlButtonsState extends State<ControlButtons> {
           });
     }
     // now we should have it downloaded.
-    //The docs for this plugin say you should be able to just pass in the path directly, but can't get that to work.
-    //so do all this writing a temp file so as to be able to share the audio.
 
     final directory = await getApplicationDocumentsDirectory();
     final path =
@@ -112,14 +107,14 @@ class ControlButtonsState extends State<ControlButtons> {
         ),
       );
     } catch (e) {
-      debugPrint(e.toString());
-      debugPrint('problem sharing audio file');
+      if (kDebugMode) debugPrint(e.toString());
+      if (kDebugMode) debugPrint('problem sharing audio file');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('player_controls build');
+    if (kDebugMode) debugPrint('player_controls build');
 
     /// Collects the data useful for displaying in a seek bar, using a handy
     /// feature of rx_dart to combine the 3 streams of interest into one.
@@ -136,12 +131,6 @@ class ControlButtonsState extends State<ControlButtons> {
 
     final mainRowIconSize = 36.0;
     final secondaryRowIconSize = 24.0;
-
-    // TODO test this
-    //This is to refresh the main view after downloads are clear
-    // if (Provider.of<Shows>(context, listen: true).reloadMainPage == true) {
-    //   showsProvider.setReloadMainPage(false);
-    // }
 
     return Column(
       children: [
