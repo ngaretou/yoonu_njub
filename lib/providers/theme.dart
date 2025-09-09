@@ -131,7 +131,13 @@ class ThemeModel extends ChangeNotifier {
 
   Future<void> setupTheme() async {
     // migrate old SharedPreferences to Hive
-    await migrateToHive();
+    print('setupTheme');
+    try {
+      await migrateToHive();
+    } catch (e) {
+      print(e.toString());
+    }
+
     ThemeComponents defaultTheme =
         ThemeComponents(brightness: Brightness.light, color: Colors.teal);
     if (kDebugMode) debugPrint('setupTheme');

@@ -52,6 +52,7 @@ class ShowDisplayState extends State<ShowDisplay> {
     player.currentIndexStream.listen((currentIndex) {
       int index = currentIndex ?? 0;
       print(index);
+      print(index);
       prefsBox.put('lastShowViewed', index);
 
       // this controls the page controller
@@ -64,10 +65,29 @@ class ShowDisplayState extends State<ShowDisplay> {
               duration: const Duration(milliseconds: 400),
               curve: Curves.linear,
             )
-            .then((value) => isUserSwipe = false);
+            .then((_) => isUserSwipe = false);
       }
     });
 
+    player.sequenceStateStream.listen((event) {
+      event.currentIndex;
+      // int index = currentIndex ?? 0;
+      // print(index);
+      // prefsBox.put('lastShowViewed', index);
+
+      // // this controls the page controller
+      // if (_pageController.hasClients &&
+      //     _pageController.page?.round() != index &&
+      //     !isUserSwipe) {
+      //   _pageController
+      //       .animateToPage(
+      //         index,
+      //         duration: const Duration(milliseconds: 400),
+      //         curve: Curves.linear,
+      //       )
+      //       .then((value) => isUserSwipe = false);
+      // }
+    });
   }
 
   @override
@@ -141,7 +161,16 @@ class ShowDisplayState extends State<ShowDisplay> {
             itemCount: showsProvider.shows.length,
             itemBuilder: (ctx, i) {
               return ListTile(
-                // leading: Icon(Icons.podcasts),
+                leading: StreamBuilder(
+                    stream: player.currentIndexStream,
+                    builder: (context, snapshot) {
+                      int currentIndex = snapshot.data ?? 0;
+                      if (currentIndex == i) {
+                        return Icon(Icons.equalizer_outlined);
+                      } else {
+                        return Icon(Icons.play_arrow);
+                      }
+                    }),
                 title: Text(
                     '${showsProvider.shows[i].id}. ${showsProvider.shows[i].showNameRS}',
                     style: showListStyle),
@@ -153,6 +182,7 @@ class ShowDisplayState extends State<ShowDisplay> {
                     Navigator.pop(context);
                   }
                   await player.seek(Duration.zero, index: i);
+
                   // await player.play();
                 },
               );
@@ -295,9 +325,9 @@ class ShowDisplayState extends State<ShowDisplay> {
                   if (isUserSwipe) {
                     if (player.currentIndex != index) {
                       await player.seek(Duration.zero, index: index);
+                      isUserSwipe = false;
                     }
                   }
-                  isUserSwipe = false;
                 },
                 itemBuilder: (context, index) {
                   final show = showsProvider.shows[index];

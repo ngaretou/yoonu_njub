@@ -59,6 +59,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   //A Future for the future builder
   late Future<void> _initialization;
+  bool _isInitialized = false;
 
   @override
   void initState() {
@@ -72,18 +73,28 @@ class _MyAppState extends State<MyApp> {
     In order to prevent that, we make sure that the Future is obtained in the initState() and not in the build() 
     method itself. This is something which you may notice in a lot of tutorials online where they assign the 
     Future method directly to the FutureBuilder and it’s factually wrong.*/
-    if (kDebugMode) debugPrint('before _initialization');
-    _initialization = callInititalization();
-    if (kDebugMode) debugPrint('after _initialization');
   }
 
-  Future<void> callInititalization() async {
-    await Provider.of<ThemeModel>(context, listen: false).setupTheme();
-    if (!mounted) return;
-    await Provider.of<ThemeModel>(context, listen: false).initializeLocale();
-    if (!mounted) return;
-    await Provider.of<Shows>(context, listen: false).getData(context);
-    // return;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    Future<void> callInitialization() async {
+      // This method is now called from didChangeDependencies, where the context is safe to use.
+      await Provider.of<ThemeModel>(context, listen: false).setupTheme();
+      if (!mounted) return;
+      await Provider.of<ThemeModel>(context, listen: false).initializeLocale();
+      if (!mounted) return;
+      await Provider.of<Shows>(context, listen: false).getData(context);
+      // return;
+    }
+
+    if (!_isInitialized) {
+      _isInitialized = true;
+      if (kDebugMode) debugPrint('before _initialization');
+      _initialization = callInitialization();
+      if (kDebugMode) debugPrint('after _initialization');
+    }
   }
 
   @override
@@ -98,11 +109,13 @@ class _MyAppState extends State<MyApp> {
           future: _initialization,
           builder: (ctx, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              if (kDebugMode)
-                {debugPrint('Future returned from _initialization');}
+              if (kDebugMode) {
+                debugPrint('Future returned from _initialization');
+              }
               return MainPlayer();
             } else {
-              return Center(child: CircularProgressIndicator());
+              return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()));
             }
           }),
       routes: {
@@ -128,7 +141,7 @@ class _MyAppState extends State<MyApp> {
         const Locale('fr', 'CH'),
       ],
       locale: Provider.of<ThemeModel>(context, listen: false).userLocale ??
-          Locale('fr', 'CH'),
+          const Locale('fr', 'CH'),
     );
   }
 }
