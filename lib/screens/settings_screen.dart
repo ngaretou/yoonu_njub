@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:yoonu_njub/l10n/app_localizations.dart'; // the new Flutter 3.x localization method
 import '../providers/theme.dart';
 import '../providers/shows.dart';
+import '../main.dart';
 
 class SettingsScreen extends StatefulWidget {
   static const routeName = '/settings-screen';
@@ -293,7 +294,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       return (counter / 1000000).toStringAsFixed(2);
     }
 
-    Future<String> deleteAllDownloads() async {
+    Future<void> deleteAllDownloads() async {
       final directory = await getApplicationDocumentsDirectory();
       int counter = 0;
       var myStream = directory.list(recursive: false, followLinks: false);
@@ -302,7 +303,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           element.delete();
         }
       }
-      return (counter / 1000000).toStringAsFixed(2);
+      downloadedBox.clear();
     }
 
     Widget clearDownloads() {
@@ -337,8 +338,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             )),
                         onPressed: () {
                           deleteAllDownloads();
-                          Provider.of<Shows>(context, listen: false)
-                              .setReloadMainPage(true);
+
                           setState(() {});
                         },
                       ),

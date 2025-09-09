@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:yoonu_njub/l10n/app_localizations.dart'; // the new Flutter 3.x localization method
 
 import '../screens/settings_screen.dart';
 import '../screens/about_screen.dart';
+import 'qr_share.dart';
 
 import 'contact_options.dart';
 import 'deep_link.dart';
@@ -127,19 +126,28 @@ class MainDrawer extends StatelessWidget {
             AppLocalizations.of(context)!.shareAppLink,
             Icons.share,
             () async {
+              List<ShareAppData> shareAppData = [
+                ShareAppData(
+                    label: 'Google Play',
+                    shareApp: ShareApp.android,
+                    socialIcon: '\uf3ab',
+                    link:
+                        'https://play.google.com/store/apps/details?id=org.yoonunjub.wol'),
+                ShareAppData(
+                    label: 'iOS & macOS',
+                    shareApp: ShareApp.iOS,
+                    socialIcon: '\uf179',
+                    link: 'https://apps.apple.com/app/yoonu-njub/id1539519430'),
+                ShareAppData(
+                    label: 'web',
+                    shareApp: ShareApp.web,
+                    socialIcon: '\uf268',
+                    link: 'http://yoonunjub.sng.al/'),
+              ];
+
               Navigator.of(context).pop();
-              if (!kIsWeb) {
-                SharePlus.instance
-                    .share(ShareParams(text: 'https://sng.al/yn'));
-              } else {
-                const url =
-                    "mailto:?subject=Yoonu Njub&body=Xoolal appli Yoonu Njub fii: https://sng.al/yn";
-                if (await canLaunchUrl(Uri.parse(url))) {
-                  await launchUrl(Uri.parse(url));
-                } else {
-                  throw 'Could not launch $url';
-                }
-              }
+              showQrShare(context, shareAppData, 'Yoonu Njub',
+                  appIcon: Image.asset('assets/icons/icon.png'));
             },
           ),
 

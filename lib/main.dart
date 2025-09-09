@@ -17,10 +17,14 @@ import 'screens/settings_screen.dart';
 import 'screens/about_screen.dart';
 
 late Box prefsBox;
+late Box downloadedBox;
 
 Future<void> main() async {
   await Hive.initFlutter();
   prefsBox = await Hive.openBox('userPrefs');
+  // Note here it is the String of the Show's id (not the index of the list), bool for downloadedBox
+  downloadedBox = await Hive.openBox('downloaded');
+
   //Initialize the audio background service that allows the notification area playback controller widget
   await JustAudioBackground.init(
     androidNotificationChannelId: 'org.yoonunjub.channel.audio',

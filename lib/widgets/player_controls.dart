@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:rxdart/rxdart.dart';
 import 'package:yoonu_njub/l10n/app_localizations.dart'; // the new Flutter 3.x localization method
-
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:audio_service/audio_service.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
+import '/main.dart';
 import '../providers/shows.dart';
 import '../providers/player_manager.dart';
 import 'download_button.dart';
@@ -32,11 +34,14 @@ class ControlButtons extends StatefulWidget {
 class ControlButtonsState extends State<ControlButtons> {
   late PlayerManager playerManager;
   late AudioPlayer player;
+  late Shows showsProvider;
 
   @override
   void initState() {
     playerManager = Provider.of<PlayerManager>(context, listen: false);
     player = playerManager.player;
+    showsProvider = Provider.of<Shows>(context, listen: false);
+
     super.initState();
   }
 
@@ -47,6 +52,70 @@ class ControlButtonsState extends State<ControlButtons> {
         final duration = reportedDuration ?? Duration.zero;
         return PositionData(position, duration);
       });
+
+  Future<void> shareAudio(Size size) async {
+    int currentIndex = player.currentIndex ?? 0;
+    String currentShowId = (currentIndex + 1).toString();
+    // Note here it is the String of the Show's id (not the index of the list), bool for downloadedBox
+    bool downloaded = downloadedBox.get(currentShowId) ?? false;
+
+    // if not downloaded, download it
+    if (!downloaded) {
+      // the function to run when updates to the download occur
+      void watchDownloadCompletion() {
+        bool downloaded = downloadedBox.get(currentShowId) ?? false;
+        if (downloaded) {
+          Navigator.of(context).pop();
+          downloadedBox.listenable(
+              keys: [currentShowId]).removeListener(watchDownloadCompletion);
+        }
+      }
+
+      // call the listener
+      downloadedBox.listenable(
+          keys: [currentShowId]).addListener(watchDownloadCompletion);
+
+      // if (!mounted) return;
+      await showDialog(
+          context: context,
+          builder: (context) {
+            return DownloadButton(
+              showsProvider.shows[currentIndex],
+              iconSize: 60,
+              showArrow: false,
+              autoDownload: true,
+            );
+          });
+    }
+    // now we should have it downloaded.
+    //The docs for this plugin say you should be able to just pass in the path directly, but can't get that to work.
+    //so do all this writing a temp file so as to be able to share the audio.
+
+    final directory = await getApplicationDocumentsDirectory();
+    final path =
+        '${directory.path}/${showsProvider.shows[currentIndex].filename}';
+    String sharingText =
+        '${showsProvider.shows[currentIndex].id}. ${showsProvider.shows[currentIndex].showNameRS}\n>> https://sng.al/yn';
+
+    try {
+      // Share
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(path)],
+          text: sharingText,
+          sharePositionOrigin: Rect.fromLTWH(
+            0,
+            0,
+            size.width,
+            size.height * .33,
+          ),
+        ),
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+      debugPrint('problem sharing audio file');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +137,6 @@ class ControlButtonsState extends State<ControlButtons> {
     final mainRowIconSize = 36.0;
     final secondaryRowIconSize = 24.0;
 
-    final showsProvider = Provider.of<Shows>(context, listen: false);
     // TODO test this
     //This is to refresh the main view after downloads are clear
     // if (Provider.of<Shows>(context, listen: true).reloadMainPage == true) {
@@ -256,7 +324,7 @@ class ControlButtonsState extends State<ControlButtons> {
                   : SizedBox(width: 48, height: 48),
               // if (!kIsWeb) SizedBox(width: secondaryRowIconSize),
               IconButton(
-                onPressed: () {},
+                onPressed: () => shareAudio(mediaQuery),
                 icon: Icon(Icons.share),
                 iconSize: secondaryRowIconSize,
               ),

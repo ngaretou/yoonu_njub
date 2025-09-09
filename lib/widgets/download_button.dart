@@ -4,30 +4,30 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:yoonu_njub/l10n/app_localizations.dart'; // the new Flutter 3.x localization method
-
+import 'package:hive_flutter/hive_flutter.dart';
+import '../main.dart';
 import '../providers/shows.dart';
 import '../providers/theme.dart';
 
 class DownloadButton extends StatefulWidget {
   final Show show;
   final double? iconSize;
-  const DownloadButton(this.show, {this.iconSize, super.key});
+  final bool showArrow;
+  final bool autoDownload;
+  const DownloadButton(this.show,
+      {this.iconSize,
+      this.showArrow = true,
+      this.autoDownload = false,
+      super.key});
 
   @override
   State<DownloadButton> createState() => _DownloadButtonState();
 }
 
 class _DownloadButtonState extends State<DownloadButton> {
-  bool? _isDownloaded;
+  late bool _isDownloaded;
   bool _isDownloading = false;
   double? _percentDone;
-  // bool approved;
-
-  @override
-  void initState() {
-    // _isDownloading = false;
-    super.initState();
-  }
 
   //path is the local app Document path; url is the WHOLE url you need to download, filename is just the filename
   Future downloadFile(String path, String urlbase, Show show) async {
@@ -57,11 +57,9 @@ class _DownloadButtonState extends State<DownloadButton> {
       final file = File("$path/${show.filename}");
       await file.writeAsBytes(bytes);
       debugPrint('download done');
-      if (!mounted) return;
-      setState(() {
-        _isDownloading = false;
-        _isDownloaded = true;
-      });
+      downloadedBox.put((show.id), true);
+
+      _isDownloading = false;
     }, onError: (e) {
       debugPrint(
           'had an error checking if the file was there or not - downloadFile()');
@@ -103,9 +101,7 @@ class _DownloadButtonState extends State<DownloadButton> {
               final file = File('$path/${show.filename}');
               file.delete();
               debugPrint('deleting file');
-              setState(() {
-                _isDownloaded = false;
-              });
+              downloadedBox.put(show.id, false);
             } catch (e) {
               debugPrint('had an error deleting the file');
               // return false;
@@ -180,52 +176,52 @@ class _DownloadButtonState extends State<DownloadButton> {
             //and an indicator either downloaded or not downloaded.
             value: _isDownloading ? _percentDone : 0,
           ),
-          IconButton(
-              iconSize: widget.iconSize,
-              icon: _isDownloaded ?? false
-                  ? Icon(
-                      Icons.download_sharp,
-                      color: Theme.of(context).colorScheme.primary,
-                    )
-                  : Icon(
-                      Icons.download_sharp,
-                      color: Theme.of(context).iconTheme.color,
-                    ),
-              onPressed: () {
-                //NB 'url' is the whole url you need to download the file
-                // String url = shows.urlBase +
-                //     '/' +
-                //     widget.show.urlSnip +
-                //     '/' +
-                //     widget.show.filename;
-                downloadOrDeleteFile(shows.urlBase, widget.show);
-                // setState(() {});
-              }),
+          if (widget.showArrow)
+            IconButton(
+                iconSize: widget.iconSize,
+                icon: _isDownloaded
+                    ? Icon(
+                        Icons.download_done_sharp,
+                        color: Theme.of(context).colorScheme.primary,
+                      )
+                    : Icon(
+                        Icons.download_sharp,
+                        color: Theme.of(context).iconTheme.color,
+                      ),
+                onPressed: () {
+                  //NB 'url' is the whole url you need to download the file
+                  // String url = shows.urlBase +
+                  //     '/' +
+                  //     widget.show.urlSnip +
+                  //     '/' +
+                  //     widget.show.filename;
+                  downloadOrDeleteFile(shows.urlBase, widget.show);
+                  // setState(() {});
+                }),
         ],
         // ),
       );
     }
 
+    WidgetsBinding.instance.addPostFrameCallback(
+      (timeStamp) async {
+        if (widget.autoDownload) {
+          if (_isDownloading) return;
+          final directory = await getApplicationDocumentsDirectory();
+          final path = directory.path;
+          downloadFile(path, shows.urlBase, widget.show);
+        }
+      },
+    );
+
     //Here is the main build that triggers everything.
 
-    return _isDownloading
-        //If downloading you don't need to check if the file is there or not
-        ? iconStack()
-        //If first run on the page you check to see if the file is local
-        : FutureBuilder(
-            future: shows.localAudioFileCheck(widget.show.filename),
-            builder: (ctx, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Icon(
-                  Icons.download_sharp,
-                  color: Theme.of(context).iconTheme.color,
-                );
-              } else {
-                //set the _isDownloaded flag to true or false depending on the result of the above future, localAudioFileCheck, in shows.dart
-                _isDownloaded = snapshot.data as bool;
-                return iconStack();
-              }
-            });
+    return ValueListenableBuilder<Box>(
+        valueListenable: downloadedBox.listenable(keys: [widget.show.id]),
+        builder: (context, val, _) {
+          _isDownloaded = downloadedBox.get(widget.show.id) ?? false;
+          return iconStack();
+        });
   }
 }
 

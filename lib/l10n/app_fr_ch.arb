@@ -185,13 +185,13 @@
     "type": "text",
     "placeholders": {}
   },
-  "shareLink": "Séddoo lëkkalekaay",
+  "shareLink": "Séddoo ko",
   "@shareLink": {
     "description": "Share link generic text",
     "type": "text",
     "placeholders": {}
   },
-  "copyLink": "Kopie lëkkalekaay",
+  "copyLink": "Kopie ko",
   "@copyLink": {
     "description": "Copy link generic text",
     "type": "text",

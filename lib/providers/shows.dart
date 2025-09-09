@@ -14,7 +14,7 @@ import 'package:just_audio/just_audio.dart';
 
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
-import 'package:yoonu_njub/providers/player_manager.dart';
+import 'player_manager.dart';
 
 import 'messaging.dart';
 import '../main.dart';
@@ -55,22 +55,23 @@ class Shows with ChangeNotifier {
   }
 
   //reloadMainPage is necessary when the user clears downloads - it has the screen reload to check if it has a download on device or not
-  bool _reloadMainPage = false;
+  // bool _reloadMainPage = false;
 
-  bool get reloadMainPage {
-    return _reloadMainPage;
-  }
+  // bool get reloadMainPage {
+  //   return _reloadMainPage;
+  // }
 
   //This is called from clear downloads in settings screen
-  void setReloadMainPage(bool value) {
-    _reloadMainPage = value;
-    if (value == true) {
-      notifyListeners();
-    }
-  }
+  // void setReloadMainPage(bool value) {
+  //   _reloadMainPage = value;
+  //   if (value == true) {
+  //     notifyListeners();
+  //   }
+  // }
 
   Future<void> getData(BuildContext context) async {
     debugPrint('start getData');
+    downloadedBox.clear();
 
     //check if the current session still contains the shows - if so no need to rebuild
     if (_shows.isNotEmpty) {
@@ -86,6 +87,7 @@ class Shows with ChangeNotifier {
     final showsData = json.decode(showsJSON) as List<dynamic>;
 
     //So we have the info but it's in the wrong format - here map it to our class
+    
     for (var show in showsData) {
       // add it to the show info
       loadedShowData.add(
@@ -107,7 +109,9 @@ class Shows with ChangeNotifier {
 
       //  check to see if it's downloaded
       bool downloaded = await localAudioFileCheck(show['filename']);
+      // if so then
       if (downloaded) {
+        // add it to the playlist as a downloaded file
         final Directory docsDirectory =
             await getApplicationDocumentsDirectory();
         final uri = '${docsDirectory.path}/${show['filename']}';
@@ -124,6 +128,8 @@ class Shows with ChangeNotifier {
         );
 
         playlist.add(source);
+        // and to the provider
+        downloadedBox.put(show['id'], true);
       } else {
         //This is the audio source
         final uri = '$urlBase/${show['urlSnip']}/${show['filename']}';
@@ -141,6 +147,7 @@ class Shows with ChangeNotifier {
 
         playlist.add(source);
       }
+     
     }
 
     _shows = loadedShowData;
@@ -148,8 +155,7 @@ class Shows with ChangeNotifier {
     if (!context.mounted) return;
     await Provider.of<PlayerManager>(context, listen: false)
         .initializeSession();
-    
-    
+
     if (!context.mounted) return;
     await Provider.of<PlayerManager>(context, listen: false)
         .loadPlaylist(playlist, lastShowViewed);
@@ -190,7 +196,6 @@ class Shows with ChangeNotifier {
 
     return Uri.file(docsDirPathString);
   }
-
 
   Future<bool?> get connectivityCheck async {
     bool? connected;

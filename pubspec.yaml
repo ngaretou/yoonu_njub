@@ -102,3 +102,6 @@ flutter:
     - family: Charis
       fonts:
         - asset: assets/fonts/CharisSILCompact-R.ttf
+    - family: SocialIcons
+      fonts:
+        - asset: assets/fonts/fa-brands-400.ttf

@@ -40,3 +40,9 @@ Other:
 ### 1.2.1
 - Updating to Android 15/API 35
 - Released this version to Android only, not iOS or web
+
+### 1.3.0
+- Rewrote the playlist handling to solve several problems
+- Added QR share
+- SharedPreferences >> Hive for settings
+- Share audio directly
