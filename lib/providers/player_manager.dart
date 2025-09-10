@@ -1,9 +1,20 @@
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
+import 'package:rxdart/rxdart.dart';
 
 class PlayerManager with ChangeNotifier {
   AudioPlayer player = AudioPlayer();
+
+  Stream<(bool, ProcessingState, int)> get playerStateStream =>
+      Rx.combineLatest2(
+          player.playerEventStream,
+          player.sequenceStream,
+          (event, sequence) => (
+                event.playing,
+                event.playbackEvent.processingState,
+                sequence.length,
+              ));
 
   Future<void> initializeSession() async {
     final session = await AudioSession.instance;

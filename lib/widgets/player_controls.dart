@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:js_interop_unsafe';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:file_saver/file_saver.dart';
 
 import '/main.dart';
 import '../providers/shows.dart';
@@ -57,7 +57,53 @@ class ControlButtonsState extends State<ControlButtons> {
 
     if (kIsWeb) {
       try {
- // gemini here 
+        // Get the URL and filename from the provider
+        final showsProvider = Provider.of<Shows>(context, listen: false);
+        String urlbase = showsProvider.urlBase;
+        String filename = showsProvider.shows[currentIndex].filename;
+        String url =
+            '$urlbase/${showsProvider.shows[currentIndex].urlSnip}/$filename';
+        await FileSaver.instance.saveFile(
+            name: filename,
+            link: LinkDetails(
+              link: url,
+            ));
+
+        // COPILOT
+        // final blob = web.Blob([bytes], web.BlobPropertyBag(type: mimeType));
+        // final url = web.URL.createObjectURL(blob);
+        // final anchor = web.HTMLAnchorElement(href: url)
+        //   ..setAttribute('download', fileName)
+        //   ..click();
+        // web.URL.revokeObjectURL(url); // Clean up the URL
+
+// GEMINI
+        // // Fetch the file as a blob to bypass cross-origin restrictions on the download attribute.
+        // final responsePromise = js_interop.globalContext.callMethod('fetch'.toJS, url.toJS);
+        // final response =
+        //     await js_interop.promiseToFuture<js_interop.JSObject>(responsePromise);
+        // final blobPromise = response.callMethod('blob'.toJS);
+        // final blob = await js_interop.promiseToFuture<js_interop.JSObject>(blobPromise);
+
+        // // Create a temporary URL for the blob.
+        // final blobUrl = (js_interop.globalContext['URL'] as js_interop.JSObject)
+        //     .callMethod('createObjectURL'.toJS, blob) as js_interop.JSString;
+
+        // // Create a temporary anchor element to trigger the download.
+        // final anchor = (js_interop.globalContext['document'] as js_interop.JSObject)
+        //     .callMethod('createElement'.toJS, 'a'.toJS) as js_interop.JSObject;
+        // anchor.setProperty('href'.toJS, blobUrl);
+        // anchor.setProperty('download'.toJS, filename.toJS);
+
+        // final body = (js_interop.globalContext['document']
+        //     as js_interop.JSObject)['body'] as js_interop.JSObject;
+        // body.callMethod('appendChild'.toJS, anchor);
+        // anchor.callMethod('click'.toJS);
+        // body.callMethod('removeChild'.toJS, anchor);
+
+        // // Revoke the blob URL to free up memory.
+        // (js_interop.globalContext['URL'] as js_interop.JSObject)
+        //     .callMethod('revokeObjectURL'.toJS, blobUrl);
       } catch (e) {
         if (kDebugMode) debugPrint(e.toString());
       }
@@ -166,8 +212,8 @@ class ControlButtonsState extends State<ControlButtons> {
             //Previous button
             Padding(
               padding: const EdgeInsets.only(left: 5),
-              child: StreamBuilder<SequenceState?>(
-                stream: player.sequenceStateStream,
+              child: StreamBuilder<int?>(
+                stream: player.currentIndexStream,
                 builder: (context, snapshot) => IconButton(
                   icon: Icon(
                     Icons.skip_previous_rounded,
@@ -209,17 +255,10 @@ class ControlButtonsState extends State<ControlButtons> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: StreamBuilder<(bool, ProcessingState, int)>(
-                stream: Rx.combineLatest2(
-                    player.playerEventStream,
-                    player.sequenceStream,
-                    (event, sequence) => (
-                          event.playing,
-                          event.playbackEvent.processingState,
-                          sequence.length,
-                        )),
+                stream: playerManager.playerStateStream,
                 builder: (context, snapshot) {
                   final (playing, processingState, sequenceLength) =
-                      snapshot.data ?? (false, null, 0);
+                      snapshot.data ?? (false, ProcessingState.idle, 0);
                   if (processingState == ProcessingState.loading ||
                       processingState == ProcessingState.buffering) {
                     return Container(
@@ -284,8 +323,8 @@ class ControlButtonsState extends State<ControlButtons> {
             //Next button
             Padding(
               padding: const EdgeInsets.only(right: 5),
-              child: StreamBuilder<SequenceState?>(
-                stream: player.sequenceStateStream,
+              child: StreamBuilder<int?>(
+                stream: player.currentIndexStream,
                 builder: (context, snapshot) => IconButton(
                   icon: Icon(
                     Icons.skip_next_rounded,
@@ -434,7 +473,7 @@ class _SeekBarState extends State<SeekBar> {
           bottom: 0.0,
           // If the player is not yet initialized....
           child: Text(
-              RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$')
+              RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+')
                       .firstMatch("$_remaining")
                       ?.group(1) ??
                   '$_remaining',

@@ -131,11 +131,11 @@ class ThemeModel extends ChangeNotifier {
 
   Future<void> setupTheme() async {
     // migrate old SharedPreferences to Hive
-    print('setupTheme');
+    if (kDebugMode) debugPrint('setupTheme');
     try {
       await migrateToHive();
     } catch (e) {
-      print(e.toString());
+      if (kDebugMode) debugPrint(e.toString());
     }
 
     ThemeComponents defaultTheme =

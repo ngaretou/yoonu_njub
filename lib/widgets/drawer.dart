@@ -128,6 +128,12 @@ class MainDrawer extends StatelessWidget {
             () async {
               List<ShareAppData> shareAppData = [
                 ShareAppData(
+                    label: 'sng.al/yn',
+                    shareApp: ShareApp.site,
+                    // socialIcon: '\uf3ab',
+                    icon: Icons.home,
+                    link: 'https://sng.al/yn'),
+                ShareAppData(
                     label: 'Google Play',
                     shareApp: ShareApp.android,
                     socialIcon: '\uf3ab',

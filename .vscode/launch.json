@@ -24,6 +24,21 @@
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug"
+    },
+    {
+      "name": "Flutter debug web",
+      "program": "lib/main.dart",
+      "request": "launch",
+      "type": "dart",
+      "args": [
+        "-d",
+        "chrome",
+        "--web-browser-flag",
+        "--disable-web-security",
+        "--web-port",
+        "5000"
+      ],
+      "flutterMode": "debug"
     }
   ]
 }

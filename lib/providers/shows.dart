@@ -108,7 +108,8 @@ class Shows with ChangeNotifier {
       kIsWeb ? imageURI = null : imageURI = await _getImageURI(show['image']);
 
       //  check to see if it's downloaded
-      bool downloaded = await localAudioFileCheck(show['filename']);
+      bool downloaded =
+          kIsWeb ? false : await localAudioFileCheck(show['filename']);
       // if so then
       if (downloaded) {
         // add it to the playlist as a downloaded file
@@ -270,8 +271,9 @@ class Shows with ChangeNotifier {
         return false;
       }
     } catch (e) {
-      if (kDebugMode)
-       { debugPrint('had an error checking if the file was there or not');}
+      if (kDebugMode) {
+        debugPrint('had an error checking if the file was there or not');
+      }
       return false;
     }
   }

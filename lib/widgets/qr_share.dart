@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:io';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:share_plus/share_plus.dart';
@@ -96,24 +95,24 @@ class _ShareAppPanelState extends State<ShareAppPanel> {
   @override
   void initState() {
     currentShare = widget.shareAppData[0];
-    try {
-      if (kIsWeb) {
-        currentShare = widget.shareAppData
-            .where((element) => element.shareApp == ShareApp.web)
-            .first;
-      } else if (Platform.isIOS || Platform.isMacOS) {
-        currentShare = widget.shareAppData
-            .where((element) => element.shareApp == ShareApp.iOS)
-            .first;
-      } else if (Platform.isAndroid) {
-        currentShare = widget.shareAppData
-            .where((element) => element.shareApp == ShareApp.android)
-            .first;
-      }
-    } catch (e) {
-      if (kDebugMode) debugPrint(e.toString());
-      currentShare = widget.shareAppData[0];
-    }
+    // try {
+    //   if (kIsWeb) {
+    //     currentShare = widget.shareAppData
+    //         .where((element) => element.shareApp == ShareApp.web)
+    //         .first;
+    //   } else if (Platform.isIOS || Platform.isMacOS) {
+    //     currentShare = widget.shareAppData
+    //         .where((element) => element.shareApp == ShareApp.iOS)
+    //         .first;
+    //   } else if (Platform.isAndroid) {
+    //     currentShare = widget.shareAppData
+    //         .where((element) => element.shareApp == ShareApp.android)
+    //         .first;
+    //   }
+    // } catch (e) {
+    //   if (kDebugMode) debugPrint(e.toString());
+    //   currentShare = widget.shareAppData[0];
+    // }
     super.initState();
   }
 
@@ -121,6 +120,7 @@ class _ShareAppPanelState extends State<ShareAppPanel> {
   Widget build(BuildContext context) {
     var localizations = AppLocalizations.of(context)!;
     Size size = MediaQuery.sizeOf(context);
+    final bool isPhone = (size.width + size.height) <= 1400;
 
     Color foregroundColor = Theme.of(context).brightness == Brightness.dark
         ? Colors.white
@@ -193,10 +193,10 @@ class _ShareAppPanelState extends State<ShareAppPanel> {
 
     // if single share don't show the different platform chooser
     bool singleShare = widget.shareAppData.length == 1;
-    print(size.height);
+
     return SingleChildScrollView(
         child: SizedBox(
-      width: min(500, size.width),
+      width: isPhone ? size.width : min(400, size.width),
       child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16),
           child: Column(

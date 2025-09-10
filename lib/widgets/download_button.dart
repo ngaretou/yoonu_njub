@@ -71,7 +71,7 @@ class _DownloadButtonState extends State<DownloadButton> {
 
   @override
   Widget build(BuildContext context) {
-    // print('building Download button');
+    // if (kDebugMode) debugPrint('building Download button');
     final shows = Provider.of<Shows>(context, listen: false);
     final pref = Provider.of<ThemeModel>(context, listen: false);
 

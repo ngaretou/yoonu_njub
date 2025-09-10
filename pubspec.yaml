@@ -59,6 +59,9 @@ dependencies:
   audio_service: any
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  web: ^1.1.1
+  file_saver: ^0.3.1
+  mini_music_visualizer: ^1.1.4
   # flutter_native_splash: ^2.4.6
 dev_dependencies:
   flutter_test:

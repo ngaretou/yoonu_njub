@@ -58,6 +58,7 @@ class _MainPlayerState extends State<MainPlayer> {
               ? SystemUiOverlayStyle.dark
               : SystemUiOverlayStyle.light,
           backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
           elevation: 0,
         ),
         drawer: MainDrawer(),

@@ -12,6 +12,7 @@ import 'download_button.dart';
 import 'player_controls.dart';
 import '../providers/shows.dart';
 import '../providers/player_manager.dart';
+import 'animated_equalizer.dart';
 
 //To adapt to new Flutter 2.8 behavior that does not allow mice to drag - which is our desired behavior here
 class MyCustomScrollBehavior extends ScrollBehavior {
@@ -38,11 +39,11 @@ class ShowDisplayState extends State<ShowDisplay> {
   late PlayerManager playerManager;
   late AudioPlayer player;
   late PageController _pageController;
-  bool isUserSwipe = true;
+  bool isUserSwipe = false;
 
   @override
   void initState() {
-    print('show display init');
+    if (kDebugMode) debugPrint('show display init');
     super.initState();
     playerManager = Provider.of<PlayerManager>(context, listen: false);
     player = playerManager.player;
@@ -51,8 +52,6 @@ class ShowDisplayState extends State<ShowDisplay> {
 
     player.currentIndexStream.listen((currentIndex) {
       int index = currentIndex ?? 0;
-      print(index);
-      print(index);
       prefsBox.put('lastShowViewed', index);
 
       // this controls the page controller
@@ -67,26 +66,6 @@ class ShowDisplayState extends State<ShowDisplay> {
             )
             .then((_) => isUserSwipe = false);
       }
-    });
-
-    player.sequenceStateStream.listen((event) {
-      event.currentIndex;
-      // int index = currentIndex ?? 0;
-      // print(index);
-      // prefsBox.put('lastShowViewed', index);
-
-      // // this controls the page controller
-      // if (_pageController.hasClients &&
-      //     _pageController.page?.round() != index &&
-      //     !isUserSwipe) {
-      //   _pageController
-      //       .animateToPage(
-      //         index,
-      //         duration: const Duration(milliseconds: 400),
-      //         curve: Curves.linear,
-      //       )
-      //       .then((value) => isUserSwipe = false);
-      // }
     });
   }
 
@@ -166,7 +145,12 @@ class ShowDisplayState extends State<ShowDisplay> {
                     builder: (context, snapshot) {
                       int currentIndex = snapshot.data ?? 0;
                       if (currentIndex == i) {
-                        return Icon(Icons.equalizer_outlined);
+                        return StreamBuilder<bool>(
+                            stream: player.playingStream,
+                            builder: (context, snapshot) {
+                              bool isPlaying = snapshot.data ?? false;
+                              return AnimatedEqualizer(isAnimating: isPlaying);
+                            });
                       } else {
                         return Icon(Icons.play_arrow);
                       }
@@ -182,8 +166,6 @@ class ShowDisplayState extends State<ShowDisplay> {
                     Navigator.pop(context);
                   }
                   await player.seek(Duration.zero, index: i);
-
-                  // await player.play();
                 },
               );
             }),
@@ -219,7 +201,6 @@ class ShowDisplayState extends State<ShowDisplay> {
         valueNotifier = rewValueNotifier;
         directionIcon = Icons.fast_rewind;
         cursor = SystemMouseCursors.resizeLeft;
-        seekBackward();
       }
 
       void triggerSeek() {
@@ -303,7 +284,7 @@ class ShowDisplayState extends State<ShowDisplay> {
 
     //This is the main player component - the picture, show name, player controls
     Widget playerStack() {
-      print('building teh player stack');
+      if (kDebugMode) debugPrint('building the player stack');
 
       return webScrollable(Column(
         // mainAxisAlignment: MainAxisAlignment.start,
@@ -400,10 +381,19 @@ class ShowDisplayState extends State<ShowDisplay> {
     }
 
     Widget wideVersion() {
+      const double verticalDividerWidth = 3;
+      const double minPlaylistWidth = 350;
+
       return Row(
         children: [
-          SizedBox(width: mediaQuery.width * .7, child: playerStack()),
-          SizedBox(width: mediaQuery.width * .3, child: playList()),
+          SizedBox(
+              width:
+                  mediaQuery.width - (verticalDividerWidth + minPlaylistWidth),
+              child: playerStack()),
+          Container(
+              width: verticalDividerWidth,
+              color: Theme.of(context).colorScheme.surfaceContainerLow),
+          SizedBox(width: minPlaylistWidth, child: playList()),
         ],
       );
     }
