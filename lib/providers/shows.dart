@@ -220,7 +220,7 @@ class Shows with ChangeNotifier {
     return connected;
   }
 
-  snackbarMessageNoInternet(BuildContext context) {
+  void snackbarMessageNoInternet(BuildContext context) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Row(
@@ -236,7 +236,7 @@ class Shows with ChangeNotifier {
     ));
   }
 
-  snackbarMessageError(BuildContext context) {
+  void snackbarMessageError(BuildContext context) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Row(

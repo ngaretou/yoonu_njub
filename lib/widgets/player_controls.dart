@@ -437,7 +437,7 @@ class _SeekBarState extends State<SeekBar> {
   Duration get _remaining => widget.duration - widget.position;
 }
 
-_showSliderDialog({
+void _showSliderDialog({
   required BuildContext context,
   String? title,
   int? divisions,

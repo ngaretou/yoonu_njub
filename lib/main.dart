@@ -7,6 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart'; // the new Flutter 3.x localization method
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import './providers/player_manager.dart';
 import './providers/shows.dart';
@@ -20,6 +21,11 @@ late Box prefsBox;
 late Box downloadedBox;
 
 Future<void> main() async {
+  // splash screen
+  // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  
+  // Hive
   await Hive.initFlutter();
   prefsBox = await Hive.openBox('userPrefs');
   // Note here it is the String of the Show's id (not the index of the list), bool for downloadedBox
@@ -112,6 +118,8 @@ class _MyAppState extends State<MyApp> {
               if (kDebugMode) {
                 debugPrint('Future returned from _initialization');
               }
+              FlutterNativeSplash.remove();
+
               return MainPlayer();
             } else {
               return const Scaffold(
