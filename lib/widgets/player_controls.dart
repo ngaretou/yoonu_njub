@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:js_interop_unsafe';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -53,62 +54,71 @@ class ControlButtonsState extends State<ControlButtons> {
   Future<void> shareAudio(Size size) async {
     int currentIndex = player.currentIndex ?? 0;
     String currentShowId = (currentIndex + 1).toString();
-    // Note here it is the String of the Show's id (not the index of the list), bool for downloadedBox
-    bool downloaded = downloadedBox.get(currentShowId) ?? false;
 
-    // if not downloaded, download it
-    if (!downloaded) {
-      // the function to run when updates to the download occur
-      void watchDownloadCompletion() {
-        bool downloaded = downloadedBox.get(currentShowId) ?? false;
-        if (downloaded) {
-          Navigator.of(context).pop();
-          downloadedBox.listenable(
-              keys: [currentShowId]).removeListener(watchDownloadCompletion);
-        }
+    if (kIsWeb) {
+      try {
+ // gemini here 
+      } catch (e) {
+        if (kDebugMode) debugPrint(e.toString());
       }
+    } else {
+      // Note here it is the String of the Show's id (not the index of the list), bool for downloadedBox
+      bool downloaded = downloadedBox.get(currentShowId) ?? false;
 
-      // call the listener
-      downloadedBox.listenable(
-          keys: [currentShowId]).addListener(watchDownloadCompletion);
+      // if not downloaded, download it
+      if (!downloaded) {
+        // the function to run when updates to the download occur
+        void watchDownloadCompletion() {
+          bool downloaded = downloadedBox.get(currentShowId) ?? false;
+          if (downloaded) {
+            Navigator.of(context).pop();
+            downloadedBox.listenable(
+                keys: [currentShowId]).removeListener(watchDownloadCompletion);
+          }
+        }
 
-      // if (!mounted) return;
-      await showDialog(
-          context: context,
-          builder: (context) {
-            return DownloadButton(
-              showsProvider.shows[currentIndex],
-              iconSize: 60,
-              showArrow: false,
-              autoDownload: true,
-            );
-          });
-    }
-    // now we should have it downloaded.
+        // call the listener
+        downloadedBox.listenable(
+            keys: [currentShowId]).addListener(watchDownloadCompletion);
 
-    final directory = await getApplicationDocumentsDirectory();
-    final path =
-        '${directory.path}/${showsProvider.shows[currentIndex].filename}';
-    String sharingText =
-        '${showsProvider.shows[currentIndex].id}. ${showsProvider.shows[currentIndex].showNameRS}\n>> https://sng.al/yn';
+        // if (!mounted) return;
+        await showDialog(
+            context: context,
+            builder: (context) {
+              return DownloadButton(
+                showsProvider.shows[currentIndex],
+                iconSize: 60,
+                showArrow: false,
+                autoDownload: true,
+              );
+            });
+      }
+      // now we should have it downloaded.
 
-    try {
-      // Share
-      await SharePlus.instance.share(
-        ShareParams(
-          files: [XFile(path)],
-          text: sharingText,
-          sharePositionOrigin: Rect.fromLTWH(
-            0,
-            0,
-            size.width,
-            size.height * .33,
+      final directory = await getApplicationDocumentsDirectory();
+      final path =
+          '${directory.path}/${showsProvider.shows[currentIndex].filename}';
+      String sharingText =
+          '${showsProvider.shows[currentIndex].id}. ${showsProvider.shows[currentIndex].showNameRS}\n>> https://sng.al/yn';
+
+      try {
+        // Share
+        await SharePlus.instance.share(
+          ShareParams(
+            files: [XFile(path)],
+            text: sharingText,
+            sharePositionOrigin: Rect.fromLTWH(
+              0,
+              0,
+              size.width,
+              size.height * .33,
+            ),
           ),
-        ),
-      );
-    } catch (e) {
-      if (kDebugMode) debugPrint(e.toString());
-      if (kDebugMode) debugPrint('problem sharing audio file');
+        );
+      } catch (e) {
+        if (kDebugMode) debugPrint(e.toString());
+        if (kDebugMode) debugPrint('problem sharing audio file');
+      }
     }
   }
 
