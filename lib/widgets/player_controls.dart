@@ -68,42 +68,6 @@ class ControlButtonsState extends State<ControlButtons> {
             link: LinkDetails(
               link: url,
             ));
-
-        // COPILOT
-        // final blob = web.Blob([bytes], web.BlobPropertyBag(type: mimeType));
-        // final url = web.URL.createObjectURL(blob);
-        // final anchor = web.HTMLAnchorElement(href: url)
-        //   ..setAttribute('download', fileName)
-        //   ..click();
-        // web.URL.revokeObjectURL(url); // Clean up the URL
-
-// GEMINI
-        // // Fetch the file as a blob to bypass cross-origin restrictions on the download attribute.
-        // final responsePromise = js_interop.globalContext.callMethod('fetch'.toJS, url.toJS);
-        // final response =
-        //     await js_interop.promiseToFuture<js_interop.JSObject>(responsePromise);
-        // final blobPromise = response.callMethod('blob'.toJS);
-        // final blob = await js_interop.promiseToFuture<js_interop.JSObject>(blobPromise);
-
-        // // Create a temporary URL for the blob.
-        // final blobUrl = (js_interop.globalContext['URL'] as js_interop.JSObject)
-        //     .callMethod('createObjectURL'.toJS, blob) as js_interop.JSString;
-
-        // // Create a temporary anchor element to trigger the download.
-        // final anchor = (js_interop.globalContext['document'] as js_interop.JSObject)
-        //     .callMethod('createElement'.toJS, 'a'.toJS) as js_interop.JSObject;
-        // anchor.setProperty('href'.toJS, blobUrl);
-        // anchor.setProperty('download'.toJS, filename.toJS);
-
-        // final body = (js_interop.globalContext['document']
-        //     as js_interop.JSObject)['body'] as js_interop.JSObject;
-        // body.callMethod('appendChild'.toJS, anchor);
-        // anchor.callMethod('click'.toJS);
-        // body.callMethod('removeChild'.toJS, anchor);
-
-        // // Revoke the blob URL to free up memory.
-        // (js_interop.globalContext['URL'] as js_interop.JSObject)
-        //     .callMethod('revokeObjectURL'.toJS, blobUrl);
       } catch (e) {
         if (kDebugMode) debugPrint(e.toString());
       }
@@ -113,19 +77,22 @@ class ControlButtonsState extends State<ControlButtons> {
 
       // if not downloaded, download it
       if (!downloaded) {
+        final listenable = downloadedBox.listenable(keys: [currentShowId]);
+        late void Function() watchDownloadCompletion;
+
         // the function to run when updates to the download occur
-        void watchDownloadCompletion() {
-          bool downloaded = downloadedBox.get(currentShowId) ?? false;
+        watchDownloadCompletion = () {
+          final downloaded = downloadedBox.get(currentShowId) ?? false;
           if (downloaded) {
-            Navigator.of(context).pop();
-            downloadedBox.listenable(
-                keys: [currentShowId]).removeListener(watchDownloadCompletion);
+            // listener is removed below the showDialog - when it's here errors.
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
           }
-        }
+        };
 
         // call the listener
-        downloadedBox.listenable(
-            keys: [currentShowId]).addListener(watchDownloadCompletion);
+        listenable.addListener(watchDownloadCompletion);
 
         // if (!mounted) return;
         await showDialog(
@@ -138,6 +105,10 @@ class ControlButtonsState extends State<ControlButtons> {
                 autoDownload: true,
               );
             });
+
+        // In case the dialog is dismissed before the download completes,
+        // we should remove the listener to prevent memory leaks.
+        listenable.removeListener(watchDownloadCompletion);
       }
       // now we should have it downloaded.
 

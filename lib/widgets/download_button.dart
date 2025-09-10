@@ -9,6 +9,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../main.dart';
 import '../providers/shows.dart';
 import '../providers/theme.dart';
+import '../providers/player_manager.dart';
 
 class DownloadButton extends StatefulWidget {
   final Show show;
@@ -29,6 +30,18 @@ class _DownloadButtonState extends State<DownloadButton> {
   late bool _isDownloaded;
   bool _isDownloading = false;
   double? _percentDone;
+
+  late Shows shows;
+  late ThemeModel pref;
+  late PlayerManager playerManager;
+
+  @override
+  void initState() {
+    shows = Provider.of<Shows>(context, listen: false);
+    pref = Provider.of<ThemeModel>(context, listen: false);
+    playerManager = Provider.of<PlayerManager>(context, listen: false);
+    super.initState();
+  }
 
   //path is the local app Document path; url is the WHOLE url you need to download, filename is just the filename
   Future downloadFile(String path, String urlbase, Show show) async {
@@ -58,13 +71,17 @@ class _DownloadButtonState extends State<DownloadButton> {
       final file = File("$path/${show.filename}");
       await file.writeAsBytes(bytes);
       if (kDebugMode) debugPrint('download done');
-      downloadedBox.put((show.id), true);
-
       _isDownloading = false;
+      // downloadedBox.put(show.id, true);
+
+      // now put the newly downloaded file pointer in the playlist right
+      final newSource = await shows.getAudioSource(show);
+      await playerManager.changePlaylist(int.parse(show.id) - 1, newSource);
     }, onError: (e) {
-      if (kDebugMode)
-      {  debugPrint(
-            'had an error checking if the file was there or not - downloadFile()');}
+      if (kDebugMode) {
+        debugPrint(
+            'had an error checking if the file was there or not - downloadFile()');
+      }
       if (kDebugMode) debugPrint(e);
     }, cancelOnError: true);
   }
@@ -72,8 +89,6 @@ class _DownloadButtonState extends State<DownloadButton> {
   @override
   Widget build(BuildContext context) {
     // if (kDebugMode) debugPrint('building Download button');
-    final shows = Provider.of<Shows>(context, listen: false);
-    final pref = Provider.of<ThemeModel>(context, listen: false);
 
     Future<String> getDownloadSize(url) async {
       final http.Response r = await http.head(Uri.parse(url));
@@ -104,6 +119,11 @@ class _DownloadButtonState extends State<DownloadButton> {
               file.delete();
               if (kDebugMode) debugPrint('deleting file');
               downloadedBox.put(show.id, false);
+
+              // now put the newly downloaded file pointer in the playlist right
+              final newSource = await shows.getAudioSource(show);
+              await playerManager.changePlaylist(
+                  int.parse(show.id) - 1, newSource);
             } catch (e) {
               if (kDebugMode) debugPrint('had an error deleting the file');
               // return false;
@@ -124,9 +144,10 @@ class _DownloadButtonState extends State<DownloadButton> {
               shows.snackbarMessageError(context);
             } else if (connected && showExists.isEmpty) {
               //download the file
-              if (kDebugMode)
-              {  debugPrint(
-                    'The file seems to not be there - starting downloading process');}
+              if (kDebugMode) {
+                debugPrint(
+                    'The file seems to not be there - starting downloading process');
+              }
               //The user can choose to not be warned of download size, that is stored in downloadsApproved
               if (pref.downloadsApproved ?? false) {
                 //downloading is approved - just download the file.
@@ -163,8 +184,9 @@ class _DownloadButtonState extends State<DownloadButton> {
             } // end of else
           }
         } catch (e) {
-          if (kDebugMode)
-           { debugPrint('had an error checking if the file was there or not');}
+          if (kDebugMode) {
+            debugPrint('had an error checking if the file was there or not');
+          }
           if (kDebugMode) debugPrint(e.toString());
         }
       }

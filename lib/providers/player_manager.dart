@@ -39,4 +39,38 @@ class PlayerManager with ChangeNotifier {
       if (kDebugMode) debugPrint("Error loading audio source: $e");
     }
   }
+
+  Future<void> changePlaylist(int index, AudioSource newSource) async {
+    List<AudioSource> currentPlaylist = player.audioSources;
+
+    if (index < 0 || index >= currentPlaylist.length) {
+      if (kDebugMode) {
+        debugPrint("Invalid index for changing playlist.");
+      }
+      return;
+    }
+
+    final currentIndex = player.currentIndex;
+    final currentPosition = player.position;
+    final wasPlaying = player.playing;
+
+    final newPlaylist = List<AudioSource>.from(currentPlaylist);
+    newPlaylist[index] = newSource;
+
+    try {
+      await player.setAudioSources(
+        newPlaylist,
+        initialIndex: currentIndex,
+        initialPosition: currentPosition,
+      );
+
+      if (wasPlaying) {
+        player.play();
+      }
+    } on PlayerException catch (e) {
+      if (kDebugMode) {
+        debugPrint("Error changing playlist: $e");
+      }
+    }
+  }
 }

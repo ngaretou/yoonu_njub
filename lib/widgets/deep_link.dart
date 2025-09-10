@@ -33,7 +33,7 @@ Future<void> launchDeepLink(String appToLaunch, String identifier) async {
   //Plain vanilla url launch
   simpleLaunch() async {
     if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } else {
       throw 'Could not launch $url';
     }
@@ -47,15 +47,18 @@ Future<void> launchDeepLink(String appToLaunch, String identifier) async {
     //for iOS you can specify the app to launch with
     //For Android the best way of handling it is to ask the user it seems - I may be wrong about this
     //but in any case
-    var appInstalled = await canLaunchUrl(Uri.parse(appURLScheme));
+    var appInstalled = await canLaunchUrl(
+      Uri.parse(appURLScheme),
+    );
 
     if (appInstalled) {
       //forceSafariVC is false to get it to open in the installed app
-      await launchUrl(Uri.parse(deepLink));
+      await launchUrl(Uri.parse(deepLink),
+          mode: LaunchMode.externalApplication);
     } else {
       //Launch the regular url in the Safari View Controller, which comes as a
       //layover on top of the app rather than zooming in and out of the app
-      await launchUrl(Uri.parse(url));
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     }
   } else {
     //none of the above three - eventual desktop version

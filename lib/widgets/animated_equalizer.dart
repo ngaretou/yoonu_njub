@@ -40,7 +40,7 @@ class AnimatedEqualizer extends StatelessWidget {
             .scaleY(
               begin: 0.2,
               end: 1.0,
-              duration: 300.ms,
+              duration: 250.ms,
               delay: (100 * index).ms,
               curve: Curves.easeInOut,
             )

@@ -166,7 +166,8 @@ class MainDrawer extends StatelessWidget {
             () async {
               const url = 'https://sng.al/app';
               if (await canLaunchUrl(Uri.parse(url))) {
-                await launchUrl(Uri.parse(url));
+                await launchUrl(Uri.parse(url),
+                    mode: LaunchMode.externalApplication);
               } else {
                 throw 'Could not launch $url';
               }
@@ -181,7 +182,13 @@ class MainDrawer extends StatelessWidget {
             "Buuru Ndam",
             Icons.ondemand_video,
             () async {
-              launchDeepLink('youtube', '99McEuAtRkk');
+              const url = 'https://www.youtube.com/watch?v=99McEuAtRkk';
+              if (await canLaunchUrl(Uri.parse(url))) {
+                await launchUrl(Uri.parse(url),
+                    mode: LaunchMode.externalApplication);
+              } else {
+                throw 'Could not launch $url';
+              }
             },
           ),
           //Contact Us section
@@ -270,7 +277,7 @@ void showAbout(BuildContext context) async {
                     ),
                     Text(
                         'Version ${packageInfo.version} (${packageInfo.buildNumber})'),
-                    const Text('© 2023 Foundational'),
+                    const Text('© 2025 Foundational'),
                   ],
                 )
               ],

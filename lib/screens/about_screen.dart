@@ -30,7 +30,8 @@ class AboutScreen extends StatelessWidget {
                     element) async {
                   if (url != null) {
                     await canLaunchUrl(Uri.parse(url))
-                        ? await launchUrl(Uri.parse(url))
+                        ? await launchUrl(Uri.parse(url),
+                            mode: LaunchMode.externalApplication)
                         : throw 'Could not launch $url';
                   }
                 }),

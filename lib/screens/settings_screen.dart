@@ -9,7 +9,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:yoonu_njub/l10n/app_localizations.dart'; // the new Flutter 3.x localization method
 import '../providers/theme.dart';
 import '../providers/shows.dart';
-import '../main.dart';
 
 class SettingsScreen extends StatefulWidget {
   static const routeName = '/settings-screen';
@@ -28,6 +27,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     int numberOfTaps = 0;
     final themeProvider = Provider.of<ThemeModel>(context, listen: false);
+    final shows = Provider.of<Shows>(context, listen: false);
     final ThemeComponents? userTheme = themeProvider.userTheme;
     final Locale userLocale = themeProvider.userLocale ?? Locale('en');
 
@@ -220,8 +220,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 onSelected: (bool selected) {
                   themeProvider.setLocale('fr');
-                  if (kDebugMode)
-                  {  debugPrint(AppLocalizations.of(context)!.addHolidays);}
                 },
               ),
               ChoiceChip(
@@ -248,7 +246,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     Widget downloadPermissionSetting() {
       bool approved = themeProvider.downloadsApproved ?? false;
-      if (kDebugMode) debugPrint(Theme.of(context).primaryColor.toString());
 
       return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
         SizedBox(
@@ -294,18 +291,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       return (counter / 1000000).toStringAsFixed(2);
     }
 
-    Future<void> deleteAllDownloads() async {
-      final directory = await getApplicationDocumentsDirectory();
-
-      var myStream = directory.list(recursive: false, followLinks: false);
-      await for (var element in myStream) {
-        if (element is File) {
-          element.delete();
-        }
-      }
-      downloadedBox.clear();
-    }
-
     Widget clearDownloads() {
       return FutureBuilder(
           future: getSizeOfAllDownloads(),
@@ -336,8 +321,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                               ],
                             )),
-                        onPressed: () {
-                          deleteAllDownloads();
+                        onPressed: () async {
+                          showDialog(
+                              context: context,
+                              builder: (context) =>
+                                  Center(child: CircularProgressIndicator()));
+
+                          await shows.deleteAllDownloads(context);
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
 
                           setState(() {});
                         },
@@ -362,8 +355,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               if (kDebugMode) debugPrint(numberOfTaps.toString());
               if (numberOfTaps == 6) {
                 if (kDebugMode) debugPrint('check all shows');
-                Provider.of<Shows>(context, listen: false)
-                    .checkAllShowsDialog(context);
+                shows.checkAllShowsDialog(context);
                 numberOfTaps = 0;
               }
             },
@@ -376,7 +368,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     //   return Center(
     //     child: ElevatedButton(
     //         onPressed: () {
-    //           Provider.of<Shows>(context, listen: false)
+    //           shows
     //               .sendMessage('Test message');
     //         },
     //         child: Text('Test Messaging')),

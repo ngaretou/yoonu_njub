@@ -90,64 +90,18 @@ class Shows with ChangeNotifier {
 
     for (var show in showsData) {
       // add it to the show info
-      loadedShowData.add(
-        Show(
-            id: show['id'],
-            showNameRS: show['showNameRS'],
-            showNameAS: show['showNameAS'],
-            urlSnip: show['urlSnip'],
-            filename: show['filename'],
-            image: show['image']),
-      );
-
-      // and add it to the playlist
-
-      //Get the image URI set up
-      Uri? imageURI;
-      //If web, the notification area code does not work, so
-      kIsWeb ? imageURI = null : imageURI = await _getImageURI(show['image']);
-
-      //  check to see if it's downloaded
-      bool downloaded =
-          kIsWeb ? false : await localAudioFileCheck(show['filename']);
-      // if so then
-      if (downloaded) {
-        // add it to the playlist as a downloaded file
-        final Directory docsDirectory =
-            await getApplicationDocumentsDirectory();
-        final uri = '${docsDirectory.path}/${show['filename']}';
-        AudioSource source = AudioSource.file(
-          uri,
-          tag: MediaItem(
-            // Specify a unique ID for each media item:
-            id: show['id'],
-            // Metadata to display in the notification:
-            album: "Yoonu Njub",
-            title: show['showNameRS'],
-            artUri: imageURI,
-          ),
-        );
-
-        playlist.add(source);
-        // and to the provider
-        downloadedBox.put(show['id'], true);
-      } else {
-        //This is the audio source
-        final uri = '$urlBase/${show['urlSnip']}/${show['filename']}';
-        AudioSource source = AudioSource.uri(
-          Uri.parse(uri),
-          //The notification area setup
-          tag: MediaItem(
-              // Specify a unique ID for each media item:
-              id: show['id'],
-              // Metadata to display in the notification:
-              album: "Yoonu Njub",
-              title: show['showNameRS'],
-              artUri: imageURI),
-        );
-
-        playlist.add(source);
-      }
+      Show newShow = Show(
+          id: show['id'],
+          showNameRS: show['showNameRS'],
+          showNameAS: show['showNameAS'],
+          urlSnip: show['urlSnip'],
+          filename: show['filename'],
+          image: show['image']);
+      loadedShowData.add(newShow);
+      // organize the AudioSource and
+      final source = await getAudioSource(newShow);
+      // add to the playlist
+      playlist.add(source);
     }
 
     _shows = loadedShowData;
@@ -164,13 +118,62 @@ class Shows with ChangeNotifier {
     return;
   }
 
+  Future<AudioSource> getAudioSource(Show show) async {
+    late AudioSource source;
+    // and add it to the playlist
+
+    //Get the image URI set up
+    Uri? imageURI;
+    //If web, the notification area code does not work, so
+    kIsWeb ? imageURI = null : imageURI = await _getImageURI(show.image);
+
+    //  check to see if it's downloaded
+    bool downloaded = kIsWeb ? false : await localAudioFileCheck(show.filename);
+    // if so then
+    if (downloaded) {
+      // add it to the playlist as a downloaded file
+      final Directory docsDirectory = await getApplicationDocumentsDirectory();
+      final uri = '${docsDirectory.path}/${show.filename}';
+      source = AudioSource.file(
+        uri,
+        tag: MediaItem(
+          // Specify a unique ID for each media item:
+          id: show.id,
+          // Metadata to display in the notification:
+          album: "Yoonu Njub",
+          title: show.showNameRS,
+          artUri: imageURI,
+        ),
+      );
+
+      // and to the provider
+      downloadedBox.put(show.id, true);
+    } else {
+      //This is the audio source
+      final uri = '$urlBase/${show.urlSnip}/${show.filename}';
+      source = AudioSource.uri(
+        Uri.parse(uri),
+        //The notification area setup
+        tag: MediaItem(
+            // Specify a unique ID for each media item:
+            id: show.id,
+            // Metadata to display in the notification:
+            album: "Yoonu Njub",
+            title: show.showNameRS,
+            artUri: imageURI),
+      );
+      downloadedBox.put(show.id, false);
+    }
+    return source;
+  }
+
   Future<Uri> _getImageURI(String image) async {
     /*Set notification area playback widget image:
       Problem here is that you can't reference an asset image directly as a URI
       But the notification area needs it as a URI so you have to
       temporarily write the image outside the asset bundle. Yuck.*/
 
-    final Directory docsDirectory = await getApplicationDocumentsDirectory();
+    final Directory docsDirectory = await getTemporaryDirectory();
     String docsDirPathString = join(docsDirectory.path, "$image.jpg");
 
     bool exists = await File(docsDirPathString).exists();
@@ -195,6 +198,35 @@ class Shows with ChangeNotifier {
     }
 
     return Uri.file(docsDirPathString);
+  }
+
+  Future<bool> deleteAllDownloads(BuildContext context) async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    var myStream = directory.list(recursive: false, followLinks: false);
+    await for (var element in myStream) {
+      if (element is File) {
+        element.delete();
+      }
+    }
+    if (!context.mounted) return true;
+    final playerManager = Provider.of<PlayerManager>(context, listen: false);
+    final trueEntries = downloadedBox
+        .toMap()
+        .entries
+        .where((entry) => entry.value)
+        .map((entry) => entry.key)
+        .toList();
+
+    for (var showID in trueEntries) {
+      final show = _shows.firstWhere((element) => element.id == showID);
+
+      final source = await getAudioSource(show);
+      playerManager.changePlaylist(int.parse(show.id) - 1, source);
+    }
+
+    downloadedBox.clear();
+    return true;
   }
 
   Future<bool?> get connectivityCheck async {
@@ -253,14 +285,11 @@ class Shows with ChangeNotifier {
     ));
   }
 
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-    return directory.path;
-  }
-
   Future<bool> localAudioFileCheck(String filename) async {
     try {
-      final path = await _localPath;
+      final directory = await getApplicationDocumentsDirectory();
+
+      final path = directory.path;
       // if (kDebugMode) debugPrint(filename);
       final file = File('$path/$filename');
       if (await file.exists()) {

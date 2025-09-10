@@ -43,13 +43,13 @@ class ContactOptions extends StatelessWidget {
           AppLocalizations.of(context)!.settingsContactUsTelephone,
           Icons.phone,
           () async {
-            const url = 'tel:221777758702';
+            const url = 'tel:+221777758702';
             if (await canLaunchUrl(Uri.parse(url))) {
               await launchUrl(Uri.parse(url));
             } else {
               throw 'Could not launch $url';
             }
-            if (!context.mounted) return; 
+            if (!context.mounted) return;
             Navigator.of(context).pop();
           },
         ),
