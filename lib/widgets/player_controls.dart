@@ -56,6 +56,8 @@ class ControlButtonsState extends State<ControlButtons> {
     String currentShowId = (currentIndex + 1).toString();
 
     if (kIsWeb) {
+      // TODO solve this on web:
+      // Access to XMLHttpRequest at 'https://bienvenueafricains.com/mp3/wolof/the-way-of-righteousness/Part_1/001_Yalla_wax_na.mp3' from origin 'https://yoonunjub.sng.al' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
       try {
         // Get the URL and filename from the provider
         final showsProvider = Provider.of<Shows>(context, listen: false);
