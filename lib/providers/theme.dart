@@ -151,9 +151,14 @@ class ThemeModel extends ChangeNotifier {
     String? themeColorValue = prefsBox.get('color');
 
     //check if a color is set by user - if not use default color
-    Color color = themeColorValue != null
-        ? colorFromString(themeColorValue)
-        : Colors.teal;
+    Color color = Colors.teal;
+    try {
+      color = themeColorValue != null
+          ? colorFromString(themeColorValue)
+          : Colors.teal;
+    } catch (e) {
+      if (kDebugMode) debugPrint(e.toString());
+    }
 
     if (storedBrightness == null || themeColorValue == null) {
       setTheme(defaultTheme, refresh: false);
@@ -239,7 +244,25 @@ String colorToString(Color color) {
 }
 
 Color colorFromString(String string) {
-  List<String> vals = string.split(',');
-  List<int> argblist = List.generate(vals.length, (i) => int.parse(vals[i]));
-  return Color.fromARGB(argblist[0], argblist[1], argblist[2], argblist[3]);
+  Color color = Colors.teal;
+  if (string.contains(',')) {
+    List<String> vals = string.split(',');
+    List<int> argblist = List.generate(vals.length, (i) => int.parse(vals[i]));
+
+    color = Color.fromARGB(argblist[0], argblist[1], argblist[2], argblist[3]);
+  } else {
+    // old Color.value format migration
+    color = colorFromValue(int.parse(string));
+  }
+
+  return color;
+}
+
+Color colorFromValue(int value) {
+  final int alpha = (value >> 24) & 0xFF;
+  final int red = (value >> 16) & 0xFF;
+  final int green = (value >> 8) & 0xFF;
+  final int blue = value & 0xFF;
+
+  return Color.fromARGB(alpha, red, green, blue);
 }
