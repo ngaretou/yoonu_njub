@@ -6,7 +6,7 @@ import 'package:image/image.dart' as imageLib;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../l10n/app_localizations.dart';
 
 import 'package:provider/provider.dart';
 import 'package:just_audio/just_audio.dart';
@@ -27,14 +27,14 @@ class ControlButtons extends StatefulWidget {
   final Function jumpPrevNext; //parent method will be called from this child
   final Function showPlayList; //parent method will be called from this child
   final ChildController childController; //child method called via this
-  final int wideVersionBreakPoint; 
+  final int wideVersionBreakPoint;
 
   ControlButtons(
       {Key? key,
       required this.show,
       required this.jumpPrevNext,
       required this.showPlayList,
-      required this.childController, 
+      required this.childController,
       required this.wideVersionBreakPoint})
       : super(key: key);
 
@@ -97,7 +97,8 @@ class ControlButtonsState extends State<ControlButtons> {
     //For tablets the smallest I can find is 768 x 1024
     final bool _isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
 
-    final bool showPlaylist = _isPhone || mediaQuery.width < widget.wideVersionBreakPoint;
+    final bool showPlaylist =
+        _isPhone || mediaQuery.width < widget.wideVersionBreakPoint;
 
     final mainRowIconSize = 36.0;
     final showsProvider = Provider.of<Shows>(context, listen: false);
