@@ -1,28 +1,24 @@
-import 'dart:ui' as ui;
+import 'dart:async';
 import 'dart:ui';
+import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:yoonu_njub/main.dart';
+import 'package:palette_generator/palette_generator.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+import '../main.dart';
+
+import '../providers/shows.dart';
+import '../providers/player_manager.dart';
 
 import 'download_button.dart';
 import 'player_controls.dart';
-import '../providers/shows.dart';
-import '../providers/player_manager.dart';
 import 'animated_equalizer.dart';
-
-//To adapt to new Flutter 2.8 behavior that does not allow mice to drag - which is our desired behavior here
-class MyCustomScrollBehavior extends ScrollBehavior {
-  // Override behavior methods and getters like dragDevices
-  @override
-  Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-      };
-}
 
 class ShowDisplay extends StatefulWidget {
   const ShowDisplay({super.key});
@@ -33,13 +29,34 @@ class ShowDisplay extends StatefulWidget {
 
 class ShowDisplayState extends State<ShowDisplay> {
   final ItemScrollController itemScrollController = ItemScrollController();
-
+  AssetImage backgroundImage = AssetImage('assets/images/1.jpg');
   ValueNotifier<double> rewValueNotifier = ValueNotifier(0);
   ValueNotifier<double> ffValueNotifier = ValueNotifier(0);
   late PlayerManager playerManager;
   late AudioPlayer player;
   late PageController _pageController;
   bool isUserSwipe = false;
+  bool initialLoad = true;
+  double statusBarHeight = 20;
+
+  Future<void> analyzeTopOfImage(AssetImage provider) async {
+    final completer = Completer<ImageInfo>();
+    provider.resolve(ImageConfiguration()).addListener(
+          ImageStreamListener((info, _) => completer.complete(info)),
+        );
+    final imageInfo = await completer.future;
+    final width = imageInfo.image.width;
+    final height = imageInfo.image.height;
+
+    final palette = await PaletteGenerator.fromImageProvider(
+      provider,
+      size: Size(width.toDouble(), height.toDouble()),
+      region: Rect.fromLTWH(0, 0, width.toDouble(), 50),
+    );
+
+    final color = palette.dominantColor?.color ?? Colors.black;
+    prefsBox.put('chrome', color.computeLuminance());
+  }
 
   @override
   void initState() {
@@ -49,7 +66,7 @@ class ShowDisplayState extends State<ShowDisplay> {
     player = playerManager.player;
     int initialPage = prefsBox.get('lastShowViewed') ?? 0;
     _pageController = PageController(initialPage: initialPage);
-
+    statusBarHeight = prefsBox.get('statusBarHeight');
     player.currentIndexStream.listen((currentIndex) {
       int index = currentIndex ?? 0;
       prefsBox.put('lastShowViewed', index);
@@ -80,6 +97,7 @@ class ShowDisplayState extends State<ShowDisplay> {
   @override
   Widget build(BuildContext context) {
     if (kDebugMode) debugPrint('show display build');
+
     //https://github.com/gskinner/flutter_animate#testing-animations
     Animate.restartOnHotReload = true;
 
@@ -93,6 +111,15 @@ class ShowDisplayState extends State<ShowDisplay> {
     //For tablets the smallest I can find is 768 x 1024
     final bool isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
     final int wideVersionBreakPoint = 700;
+
+    // set up the system chrome if isPhone - if not keep it to system theme brightness in main_player_screen.dart
+    if (initialLoad && (kIsWeb || isPhone)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        analyzeTopOfImage(backgroundImage);
+      });
+      initialLoad = false;
+    }
+
     //Text Styles
     ui.TextDirection rtlText = ui.TextDirection.rtl;
     ui.TextDirection ltrText = ui.TextDirection.ltr;
@@ -309,9 +336,15 @@ class ShowDisplayState extends State<ShowDisplay> {
                       isUserSwipe = false;
                     }
                   }
+                  // if (kIsWeb || isPhone) {
+                  analyzeTopOfImage(backgroundImage);
+                  // }
                 },
                 itemBuilder: (context, index) {
                   final show = showsProvider.shows[index];
+                  backgroundImage = AssetImage(
+                    "assets/images/${show.image}.jpg",
+                  );
                   return Column(
                     children: [
                       Expanded(
@@ -325,9 +358,7 @@ class ShowDisplayState extends State<ShowDisplay> {
                                 color: Colors.black54,
                                 image: DecorationImage(
                                   fit: BoxFit.cover,
-                                  image: AssetImage(
-                                    "assets/images/${show.image}.jpg",
-                                  ),
+                                  image: backgroundImage,
                                 ),
                               ),
                             ),
@@ -393,7 +424,51 @@ class ShowDisplayState extends State<ShowDisplay> {
           Container(
               width: verticalDividerWidth,
               color: Theme.of(context).colorScheme.surfaceContainerLow),
-          SizedBox(width: minPlaylistWidth, child: playList()),
+          SizedBox(
+              width: minPlaylistWidth,
+              child: Stack(children: [
+                if (!kIsWeb || !isPhone)
+                  Positioned(
+                      child: ValueListenableBuilder<Box>(
+                          valueListenable:
+                              prefsBox.listenable(keys: ['chrome']),
+                          builder: (context, val, _) {
+                            Color color = Colors.white;
+
+                            bool lightTheme =
+                                Theme.brightnessOf(context) == Brightness.light;
+
+                            final luminescence = prefsBox.get('chrome');
+                            final lightOverlay = luminescence < .08;
+
+                            if (lightTheme && lightOverlay) {
+                              color = Colors.black54;
+                            } else if (!lightTheme && !lightOverlay) {
+                              // dark on dark
+                              color = Colors.white54;
+                            } else {
+                              color = Colors.transparent;
+                            }
+                            // if (lightTheme) {
+                            //   color = Colors.black54;
+                            // } else if (!lightTheme) {
+                            //   // dark on dark
+                            //   color = Colors.white54;
+                            // }
+
+                            return Container(
+                                width: double.infinity,
+                                height: statusBarHeight * 1.5,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                      colors: [color, Colors.transparent],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      stops: [.0, .8]),
+                                ));
+                          })),
+                playList()
+              ])),
         ],
       );
     }
@@ -406,4 +481,14 @@ class ShowDisplayState extends State<ShowDisplay> {
       return wideVersion();
     }
   }
+}
+
+//To adapt to new Flutter 2.8 behavior that does not allow mice to drag - which is our desired behavior here
+class MyCustomScrollBehavior extends ScrollBehavior {
+  // Override behavior methods and getters like dragDevices
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+      };
 }

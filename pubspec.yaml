@@ -63,6 +63,7 @@ dependencies:
   file_saver: ^0.3.1
   mini_music_visualizer: ^1.1.4
   flutter_native_splash: ^2.4.6
+  palette_generator: ^0.3.3+7
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:yoonu_njub/main.dart';
 import '../widgets/drawer.dart';
 import '../widgets/show_display.dart';
 
@@ -14,6 +16,32 @@ class MainPlayer extends StatefulWidget {
 }
 
 class _MainPlayerState extends State<MainPlayer> {
+  ValueNotifier<SystemUiOverlayStyle> chrome =
+      ValueNotifier(SystemUiOverlayStyle.light);
+  ValueListenable<Box<dynamic>> box = prefsBox.listenable(keys: ['chrome']);
+
+  @override
+  void initState() {
+    // if the box changes, this runs - otherwise no change, and we keep the context brightness.
+    box.addListener(() {
+      final luminescence = prefsBox.get('chrome');
+
+      chrome.value = luminescence < .08
+          ? SystemUiOverlayStyle.light
+          : SystemUiOverlayStyle.dark;
+    });
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // initial value - this will get changed if kIsWeb || isPhone in show_display.dart
+    chrome.value = Theme.brightnessOf(context) == Brightness.light
+        ? SystemUiOverlayStyle.dark
+        : SystemUiOverlayStyle.light;
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (kDebugMode) debugPrint('MainPlayerScreen');
@@ -36,31 +64,27 @@ class _MainPlayerState extends State<MainPlayer> {
       ]);
     }
 
+    prefsBox.put('statusBarHeight', MediaQuery.of(context).padding.top);
+
     return Scaffold(
         extendBodyBehindAppBar: true,
-        // floatingActionButton: FloatingActionButton(
-        //   child: Icon(Icons.menu),
-        //   onPressed: () => Scaffold.of(context).openDrawer(),
-        //   mini: true,
-        //   shape: RoundedRectangleBorder(
-        //     borderRadius: BorderRadius.all(
-        //       Radius.circular(10),
-        //     ),
-        //   ),
-        // ),
-        // floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
-        // appBar: AppBar(
-        //   backgroundColor: Colors.transparent,
-        //   elevation: 0,
-        // ),
-        appBar: AppBar(
-          systemOverlayStyle: Theme.of(context).brightness == Brightness.light
-              ? SystemUiOverlayStyle.dark
-              : SystemUiOverlayStyle.light,
-          backgroundColor: Colors.transparent,
-          surfaceTintColor: Colors.transparent,
-          elevation: 0,
-        ),
+        appBar: PreferredSize(
+            preferredSize:
+                const Size.fromHeight(kToolbarHeight), // Standard AppBar height
+            child: ValueListenableBuilder<SystemUiOverlayStyle>(
+                valueListenable: chrome,
+                builder: (context, _, __) {
+                  final color = chrome.value == SystemUiOverlayStyle.light
+                      ? Colors.white
+                      : Colors.black;
+                  return AppBar(
+                    iconTheme: IconThemeData(color: color),
+                    systemOverlayStyle: chrome.value,
+                    backgroundColor: Colors.transparent,
+                    surfaceTintColor: Colors.transparent,
+                    elevation: 0,
+                  );
+                })),
         drawer: MainDrawer(),
         body: ShowDisplay()
         // body: ShowDisplaySimple()
