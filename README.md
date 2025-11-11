@@ -49,3 +49,16 @@ Other:
 - Share audio directly to messaging apps
 - playlist improvements
 - September 10 2025
+
+### 1.3.2
+- status bar and menu button now change based on background picture
+
+## Web release
+>>increment build number in pubspec.yaml
+rm -rf build/web
+flutter build web 
+cd build/web
+HASH=$(sha256sum main.dart.js | cut -c1-8)
+mv main.dart.js main.dart.$HASH.js
+sed -i .bak "s/main.dart.js/main.dart.$HASH.js/g" flutter_bootstrap.js 
+rm flutter_bootstrap.js.bak 

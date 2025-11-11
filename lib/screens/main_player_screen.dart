@@ -24,22 +24,13 @@ class _MainPlayerState extends State<MainPlayer> {
   void initState() {
     // if the box changes, this runs - otherwise no change, and we keep the context brightness.
     box.addListener(() {
-      final luminescence = prefsBox.get('chrome');
+      final luminescence = prefsBox.get('chrome') ?? 0;
 
       chrome.value = luminescence < .08
           ? SystemUiOverlayStyle.light
           : SystemUiOverlayStyle.dark;
     });
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    // initial value - this will get changed if kIsWeb || isPhone in show_display.dart
-    chrome.value = Theme.brightnessOf(context) == Brightness.light
-        ? SystemUiOverlayStyle.dark
-        : SystemUiOverlayStyle.light;
-    super.didChangeDependencies();
   }
 
   @override
@@ -83,6 +74,11 @@ class _MainPlayerState extends State<MainPlayer> {
                     backgroundColor: Colors.transparent,
                     surfaceTintColor: Colors.transparent,
                     elevation: 0,
+                    // actions: [
+                    //   IconButton.filled(
+                    //       onPressed: () => prefsBox.delete('chrome'),
+                    //       icon: Icon(Icons.delete))
+                    // ],
                   );
                 })),
         drawer: MainDrawer(),

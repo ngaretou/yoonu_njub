@@ -10,7 +10,7 @@ import '../screens/about_screen.dart';
 import 'qr_share.dart';
 
 import 'contact_options.dart';
-import 'deep_link.dart';
+// import 'deep_link.dart';
 
 class MainDrawer extends StatelessWidget {
   const MainDrawer({super.key});

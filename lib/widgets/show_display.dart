@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
@@ -112,8 +111,7 @@ class ShowDisplayState extends State<ShowDisplay> {
     final bool isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
     final int wideVersionBreakPoint = 700;
 
-    // set up the system chrome if isPhone - if not keep it to system theme brightness in main_player_screen.dart
-    if (initialLoad && (kIsWeb || isPhone)) {
+    if (initialLoad) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         analyzeTopOfImage(backgroundImage);
       });
@@ -160,42 +158,46 @@ class ShowDisplayState extends State<ShowDisplay> {
     //This is the playList widget. For web, it will go side by side; for app, it will go as a drawer.
     Widget playList() {
       return webScrollable(
-        ScrollablePositionedList.builder(
-            itemScrollController: itemScrollController,
-            initialScrollIndex: showsProvider.lastShowViewed,
-            physics: ClampingScrollPhysics(),
-            itemCount: showsProvider.shows.length,
-            itemBuilder: (ctx, i) {
-              return ListTile(
-                leading: StreamBuilder(
-                    stream: player.currentIndexStream,
-                    builder: (context, snapshot) {
-                      int currentIndex = snapshot.data ?? 0;
-                      if (currentIndex == i) {
-                        return StreamBuilder<bool>(
-                            stream: player.playingStream,
-                            builder: (context, snapshot) {
-                              bool isPlaying = snapshot.data ?? false;
-                              return AnimatedEqualizer(isAnimating: isPlaying);
-                            });
-                      } else {
-                        return Icon(Icons.play_arrow);
-                      }
-                    }),
-                title: Text(
-                    '${showsProvider.shows[i].id}. ${showsProvider.shows[i].showNameRS}',
-                    style: showListStyle),
-                trailing:
-                    !kIsWeb ? DownloadButton(showsProvider.shows[i]) : null,
-                onTap: () async {
-                  //If not on the web version, pop the modal bottom sheet - if web, no need
-                  if (isPhone || mediaQuery.width < wideVersionBreakPoint) {
-                    Navigator.pop(context);
-                  }
-                  await player.seek(Duration.zero, index: i);
-                },
-              );
-            }),
+        Container(
+          color: Theme.of(context).colorScheme.surfaceContainerLow,
+          child: ScrollablePositionedList.builder(
+              itemScrollController: itemScrollController,
+              initialScrollIndex: showsProvider.lastShowViewed,
+              physics: ClampingScrollPhysics(),
+              itemCount: showsProvider.shows.length,
+              itemBuilder: (ctx, i) {
+                return ListTile(
+                  leading: StreamBuilder(
+                      stream: player.currentIndexStream,
+                      builder: (context, snapshot) {
+                        int currentIndex = snapshot.data ?? 0;
+                        if (currentIndex == i) {
+                          return StreamBuilder<bool>(
+                              stream: player.playingStream,
+                              builder: (context, snapshot) {
+                                bool isPlaying = snapshot.data ?? false;
+                                return AnimatedEqualizer(
+                                    isAnimating: isPlaying);
+                              });
+                        } else {
+                          return Icon(Icons.play_arrow);
+                        }
+                      }),
+                  title: Text(
+                      '${showsProvider.shows[i].id}. ${showsProvider.shows[i].showNameRS}',
+                      style: showListStyle),
+                  trailing:
+                      !kIsWeb ? DownloadButton(showsProvider.shows[i]) : null,
+                  onTap: () async {
+                    //If not on the web version, pop the modal bottom sheet - if web, no need
+                    if (isPhone || mediaQuery.width < wideVersionBreakPoint) {
+                      Navigator.pop(context);
+                    }
+                    await player.seek(Duration.zero, index: i);
+                  },
+                );
+              }),
+        ),
       );
     }
 
@@ -336,9 +338,8 @@ class ShowDisplayState extends State<ShowDisplay> {
                       isUserSwipe = false;
                     }
                   }
-                  // if (kIsWeb || isPhone) {
+
                   analyzeTopOfImage(backgroundImage);
-                  // }
                 },
                 itemBuilder: (context, index) {
                   final show = showsProvider.shows[index];
@@ -412,21 +413,23 @@ class ShowDisplayState extends State<ShowDisplay> {
     }
 
     Widget wideVersion() {
-      const double verticalDividerWidth = 3;
+      // const double verticalDividerWidth = 3;
       const double minPlaylistWidth = 350;
 
       return Row(
         children: [
           SizedBox(
               width:
-                  mediaQuery.width - (verticalDividerWidth + minPlaylistWidth),
+                  // mediaQuery.width - (verticalDividerWidth + minPlaylistWidth),
+                  mediaQuery.width - (minPlaylistWidth),
               child: playerStack()),
-          Container(
-              width: verticalDividerWidth,
-              color: Theme.of(context).colorScheme.surfaceContainerLow),
+          // Container(
+          //     width: verticalDividerWidth,
+          //     color: Theme.of(context).colorScheme.surfaceContainerLow),
           SizedBox(
               width: minPlaylistWidth,
               child: Stack(children: [
+                playList(),
                 if (!kIsWeb || !isPhone)
                   Positioned(
                       child: ValueListenableBuilder<Box>(
@@ -438,7 +441,7 @@ class ShowDisplayState extends State<ShowDisplay> {
                             bool lightTheme =
                                 Theme.brightnessOf(context) == Brightness.light;
 
-                            final luminescence = prefsBox.get('chrome');
+                            final luminescence = prefsBox.get('chrome') ?? 0;
                             final lightOverlay = luminescence < .08;
 
                             if (lightTheme && lightOverlay) {
@@ -467,7 +470,6 @@ class ShowDisplayState extends State<ShowDisplay> {
                                       stops: [.0, .8]),
                                 ));
                           })),
-                playList()
               ])),
         ],
       );
