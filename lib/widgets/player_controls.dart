@@ -9,7 +9,6 @@ import 'package:provider/provider.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:file_saver/file_saver.dart';
 
 import '/main.dart';
 import '../providers/shows.dart';
@@ -56,23 +55,24 @@ class ControlButtonsState extends State<ControlButtons> {
     String currentShowId = (currentIndex + 1).toString();
 
     if (kIsWeb) {
-      // TODO solve this on web:
-      // Access to XMLHttpRequest at 'https://bienvenueafricains.com/mp3/wolof/the-way-of-righteousness/Part_1/001_Yalla_wax_na.mp3' from origin 'https://yoonunjub.sng.al' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
-      try {
-        // Get the URL and filename from the provider
-        final showsProvider = Provider.of<Shows>(context, listen: false);
-        String urlbase = showsProvider.urlBase;
-        String filename = showsProvider.shows[currentIndex].filename;
-        String url =
-            '$urlbase/${showsProvider.shows[currentIndex].urlSnip}/$filename';
-        await FileSaver.instance.saveFile(
-            name: filename,
-            link: LinkDetails(
-              link: url,
-            ));
-      } catch (e) {
-        if (kDebugMode) debugPrint(e.toString());
-      }
+      // Currently not possible without a proxy server due to browser restrictions
+
+      // // Access to XMLHttpRequest at 'https://bienvenueafricains.com/mp3/wolof/the-way-of-righteousness/Part_1/001_Yalla_wax_na.mp3' from origin 'https://yoonunjub.sng.al' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+      // try {
+      //   // Get the URL and filename from the provider
+      //   final showsProvider = Provider.of<Shows>(context, listen: false);
+      //   String urlbase = showsProvider.urlBase;
+      //   String filename = showsProvider.shows[currentIndex].filename;
+      //   String url =
+      //       '$urlbase/${showsProvider.shows[currentIndex].urlSnip}/$filename';
+      //   await FileSaver.instance.saveFile(
+      //       name: filename,
+      //       link: LinkDetails(
+      //         link: url,
+      //       ));
+      // } catch (e) {
+      //   if (kDebugMode) debugPrint(e.toString());
+      // }
     } else {
       // Note here it is the String of the Show's id (not the index of the list), bool for downloadedBox
       bool downloaded = downloadedBox.get(currentShowId) ?? false;
@@ -318,8 +318,9 @@ class ControlButtonsState extends State<ControlButtons> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               //download button
-              !kIsWeb
-                  ? SizedBox(
+              kIsWeb
+                  ? SizedBox(width: 48, height: 48)
+                  : SizedBox(
                       height: 48,
                       width: 48,
                       child: StreamBuilder(
@@ -331,14 +332,16 @@ class ControlButtonsState extends State<ControlButtons> {
                               iconSize: secondaryRowIconSize,
                             );
                           }),
-                    )
-                  : SizedBox(width: 48, height: 48),
-              // if (!kIsWeb) SizedBox(width: secondaryRowIconSize),
-              IconButton(
-                onPressed: () => shareAudio(mediaQuery),
-                icon: Icon(Icons.share),
-                iconSize: secondaryRowIconSize,
-              ),
+                    ),
+
+              // sharing currently not possible on web
+              kIsWeb
+                  ? SizedBox(width: 48, height: 48)
+                  : IconButton(
+                      onPressed: () => shareAudio(mediaQuery),
+                      icon: Icon(Icons.share),
+                      iconSize: secondaryRowIconSize,
+                    ),
               Expanded(
                 child: SizedBox(width: 48, height: 48),
               ),

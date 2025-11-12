@@ -332,20 +332,20 @@ class ShowDisplayState extends State<ShowDisplay> {
                 controller: _pageController,
                 itemCount: showsProvider.shows.length,
                 onPageChanged: (index) async {
+                  analyzeTopOfImage(backgroundImage);
                   if (isUserSwipe) {
                     if (player.currentIndex != index) {
                       await player.seek(Duration.zero, index: index);
                       isUserSwipe = false;
                     }
                   }
-
-                  analyzeTopOfImage(backgroundImage);
                 },
                 itemBuilder: (context, index) {
                   final show = showsProvider.shows[index];
                   backgroundImage = AssetImage(
                     "assets/images/${show.image}.jpg",
                   );
+
                   return Column(
                     children: [
                       Expanded(

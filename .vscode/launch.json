@@ -34,7 +34,7 @@
         "-d",
         "chrome",
         "--web-browser-flag",
-        "--disable-web-security",
+        // "--disable-web-security",
         "--web-port",
         "5000"
       ],
