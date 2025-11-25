@@ -16,8 +16,9 @@ class MainPlayer extends StatefulWidget {
 }
 
 class _MainPlayerState extends State<MainPlayer> {
-  ValueNotifier<SystemUiOverlayStyle> chrome =
-      ValueNotifier(SystemUiOverlayStyle.light);
+  ValueNotifier<SystemUiOverlayStyle> chrome = ValueNotifier(
+    SystemUiOverlayStyle.light,
+  );
   ValueListenable<Box<dynamic>> box = prefsBox.listenable(keys: ['chrome']);
 
   @override
@@ -44,46 +45,47 @@ class _MainPlayerState extends State<MainPlayer> {
     final bool isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
     if (isPhone) {
       //only allow portrait mode, not landscape
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-      ]);
+      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     } else {
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
         DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight
+        DeviceOrientation.landscapeRight,
       ]);
     }
 
     prefsBox.put('statusBarHeight', MediaQuery.of(context).padding.top);
 
     return Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: PreferredSize(
-            preferredSize:
-                const Size.fromHeight(kToolbarHeight), // Standard AppBar height
-            child: ValueListenableBuilder<SystemUiOverlayStyle>(
-                valueListenable: chrome,
-                builder: (context, _, __) {
-                  final color = chrome.value == SystemUiOverlayStyle.light
-                      ? Colors.white
-                      : Colors.black;
-                  return AppBar(
-                    iconTheme: IconThemeData(color: color),
-                    systemOverlayStyle: chrome.value,
-                    backgroundColor: Colors.transparent,
-                    surfaceTintColor: Colors.transparent,
-                    elevation: 0,
-                    // actions: [
-                    //   IconButton.filled(
-                    //       onPressed: () => prefsBox.delete('chrome'),
-                    //       icon: Icon(Icons.delete))
-                    // ],
-                  );
-                })),
-        drawer: MainDrawer(),
-        body: ShowDisplay()
-        // body: ShowDisplaySimple()
-        );
+      extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(
+          kToolbarHeight,
+        ), // Standard AppBar height
+        child: ValueListenableBuilder<SystemUiOverlayStyle>(
+          valueListenable: chrome,
+          builder: (context, _, _) {
+            final color = chrome.value == SystemUiOverlayStyle.light
+                ? Colors.white
+                : Colors.black;
+            return AppBar(
+              iconTheme: IconThemeData(color: color),
+              systemOverlayStyle: chrome.value,
+              backgroundColor: Colors.transparent,
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              // actions: [
+              //   IconButton.filled(
+              //       onPressed: () => prefsBox.delete('chrome'),
+              //       icon: Icon(Icons.delete))
+              // ],
+            );
+          },
+        ),
+      ),
+      drawer: MainDrawer(),
+      body: ShowDisplay(),
+      // body: ShowDisplaySimple()
+    );
   }
 }

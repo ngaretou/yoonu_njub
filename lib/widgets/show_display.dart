@@ -19,6 +19,9 @@ import 'download_button.dart';
 import 'player_controls.dart';
 import 'animated_equalizer.dart';
 
+const double minPlaylistWidth = 350;
+const int wideVersionBreakPoint = 700;
+
 class ShowDisplay extends StatefulWidget {
   const ShowDisplay({super.key});
 
@@ -37,10 +40,14 @@ class ShowDisplayState extends State<ShowDisplay> {
   bool isUserSwipe = false;
   bool initialLoad = true;
   double statusBarHeight = 20;
+  int _currentPage = 0;
+  bool? _wasPhone;
 
   Future<void> analyzeTopOfImage(AssetImage provider) async {
     final completer = Completer<ImageInfo>();
-    provider.resolve(ImageConfiguration()).addListener(
+    provider
+        .resolve(ImageConfiguration())
+        .addListener(
           ImageStreamListener((info, _) => completer.complete(info)),
         );
     final imageInfo = await completer.future;
@@ -65,10 +72,12 @@ class ShowDisplayState extends State<ShowDisplay> {
     player = playerManager.player;
     int initialPage = prefsBox.get('lastShowViewed') ?? 0;
     _pageController = PageController(initialPage: initialPage);
+    _currentPage = initialPage;
     statusBarHeight = prefsBox.get('statusBarHeight');
     player.currentIndexStream.listen((currentIndex) {
       int index = currentIndex ?? 0;
       prefsBox.put('lastShowViewed', index);
+      _currentPage = index;
 
       // this controls the page controller
       if (_pageController.hasClients &&
@@ -108,8 +117,14 @@ class ShowDisplayState extends State<ShowDisplay> {
     //Biggest (12 pro max) is 428 x 926 = 1354.
     //Android biggest phone I can find is is 480 x 853 = 1333
     //For tablets the smallest I can find is 768 x 1024
-    final bool isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
-    final int wideVersionBreakPoint = 700;
+
+    final bool isPhone = mediaQuery.width <= wideVersionBreakPoint;
+    if (_wasPhone != null && _wasPhone != isPhone) {
+      // Layout changed, recreate controller to persist page
+      _pageController.dispose();
+      _pageController = PageController(initialPage: _currentPage);
+    }
+    _wasPhone = isPhone;
 
     if (initialLoad) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -123,19 +138,22 @@ class ShowDisplayState extends State<ShowDisplay> {
     ui.TextDirection ltrText = ui.TextDirection.ltr;
 
     TextStyle asStyle = TextStyle(
-        color: Theme.of(context).textTheme.titleLarge?.color,
-        fontFamily: "Harmattan",
-        fontSize: 32);
+      color: Theme.of(context).textTheme.titleLarge?.color,
+      fontFamily: "Harmattan",
+      fontSize: 32,
+    );
 
     TextStyle rsStyle = TextStyle(
-        color: Theme.of(context).textTheme.titleLarge?.color,
-        fontFamily: "Lato",
-        fontSize: 22);
+      color: Theme.of(context).textTheme.titleLarge?.color,
+      fontFamily: "Lato",
+      fontSize: 22,
+    );
 
     TextStyle showListStyle = TextStyle(
-        color: Theme.of(context).textTheme.titleLarge?.color,
-        fontFamily: "Lato",
-        fontSize: 18);
+      color: Theme.of(context).textTheme.titleLarge?.color,
+      fontFamily: "Lato",
+      fontSize: 18,
+    );
     // TextStyle showNumberStyle = TextStyle(
     //     color: Theme.of(context).textTheme.titleSmall?.color,
     //     fontFamily: "Lato",
@@ -146,13 +164,16 @@ class ShowDisplayState extends State<ShowDisplay> {
     // For web, a widget to facilitate dragging
     Widget webScrollable(Widget childWidget) {
       return MouseRegion(
-          cursor: SystemMouseCursors.grab,
-          child: ScrollConfiguration(
-              //The 2.8 Flutter behavior is to not have mice grabbing and dragging - but we do want this in the web version of the app, so the custom scroll behavior here
-              //Turn off scrollbar here so as to be able to control it more below with Scrollbar widget
-              behavior: MyCustomScrollBehavior()
-                  .copyWith(scrollbars: kIsWeb ? true : false),
-              child: childWidget));
+        cursor: SystemMouseCursors.grab,
+        child: ScrollConfiguration(
+          //The 2.8 Flutter behavior is to not have mice grabbing and dragging - but we do want this in the web version of the app, so the custom scroll behavior here
+          //Turn off scrollbar here so as to be able to control it more below with Scrollbar widget
+          behavior: MyCustomScrollBehavior().copyWith(
+            scrollbars: kIsWeb ? true : false,
+          ),
+          child: childWidget,
+        ),
+      );
     }
 
     //This is the playList widget. For web, it will go side by side; for app, it will go as a drawer.
@@ -161,42 +182,46 @@ class ShowDisplayState extends State<ShowDisplay> {
         Container(
           color: Theme.of(context).colorScheme.surfaceContainerLow,
           child: ScrollablePositionedList.builder(
-              itemScrollController: itemScrollController,
-              initialScrollIndex: showsProvider.lastShowViewed,
-              physics: ClampingScrollPhysics(),
-              itemCount: showsProvider.shows.length,
-              itemBuilder: (ctx, i) {
-                return ListTile(
-                  leading: StreamBuilder(
-                      stream: player.currentIndexStream,
-                      builder: (context, snapshot) {
-                        int currentIndex = snapshot.data ?? 0;
-                        if (currentIndex == i) {
-                          return StreamBuilder<bool>(
-                              stream: player.playingStream,
-                              builder: (context, snapshot) {
-                                bool isPlaying = snapshot.data ?? false;
-                                return AnimatedEqualizer(
-                                    isAnimating: isPlaying);
-                              });
-                        } else {
-                          return Icon(Icons.play_arrow);
-                        }
-                      }),
-                  title: Text(
-                      '${showsProvider.shows[i].id}. ${showsProvider.shows[i].showNameRS}',
-                      style: showListStyle),
-                  trailing:
-                      !kIsWeb ? DownloadButton(showsProvider.shows[i]) : null,
-                  onTap: () async {
-                    //If not on the web version, pop the modal bottom sheet - if web, no need
-                    if (isPhone || mediaQuery.width < wideVersionBreakPoint) {
-                      Navigator.pop(context);
+            itemScrollController: itemScrollController,
+            initialScrollIndex: showsProvider.lastShowViewed,
+            physics: ClampingScrollPhysics(),
+            itemCount: showsProvider.shows.length,
+            itemBuilder: (ctx, i) {
+              return ListTile(
+                leading: StreamBuilder(
+                  stream: player.currentIndexStream,
+                  builder: (context, snapshot) {
+                    int currentIndex = snapshot.data ?? 0;
+                    if (currentIndex == i) {
+                      return StreamBuilder<bool>(
+                        stream: player.playingStream,
+                        builder: (context, snapshot) {
+                          bool isPlaying = snapshot.data ?? false;
+                          return AnimatedEqualizer(isAnimating: isPlaying);
+                        },
+                      );
+                    } else {
+                      return Icon(Icons.play_arrow);
                     }
-                    await player.seek(Duration.zero, index: i);
                   },
-                );
-              }),
+                ),
+                title: Text(
+                  '${showsProvider.shows[i].id}. ${showsProvider.shows[i].showNameRS}',
+                  style: showListStyle,
+                ),
+                trailing: !kIsWeb
+                    ? DownloadButton(showsProvider.shows[i])
+                    : null,
+                onTap: () async {
+                  //If not on the web version, pop the modal bottom sheet - if web, no need
+                  if (isPhone || mediaQuery.width < wideVersionBreakPoint) {
+                    Navigator.pop(context);
+                  }
+                  await player.seek(Duration.zero, index: i);
+                },
+              );
+            },
+          ),
         ),
       );
     }
@@ -254,30 +279,30 @@ class ShowDisplayState extends State<ShowDisplay> {
             //But for mobile to dbl click
             onDoubleTap: !kIsWeb ? triggerSeek : () {},
             child: RepaintBoundary(
-              child: Container(
-                height: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      const ui.Color.fromARGB(76, 255, 255, 255),
-                      Colors.transparent,
-                    ],
-                    center: Alignment.center,
-                    radius: 2,
-                  ),
-                ),
-                child: Icon(
-                  directionIcon,
-                  size: 75,
-                ),
-              )
-                  .animate(
-                    adapter:
-                        ValueNotifierAdapter(valueNotifier, animated: true),
-                  )
-                  .fadeIn()
-                  .then()
-                  .fadeOut(),
+              child:
+                  Container(
+                        height: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: RadialGradient(
+                            colors: [
+                              const ui.Color.fromARGB(76, 255, 255, 255),
+                              Colors.transparent,
+                            ],
+                            center: Alignment.center,
+                            radius: 2,
+                          ),
+                        ),
+                        child: Icon(directionIcon, size: 75),
+                      )
+                      .animate(
+                        adapter: ValueNotifierAdapter(
+                          valueNotifier,
+                          animated: true,
+                        ),
+                      )
+                      .fadeIn()
+                      .then()
+                      .fadeOut(),
             ),
           ),
         ),
@@ -294,17 +319,20 @@ class ShowDisplayState extends State<ShowDisplay> {
         isScrollControlled: true,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
+            topLeft: Radius.circular(10.0),
+            topRight: Radius.circular(10.0),
+          ),
         ),
         builder: (context) {
           return ClipRRect(
-              borderRadius: BorderRadius.circular(15.0),
-              child: Container(
-                padding: EdgeInsets.only(top: 8),
-                height: mediaQuery.height * .8,
-                //Here is the real content, the playList widget
-                child: playList(),
-              ));
+            borderRadius: BorderRadius.circular(15.0),
+            child: Container(
+              padding: EdgeInsets.only(top: 8),
+              height: mediaQuery.height * .8,
+              //Here is the real content, the playList widget
+              child: playList(),
+            ),
+          );
         },
       );
     }
@@ -315,101 +343,103 @@ class ShowDisplayState extends State<ShowDisplay> {
     Widget playerStack() {
       if (kDebugMode) debugPrint('building the player stack');
 
-      return webScrollable(Column(
-        // mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 1,
-            child: NotificationListener<ScrollNotification>(
-              onNotification: (notification) {
-                if (notification is ScrollStartNotification &&
-                    notification.dragDetails != null) {
-                  isUserSwipe = true;
-                }
-                return false;
-              },
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: showsProvider.shows.length,
-                onPageChanged: (index) async {
-                  analyzeTopOfImage(backgroundImage);
-                  if (isUserSwipe) {
-                    if (player.currentIndex != index) {
-                      await player.seek(Duration.zero, index: index);
-                      isUserSwipe = false;
-                    }
+      return webScrollable(
+        Column(
+          // mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 1,
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification is ScrollStartNotification &&
+                      notification.dragDetails != null) {
+                    isUserSwipe = true;
                   }
+                  return false;
                 },
-                itemBuilder: (context, index) {
-                  final show = showsProvider.shows[index];
-                  backgroundImage = AssetImage(
-                    "assets/images/${show.image}.jpg",
-                  );
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: showsProvider.shows.length,
+                  onPageChanged: (index) async {
+                    _currentPage = index;
+                    analyzeTopOfImage(backgroundImage);
+                    if (isUserSwipe) {
+                      if (player.currentIndex != index) {
+                        await player.seek(Duration.zero, index: index);
+                        isUserSwipe = false;
+                      }
+                    }
+                  },
+                  itemBuilder: (context, index) {
+                    final show = showsProvider.shows[index];
+                    backgroundImage = AssetImage(
+                      "assets/images/${show.image}.jpg",
+                    );
 
-                  return Column(
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Container(
-                              // width: mediaQuery.width,
-                              decoration: BoxDecoration(
-                                color: Colors.black54,
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: backgroundImage,
+                    return Column(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Container(
+                                // width: mediaQuery.width,
+                                decoration: BoxDecoration(
+                                  color: Colors.black54,
+                                  image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: backgroundImage,
+                                  ),
                                 ),
                               ),
-                            ),
 
-                            //the left and right sides of the invisible double tap ff and rewind areas
-
-                            Material(
-                              type: MaterialType.transparency,
-                              child: Row(
-                                children: [
-                                  animatedSeekPanel('rew'),
-                                  animatedSeekPanel('ff'),
-                                ],
+                              //the left and right sides of the invisible double tap ff and rewind areas
+                              Material(
+                                type: MaterialType.transparency,
+                                child: Row(
+                                  children: [
+                                    animatedSeekPanel('rew'),
+                                    animatedSeekPanel('ff'),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 16),
-                      Text(show.id, style: rsStyle.copyWith(fontSize: 18)),
-                      Text(show.showNameAS,
+                        SizedBox(height: 16),
+                        Text(show.id, style: rsStyle.copyWith(fontSize: 18)),
+                        Text(
+                          show.showNameAS,
                           textAlign: TextAlign.center,
                           style: asStyle,
-                          textDirection: rtlText),
-                      Text(show.showNameRS,
+                          textDirection: rtlText,
+                        ),
+                        Text(
+                          show.showNameRS,
                           textAlign: TextAlign.center,
                           style: rsStyle,
-                          textDirection: ltrText),
-                    ],
-                  );
-                },
+                          textDirection: ltrText,
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-          ControlButtons(
-            showPlayList: popUpShowList,
-            wideVersionBreakPoint: wideVersionBreakPoint,
-          )
-        ],
-      ));
+            ControlButtons(
+              showPlayList: popUpShowList,
+              wideVersionBreakPoint: wideVersionBreakPoint,
+            ),
+          ],
+        ),
+      );
     }
     //End of main player component
 
     //Putting it all together. First set up the widget combinations
     Widget phoneVersion() {
-      return Center(
-        child: Container(
-          child: playerStack(),
-        ),
-      );
+      return Center(child: Container(child: playerStack()));
     }
 
     Widget wideVersion() {
@@ -419,58 +449,65 @@ class ShowDisplayState extends State<ShowDisplay> {
       return Row(
         children: [
           SizedBox(
-              width:
-                  // mediaQuery.width - (verticalDividerWidth + minPlaylistWidth),
-                  mediaQuery.width - (minPlaylistWidth),
-              child: playerStack()),
+            width:
+                // mediaQuery.width - (verticalDividerWidth + minPlaylistWidth),
+                mediaQuery.width - (minPlaylistWidth),
+            child: playerStack(),
+          ),
           // Container(
           //     width: verticalDividerWidth,
           //     color: Theme.of(context).colorScheme.surfaceContainerLow),
           SizedBox(
-              width: minPlaylistWidth,
-              child: Stack(children: [
+            width: minPlaylistWidth,
+            child: Stack(
+              children: [
                 playList(),
                 if (!kIsWeb || !isPhone)
                   Positioned(
-                      child: ValueListenableBuilder<Box>(
-                          valueListenable:
-                              prefsBox.listenable(keys: ['chrome']),
-                          builder: (context, val, _) {
-                            Color color = Colors.white;
+                    child: ValueListenableBuilder<Box>(
+                      valueListenable: prefsBox.listenable(keys: ['chrome']),
+                      builder: (context, val, _) {
+                        Color color = Colors.white;
 
-                            bool lightTheme =
-                                Theme.brightnessOf(context) == Brightness.light;
+                        bool lightTheme =
+                            Theme.brightnessOf(context) == Brightness.light;
 
-                            final luminescence = prefsBox.get('chrome') ?? 0;
-                            final lightOverlay = luminescence < .08;
+                        final luminescence = prefsBox.get('chrome') ?? 0;
+                        final lightOverlay = luminescence < .08;
 
-                            if (lightTheme && lightOverlay) {
-                              color = Colors.black54;
-                            } else if (!lightTheme && !lightOverlay) {
-                              // dark on dark
-                              color = Colors.white54;
-                            } else {
-                              color = Colors.transparent;
-                            }
-                            // if (lightTheme) {
-                            //   color = Colors.black54;
-                            // } else if (!lightTheme) {
-                            //   // dark on dark
-                            //   color = Colors.white54;
-                            // }
+                        if (lightTheme && lightOverlay) {
+                          color = Colors.black54;
+                        } else if (!lightTheme && !lightOverlay) {
+                          // dark on dark
+                          color = Colors.white54;
+                        } else {
+                          color = Colors.transparent;
+                        }
+                        // if (lightTheme) {
+                        //   color = Colors.black54;
+                        // } else if (!lightTheme) {
+                        //   // dark on dark
+                        //   color = Colors.white54;
+                        // }
 
-                            return Container(
-                                width: double.infinity,
-                                height: statusBarHeight * 1.5,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                      colors: [color, Colors.transparent],
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      stops: [.0, .8]),
-                                ));
-                          })),
-              ])),
+                        return Container(
+                          width: double.infinity,
+                          height: statusBarHeight * 1.5,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [color, Colors.transparent],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              stops: [.0, .8],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ],
       );
     }
@@ -490,7 +527,7 @@ class MyCustomScrollBehavior extends ScrollBehavior {
   // Override behavior methods and getters like dragDevices
   @override
   Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-      };
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+  };
 }

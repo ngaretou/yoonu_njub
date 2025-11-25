@@ -10,8 +10,12 @@ import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart'; // the new Flutter 3.x localization method
 
 void showQrShare(
-    BuildContext context, List<ShareAppData> shareData, String appName,
-    {Widget? appIcon, double heightPercentage = .9}) {
+  BuildContext context,
+  List<ShareAppData> shareData,
+  String appName, {
+  Widget? appIcon,
+  double heightPercentage = .9,
+}) {
   showModalBottomSheet(
     context: context,
     showDragHandle: true,
@@ -23,26 +27,26 @@ void showQrShare(
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
+        topLeft: Radius.circular(10.0),
+        topRight: Radius.circular(10.0),
+      ),
     ),
     builder: (context) {
       return DraggableScrollableSheet(
-          expand: false,
-          snap: true,
-          snapSizes: [heightPercentage],
-          initialChildSize: heightPercentage,
-          minChildSize: .2,
-          // no way to get SafeArea consistently so go to 95%
-          // don't want handle to get hidden behind state bar
-          maxChildSize: .95,
-          shouldCloseOnMinExtent: true,
-          builder: (context, scrollController) => SingleChildScrollView(
-              controller: scrollController,
-              child: ShareAppPanel(
-                appName,
-                shareData,
-                appIcon: appIcon,
-              )));
+        expand: false,
+        snap: true,
+        snapSizes: [heightPercentage],
+        initialChildSize: heightPercentage,
+        minChildSize: .2,
+        // no way to get SafeArea consistently so go to 95%
+        // don't want handle to get hidden behind state bar
+        maxChildSize: .95,
+        shouldCloseOnMinExtent: true,
+        builder: (context, scrollController) => SingleChildScrollView(
+          controller: scrollController,
+          child: ShareAppPanel(appName, shareData, appIcon: appIcon),
+        ),
+      );
     },
   );
 }
@@ -82,8 +86,12 @@ class ShareAppPanel extends StatefulWidget {
   final List<ShareAppData> shareAppData;
   final Widget? appIcon;
 
-  const ShareAppPanel(this.appName, this.shareAppData,
-      {this.appIcon, super.key});
+  const ShareAppPanel(
+    this.appName,
+    this.shareAppData, {
+    this.appIcon,
+    super.key,
+  });
 
   @override
   State<ShareAppPanel> createState() => _ShareAppPanelState();
@@ -126,30 +134,42 @@ class _ShareAppPanelState extends State<ShareAppPanel> {
         ? Colors.white
         : Colors.black;
 
-    List<ButtonSegment<ShareAppData>> segments =
-        List.generate(widget.shareAppData.length, (i) {
-      return ButtonSegment<ShareAppData>(
-        value: widget.shareAppData[i],
-        label: widget.shareAppData[i].socialIcon != null
-            ? Text(widget.shareAppData[i].socialIcon!,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge!
-                    .copyWith(fontFamily: 'SocialIcons'))
-            : widget.shareAppData[i].icon != null
-                ? Icon(widget.shareAppData[i].icon,
-                    size: 24, color: foregroundColor)
-                : null,
-      );
-    });
+    List<ButtonSegment<ShareAppData>> segments = List.generate(
+      widget.shareAppData.length,
+      (i) {
+        return ButtonSegment<ShareAppData>(
+          value: widget.shareAppData[i],
+          label: widget.shareAppData[i].socialIcon != null
+              ? Text(
+                  widget.shareAppData[i].socialIcon!,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge!.copyWith(fontFamily: 'SocialIcons'),
+                )
+              : widget.shareAppData[i].icon != null
+              ? Icon(
+                  widget.shareAppData[i].icon,
+                  size: 24,
+                  color: foregroundColor,
+                )
+              : null,
+        );
+      },
+    );
 
     linkShare() async {
       if (!kIsWeb) {
-        SharePlus.instance.share(ShareParams(
-          text: currentShare.link,
-          sharePositionOrigin:
-              Rect.fromLTWH(0, 0, size.width, size.height * .33),
-        ));
+        SharePlus.instance.share(
+          ShareParams(
+            text: currentShare.link,
+            sharePositionOrigin: Rect.fromLTWH(
+              0,
+              0,
+              size.width,
+              size.height * .33,
+            ),
+          ),
+        );
       } else {
         String url =
             "mailto:?subject=${widget.appName}&body=${currentShare.link}";
@@ -166,22 +186,23 @@ class _ShareAppPanelState extends State<ShareAppPanel> {
       try {
         Clipboard.setData(ClipboardData(text: currentShare.link));
         showDialog(
-            barrierDismissible: true,
-            context: context,
-            builder: (context) => AlertDialog(
-                  content: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 50.0),
-                    child: Container(
-                        height: 50,
-                        width: 50,
-                        decoration: const BoxDecoration(
-                            shape: BoxShape.circle, color: Colors.green),
-                        child: const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                        )),
-                  ),
-                ));
+          barrierDismissible: true,
+          context: context,
+          builder: (context) => AlertDialog(
+            content: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 50.0),
+              child: Container(
+                height: 50,
+                width: 50,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.green,
+                ),
+                child: const Icon(Icons.check, color: Colors.white),
+              ),
+            ),
+          ),
+        );
         Future.delayed(const Duration(seconds: 1), () {
           if (!context.mounted) return;
           Navigator.of(context).pop();
@@ -195,9 +216,9 @@ class _ShareAppPanelState extends State<ShareAppPanel> {
     bool singleShare = widget.shareAppData.length == 1;
 
     return SingleChildScrollView(
-        child: SizedBox(
-      width: isPhone ? size.width : min(400, size.width),
-      child: Padding(
+      child: SizedBox(
+        width: isPhone ? size.width : min(400, size.width),
+        child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -223,9 +244,10 @@ class _ShareAppPanelState extends State<ShareAppPanel> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   FilledButton.icon(
-                      onPressed: linkShare,
-                      icon: const Icon(Icons.share),
-                      label: Text(localizations.shareLink)),
+                    onPressed: linkShare,
+                    icon: const Icon(Icons.share),
+                    label: Text(localizations.shareLink),
+                  ),
                   FilledButton.tonalIcon(
                     onPressed: linkCopy,
                     icon: const Icon(Icons.copy),
@@ -233,18 +255,26 @@ class _ShareAppPanelState extends State<ShareAppPanel> {
                   ),
                 ],
               ),
-              if (!singleShare) const Divider(height: 40),
-              if (!singleShare)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0),
+              const Divider(height: 40),
+              GestureDetector(
+                onTap: () async {
+                  final url = currentShare.link;
+                  if (await canLaunchUrl(Uri.parse(url))) {
+                    await launchUrl(Uri.parse(url), mode: .externalApplication);
+                  } else {
+                    throw 'Could not launch $url';
+                  }
+                },
+                child: Padding(
+                  padding: const .only(bottom: 20.0),
                   child: Text(
                     currentShare.label,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge!
-                        .copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
+              ),
               if (!singleShare)
                 SegmentedButton<ShareAppData>(
                   // direction: Axis.vertical,
@@ -259,8 +289,10 @@ class _ShareAppPanelState extends State<ShareAppPanel> {
                 ),
               const SizedBox(height: 50),
             ],
-          )),
-    ));
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -271,10 +303,11 @@ class ShareAppData {
   IconData? icon;
   String link;
 
-  ShareAppData(
-      {required this.label,
-      required this.shareApp,
-      this.socialIcon,
-      this.icon,
-      required this.link});
+  ShareAppData({
+    required this.label,
+    required this.shareApp,
+    this.socialIcon,
+    this.icon,
+    required this.link,
+  });
 }

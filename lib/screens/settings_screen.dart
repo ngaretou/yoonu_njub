@@ -37,35 +37,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
       return InkWell(
         onTap: tapHandler as void Function()?,
         child: SizedBox(
-            width: 300,
-            child: Padding(
-                padding: EdgeInsets.all(20),
-                child: Row(
-                  children: [
-                    Icon(
-                      icon,
-                      size: 27,
-                    ),
-                    SizedBox(width: 25),
-                    Text(title, style: Theme.of(context).textTheme.titleLarge),
-                  ],
-                ))),
+          width: 300,
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Icon(icon, size: 27),
+                SizedBox(width: 25),
+                Text(title, style: Theme.of(context).textTheme.titleLarge),
+              ],
+            ),
+          ),
+        ),
       );
     }
 
-//Main section layout types
+    //Main section layout types
     Widget settingRow(title, setting) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           title,
-          VerticalDivider(
-            width: 10,
-          ),
-          Expanded(
-            child: setting,
-          )
+          VerticalDivider(width: 10),
+          Expanded(child: setting),
           // setting,
         ],
       );
@@ -75,23 +70,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
       return Column(
         //This aligns titles to the left
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          title,
-          setting,
-          Divider(),
-        ],
+        children: [title, setting, Divider()],
       );
     }
 
     //Now individual implementations of it
     Widget themeTitle() {
-      return settingTitle(AppLocalizations.of(context)!.settingsTheme,
-          Icons.settings_brightness, null);
+      return settingTitle(
+        AppLocalizations.of(context)!.settingsTheme,
+        Icons.settings_brightness,
+        null,
+      );
     }
 
     Widget languageTitle() {
-      return settingTitle(AppLocalizations.of(context)!.settingsLanguage,
-          Icons.translate, null);
+      return settingTitle(
+        AppLocalizations.of(context)!.settingsLanguage,
+        Icons.translate,
+        null,
+      );
     }
 
     Widget themeSettings() {
@@ -114,7 +111,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       List<DropdownMenuItem<String>> menuItems = [];
 
       for (var color in themeColors) {
-        menuItems.add(DropdownMenuItem(
+        menuItems.add(
+          DropdownMenuItem(
             value: colorToString(color),
             child: Material(
               shape: CircleBorder(side: BorderSide.none),
@@ -124,30 +122,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 margin: EdgeInsets.all(0),
                 width: 36,
               ),
-            )));
+            ),
+          ),
+        );
       }
 
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           DropdownButton(
-              itemHeight: 48,
-              underline: SizedBox(),
-              value: colorToString(userTheme?.color ?? Colors.teal),
-              items: menuItems,
-              onChanged: (response) {
-                Color color = colorFromString(response.toString());
+            itemHeight: 48,
+            underline: SizedBox(),
+            value: colorToString(userTheme?.color ?? Colors.teal),
+            items: menuItems,
+            onChanged: (response) {
+              Color color = colorFromString(response.toString());
 
-                ThemeComponents themeToSet = ThemeComponents(
-                    brightness: userTheme?.brightness ?? Brightness.light,
-                    color: color);
+              ThemeComponents themeToSet = ThemeComponents(
+                brightness: userTheme?.brightness ?? Brightness.light,
+                color: color,
+              );
 
-                themeProvider.setTheme(themeToSet);
-              }),
+              themeProvider.setTheme(themeToSet);
+            },
+          ),
           Container(
-              height: 45,
-              width: 1,
-              color: Theme.of(context).colorScheme.outline),
+            height: 45,
+            width: 1,
+            color: Theme.of(context).colorScheme.outline,
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
@@ -156,16 +159,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             onPressed: () {
               ThemeComponents themeToSet = ThemeComponents(
-                  brightness: Brightness.light,
-                  color: userTheme?.color ?? Colors.teal);
+                brightness: Brightness.light,
+                color: userTheme?.color ?? Colors.teal,
+              );
 
               themeProvider.setTheme(themeToSet);
             },
             child: userTheme?.brightness == Brightness.light
-                ? Icon(
-                    Icons.check,
-                    color: Colors.black,
-                  )
+                ? Icon(Icons.check, color: Colors.black)
                 : null,
           ),
           ElevatedButton(
@@ -176,16 +177,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             onPressed: () {
               ThemeComponents themeToSet = ThemeComponents(
-                  brightness: Brightness.dark,
-                  color: userTheme?.color ?? Colors.teal);
+                brightness: Brightness.dark,
+                color: userTheme?.color ?? Colors.teal,
+              );
 
               themeProvider.setTheme(themeToSet);
             },
             child: userTheme?.brightness == Brightness.dark
-                ? Icon(
-                    Icons.check,
-                    color: Colors.white,
-                  )
+                ? Icon(Icons.check, color: Colors.white)
                 : null,
           ),
         ],
@@ -193,6 +192,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     Widget languageSetting() {
+      String userLocaleString = userLocale.toString();
+      String language = '';
+
+      if (userLocaleString == 'fr_CH') {
+        language = 'fr_CH';
+      } else if (userLocaleString.contains('fr')) {
+        language = 'fr';
+      } else if (userLocaleString.contains('en')) {
+        language = 'en';
+      }
+
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -202,7 +212,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               ChoiceChip(
                 padding: EdgeInsets.symmetric(horizontal: 10),
-                selected: userLocale.toString() == 'fr_CH' ? true : false,
+                selected: language == 'fr_CH' ? true : false,
                 label: Text(
                   "Wolof",
                   style: Theme.of(context).textTheme.titleMedium,
@@ -213,7 +223,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               ChoiceChip(
                 padding: EdgeInsets.symmetric(horizontal: 10),
-                selected: userLocale.toString() == 'fr' ? true : false,
+                selected: language == 'fr' ? true : false,
                 label: Text(
                   "Français",
                   style: Theme.of(context).textTheme.titleMedium,
@@ -224,7 +234,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               ChoiceChip(
                 padding: EdgeInsets.symmetric(horizontal: 10),
-                selected: userLocale.toString() == 'en' ? true : false,
+                selected: language == 'en' ? true : false,
                 label: Text(
                   "English",
                   style: Theme.of(context).textTheme.titleMedium,
@@ -240,43 +250,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     Widget downloadPermissionTitle() {
-      return settingTitle(AppLocalizations.of(context)!.downloadTitle,
-          Icons.download_sharp, null);
+      return settingTitle(
+        AppLocalizations.of(context)!.downloadTitle,
+        Icons.download_sharp,
+        null,
+      );
     }
 
     Widget downloadPermissionSetting() {
       bool approved = themeProvider.downloadsApproved ?? false;
 
-      return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-        SizedBox(
-          width: 20,
-        ),
-        Expanded(
-          child: Text(
-            AppLocalizations.of(context)!.approveDownloads,
-            style: Theme.of(context).textTheme.titleMedium,
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          SizedBox(width: 20),
+          Expanded(
+            child: Text(
+              AppLocalizations.of(context)!.approveDownloads,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
           ),
-        ),
-        Checkbox(
-          activeColor: Theme.of(context).colorScheme.primary,
-          checkColor: Theme.of(context).brightness == Brightness.dark
-              ? Colors.black87
-              : Colors.white,
-          value: approved,
-          onChanged: (response) {
-            if (response == null) return;
+          Checkbox(
+            activeColor: Theme.of(context).colorScheme.primary,
+            checkColor: Theme.of(context).brightness == Brightness.dark
+                ? Colors.black87
+                : Colors.white,
+            value: approved,
+            onChanged: (response) {
+              if (response == null) return;
 
-            if (response) {
-              themeProvider.approveDownloading();
-            } else {
-              themeProvider.denyDownloading();
-            }
-            setState(() {
-              approved = response;
-            });
-          },
-        )
-      ]);
+              if (response) {
+                themeProvider.approveDownloading();
+              } else {
+                themeProvider.denyDownloading();
+              }
+              setState(() {
+                approved = response;
+              });
+            },
+          ),
+        ],
+      );
     }
 
     Future<String> getSizeOfAllDownloads() async {
@@ -293,54 +307,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     Widget clearDownloads() {
       return FutureBuilder(
-          future: getSizeOfAllDownloads(),
-          builder: (ctx, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: LinearProgressIndicator());
-            } else {
-              return snapshot.data != '0.00'
-                  ? Padding(
-                      padding: EdgeInsets.only(left: 20, right: 10),
-                      child: ElevatedButton(
-                        child: Container(
-                            padding: EdgeInsets.all(10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Icon(Icons.delete_sweep_sharp),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    '${AppLocalizations.of(context)!.deleteDownloads} (${snapshot.data} Mb)',
-                                    // style: Theme.of(context)
-                                    //     .textTheme
-                                    //     .titleLarge
-                                  ),
-                                ),
-                              ],
-                            )),
-                        onPressed: () async {
-                          showDialog(
-                              context: context,
-                              builder: (context) =>
-                                  Center(child: CircularProgressIndicator()));
-
-                          await shows.deleteAllDownloads(context);
-                          if (context.mounted) {
-                            Navigator.pop(context);
-                          }
-
-                          setState(() {});
-                        },
+        future: getSizeOfAllDownloads(),
+        builder: (ctx, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: LinearProgressIndicator());
+          } else {
+            return snapshot.data != '0.00'
+                ? Padding(
+                    padding: EdgeInsets.only(left: 20, right: 10),
+                    child: ElevatedButton(
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Icon(Icons.delete_sweep_sharp),
+                            SizedBox(width: 20),
+                            Expanded(
+                              child: Text(
+                                '${AppLocalizations.of(context)!.deleteDownloads} (${snapshot.data} Mb)',
+                                // style: Theme.of(context)
+                                //     .textTheme
+                                //     .titleLarge
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    )
-                  : SizedBox(
-                      width: 20,
-                    );
-            }
-          });
+                      onPressed: () async {
+                        showDialog(
+                          context: context,
+                          builder: (context) =>
+                              Center(child: CircularProgressIndicator()),
+                        );
+
+                        await shows.deleteAllDownloads(context);
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                        }
+
+                        setState(() {});
+                      },
+                    ),
+                  )
+                : SizedBox(width: 20);
+          }
+        },
+      );
     }
 
     Widget hiddenCheckShowsButton(BuildContext context) {
@@ -348,18 +361,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
       //but not necessarily something all should see right off. This button is 'hidden' in that it is not visible,
       //tap 6 times and the function kicks off.
       return SizedBox(
-          height: 70,
-          child: GestureDetector(
-            onTap: () {
-              numberOfTaps++;
-              if (kDebugMode) debugPrint(numberOfTaps.toString());
-              if (numberOfTaps == 6) {
-                if (kDebugMode) debugPrint('check all shows');
-                shows.checkAllShowsDialog(context);
-                numberOfTaps = 0;
-              }
-            },
-          ));
+        height: 70,
+        child: GestureDetector(
+          onTap: () {
+            numberOfTaps++;
+            if (kDebugMode) debugPrint(numberOfTaps.toString());
+            if (numberOfTaps == 6) {
+              if (kDebugMode) debugPrint('check all shows');
+              shows.checkAllShowsDialog(context);
+              numberOfTaps = 0;
+            }
+          },
+        ),
+      );
     }
 
     //This just gives a test button for messaging troubleshooting
@@ -375,13 +389,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     //   );
     // }
 
-///////////////////////////////
+    ///////////////////////////////
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)!.settingsTitle,
-        ),
-      ),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.settingsTitle)),
       //If the width of the screen is greater or equal to 730 (whether or not _isPhone is true)
       //show the wide view
       body: MediaQuery.of(context).size.width >= 730
@@ -396,10 +406,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Divider(),
                   if (!kIsWeb)
                     settingRow(
-                        downloadPermissionTitle(), downloadPermissionSetting()),
+                      downloadPermissionTitle(),
+                      downloadPermissionSetting(),
+                    ),
                   if (!kIsWeb) clearDownloads(),
                   //Button to check all shows for current presence online
-                  if (!kIsWeb) hiddenCheckShowsButton(context)
+                  if (!kIsWeb) hiddenCheckShowsButton(context),
                 ],
               ),
             )
@@ -411,9 +423,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 //A few things here that we do not need or that do not work correctly on web version:
                 if (!kIsWeb)
                   settingColumn(
-                      downloadPermissionTitle(), downloadPermissionSetting()),
+                    downloadPermissionTitle(),
+                    downloadPermissionSetting(),
+                  ),
                 if (!kIsWeb) clearDownloads(),
-                if (!kIsWeb) hiddenCheckShowsButton(context)
+                if (!kIsWeb) hiddenCheckShowsButton(context),
                 // messagingButton(),
               ],
             ),

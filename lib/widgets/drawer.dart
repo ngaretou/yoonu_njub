@@ -128,27 +128,27 @@ class MainDrawer extends StatelessWidget {
             () async {
               List<ShareAppData> shareAppData = [
                 ShareAppData(
-                    label: 'sng.al/yn',
+                    label: 'https://sng.al/yn',
                     shareApp: ShareApp.site,
                     // socialIcon: '\uf3ab',
                     icon: Icons.home,
                     link: 'https://sng.al/yn'),
-                ShareAppData(
-                    label: 'Google Play',
-                    shareApp: ShareApp.android,
-                    socialIcon: '\uf3ab',
-                    link:
-                        'https://play.google.com/store/apps/details?id=org.yoonunjub.wol'),
-                ShareAppData(
-                    label: 'iOS & macOS',
-                    shareApp: ShareApp.iOS,
-                    socialIcon: '\uf179',
-                    link: 'https://apps.apple.com/app/yoonu-njub/id1539519430'),
-                ShareAppData(
-                    label: 'web',
-                    shareApp: ShareApp.web,
-                    socialIcon: '\uf268',
-                    link: 'http://yoonunjub.sng.al/'),
+                // ShareAppData(
+                //     label: 'Google Play',
+                //     shareApp: ShareApp.android,
+                //     socialIcon: '\uf3ab',
+                //     link:
+                //         'https://play.google.com/store/apps/details?id=org.yoonunjub.wol'),
+                // ShareAppData(
+                //     label: 'iOS & macOS',
+                //     shareApp: ShareApp.iOS,
+                //     socialIcon: '\uf179',
+                //     link: 'https://apps.apple.com/app/yoonu-njub/id1539519430'),
+                // ShareAppData(
+                //     label: 'web',
+                //     shareApp: ShareApp.web,
+                //     socialIcon: '\uf268',
+                //     link: 'http://yoonunjub.sng.al/'),
               ];
 
               Navigator.of(context).pop();
