@@ -12,10 +12,7 @@ class ThemeComponents {
   Brightness brightness;
   Color color;
 
-  ThemeComponents({
-    required this.brightness,
-    required this.color,
-  });
+  ThemeComponents({required this.brightness, required this.color});
 }
 
 class ThemeModel extends ChangeNotifier {
@@ -42,8 +39,9 @@ class ThemeModel extends ChangeNotifier {
 
       if (oldPrefs.containsKey('_downloadsApproved')) {
         try {
-          String storedValue =
-              json.decode(oldPrefs.getString('_downloadsApproved')!);
+          String storedValue = json.decode(
+            oldPrefs.getString('_downloadsApproved')!,
+          );
           switch (storedValue) {
             case 'true':
               prefsBox.put('downloadsApproved', true);
@@ -62,13 +60,15 @@ class ThemeModel extends ChangeNotifier {
 
       // lastShowViewed is an int in hive
       if (oldPrefs.containsKey('lastShowViewed')) {
-        int storedValue =
-            int.parse(json.decode(oldPrefs.getString('lastShowViewed') ?? '0'));
+        int storedValue = int.parse(
+          json.decode(oldPrefs.getString('lastShowViewed') ?? '0'),
+        );
         prefsBox.put('lastShowViewed', storedValue);
       }
       // userTheme is a List of Strings so let's separate for the hive version
       if (oldPrefs.containsKey('userTheme')) {
-        final List<String> savedTheme = oldPrefs.getStringList('userTheme') ??
+        final List<String> savedTheme =
+            oldPrefs.getStringList('userTheme') ??
             ["Brightness.light", "255,0,150,136"];
         prefsBox.put('brightness', savedTheme[0]);
         prefsBox.put('color', savedTheme[1]);
@@ -138,8 +138,10 @@ class ThemeModel extends ChangeNotifier {
       if (kDebugMode) debugPrint(e.toString());
     }
 
-    ThemeComponents defaultTheme =
-        ThemeComponents(brightness: Brightness.light, color: Colors.teal);
+    ThemeComponents defaultTheme = ThemeComponents(
+      brightness: Brightness.light,
+      color: Colors.teal,
+    );
     if (kDebugMode) debugPrint('setupTheme');
 
     //get the prefs
@@ -181,8 +183,10 @@ class ThemeModel extends ChangeNotifier {
             }
         }
 
-        ThemeComponents componentsToSet =
-            ThemeComponents(brightness: brightness, color: color);
+        ThemeComponents componentsToSet = ThemeComponents(
+          brightness: brightness,
+          color: color,
+        );
         setTheme(componentsToSet, refresh: false);
       } catch (e) {
         setTheme(defaultTheme, refresh: false);
@@ -200,9 +204,10 @@ class ThemeModel extends ChangeNotifier {
     //Set incoming theme
     userTheme = theme;
     currentTheme = ThemeData(
-        brightness: theme.brightness,
-        colorSchemeSeed: theme.color,
-        fontFamily: 'Lato');
+      brightness: theme.brightness,
+      colorSchemeSeed: theme.color,
+      fontFamily: 'Lato',
+    );
     //send it for storage
     saveThemeToDisk(theme);
     if (refresh == true || refresh == null) {
@@ -239,7 +244,7 @@ String colorToString(Color color) {
     (color.a * 255).round(),
     (color.r * 255).round(),
     (color.g * 255).round(),
-    (color.b * 255).round()
+    (color.b * 255).round(),
   ].join(',');
 }
 
@@ -252,13 +257,13 @@ Color colorFromString(String string) {
     color = Color.fromARGB(argblist[0], argblist[1], argblist[2], argblist[3]);
   } else {
     // old Color.value format migration
-    color = colorFromValue(int.parse(string));
+    color = colorFromInt(int.parse(string));
   }
 
   return color;
 }
 
-Color colorFromValue(int value) {
+Color colorFromInt(int value) {
   final int alpha = (value >> 24) & 0xFF;
   final int red = (value >> 16) & 0xFF;
   final int green = (value >> 8) & 0xFF;

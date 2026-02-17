@@ -53,6 +53,12 @@ Other:
 ### 1.3.2
 - status bar and menu button now change based on background picture
 
+### 1.3.3
+- bug fixes
+
+### 1.3.4
+- bottom inset now accounts for bottom navigation bar
+
 ## Web release
 >>increment build number in pubspec.yaml
 rm -rf build/web

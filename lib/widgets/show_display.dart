@@ -113,6 +113,7 @@ class ShowDisplayState extends State<ShowDisplay> {
     final showsProvider = Provider.of<Shows>(context, listen: false);
 
     final mediaQuery = MediaQuery.of(context).size;
+    
     //Smallest iPhone is UIKit 320 x 480 = 800.
     //Biggest (12 pro max) is 428 x 926 = 1354.
     //Android biggest phone I can find is is 480 x 853 = 1333
@@ -193,10 +194,17 @@ class ShowDisplayState extends State<ShowDisplay> {
                   builder: (context, snapshot) {
                     int currentIndex = snapshot.data ?? 0;
                     if (currentIndex == i) {
-                      return StreamBuilder<bool>(
-                        stream: player.playingStream,
+                      return StreamBuilder<PlayerState>(
+                        stream: player.playerStateStream,
                         builder: (context, snapshot) {
-                          bool isPlaying = snapshot.data ?? false;
+                          final playerState = snapshot.data;
+                          final processingState = playerState?.processingState;
+                          final playing = playerState?.playing ?? false;
+
+                          bool isPlaying =
+                              playing &&
+                              processingState != ProcessingState.completed;
+
                           return AnimatedEqualizer(isAnimating: isPlaying);
                         },
                       );

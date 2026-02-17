@@ -185,28 +185,32 @@ class _ShareAppPanelState extends State<ShareAppPanel> {
     linkCopy() {
       try {
         Clipboard.setData(ClipboardData(text: currentShare.link));
+
         showDialog(
           barrierDismissible: true,
           context: context,
-          builder: (context) => AlertDialog(
-            content: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 50.0),
-              child: Container(
-                height: 50,
-                width: 50,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.green,
+          builder: (dialogContext) {
+            Future.delayed(const Duration(milliseconds: 500), () {
+              if (!dialogContext.mounted) return;
+              Navigator.of(dialogContext).pop();
+            });
+
+            return AlertDialog(
+              content: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 50.0),
+                child: Container(
+                  height: 50,
+                  width: 50,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.green,
+                  ),
+                  child: const Icon(Icons.check, color: Colors.white),
                 ),
-                child: const Icon(Icons.check, color: Colors.white),
               ),
-            ),
-          ),
+            );
+          },
         );
-        Future.delayed(const Duration(seconds: 1), () {
-          if (!context.mounted) return;
-          Navigator.of(context).pop();
-        });
       } catch (e) {
         if (kDebugMode) debugPrint(e.toString());
       }

@@ -41,8 +41,10 @@ class _MainPlayerState extends State<MainPlayer> {
     //Biggest (12 pro max) is 428 x 926 = 1354.
     //Android biggest phone I can find is is 480 x 853 = 1333
     //For tablets the smallest I can find is 768 x 1024
-    final mediaQuery = MediaQuery.of(context).size;
-    final bool isPhone = (mediaQuery.width + mediaQuery.height) <= 1400;
+    final mediaQuery = MediaQuery.of(context);
+    final bottomInset = mediaQuery.padding.bottom;
+    final bool isPhone =
+        (mediaQuery.size.width + mediaQuery.size.height) <= 1400;
     if (isPhone) {
       //only allow portrait mode, not landscape
       SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -54,7 +56,7 @@ class _MainPlayerState extends State<MainPlayer> {
       ]);
     }
 
-    prefsBox.put('statusBarHeight', MediaQuery.of(context).padding.top);
+    prefsBox.put('statusBarHeight', mediaQuery.padding.top);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -84,7 +86,10 @@ class _MainPlayerState extends State<MainPlayer> {
         ),
       ),
       drawer: MainDrawer(),
-      body: ShowDisplay(),
+      body: Padding(
+        padding: EdgeInsets.only(bottom: bottomInset),
+        child: ShowDisplay(),
+      ),
       // body: ShowDisplaySimple()
     );
   }
